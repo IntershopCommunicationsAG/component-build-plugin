@@ -13,17 +13,32 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intershop.gradle.component
+package com.intershop.gradle.component.build.utils
 
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
 import kotlin.reflect.KProperty
 
+/**
+ * Provides 'set' functional extension for the Property object.
+ */
 operator fun <T> Property<T>.setValue(receiver: Any?, property: KProperty<*>, value: T) = set(value)
+/**
+ * Provides 'get' functional extension for the Property object.
+ */
 operator fun <T> Property<T>.getValue(receiver: Any?, property: KProperty<*>): T = get()
 
+/**
+ * Provides 'set' functional extension for the SetProperty object.
+ */
 operator fun <T> SetProperty<T>.setValue(receiver: Any?, property: KProperty<*>, value: Set<T>) = set(value)
+/**
+ * Provides 'get' functional extension for the SetProperty object.
+ */
 operator fun <T> SetProperty<T>.getValue(receiver: Any?, property: KProperty<*>): Set<T> = get()
 
+/**
+ * Provides functional extension for primitve objects.
+ */
 inline fun <reified T> ObjectFactory.property(): Property<T> = property(T::class.java)

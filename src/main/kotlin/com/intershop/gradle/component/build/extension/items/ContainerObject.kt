@@ -13,14 +13,20 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intershop.gradle.component.extension
+package com.intershop.gradle.component.build.extension.items
 
-import org.gradle.api.NamedDomainObjectFactory
-import org.gradle.api.Project
+/**
+ * This interface provides basic methods of a container object.
+ */
+interface ContainerObject {
 
-class InheritanceSpecFactory(private val project: Project) : NamedDomainObjectFactory<InheritanceSpec> {
+    /**
+     * If the target path is included in the file container it returns true.
+     */
+    val targetIncluded: Boolean
 
-    override fun create(name: String): InheritanceSpec {
-        return InheritanceSpec(project, name)
-    }
+    /**
+     * Target path of the container item.
+     */
+    val targetPath: String
 }

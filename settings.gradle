@@ -1,2 +1,4 @@
-rootProject.name = 'component-gradle-plugin'
+rootProject.name = 'component-build-plugin'
 
+// for development
+// includeBuild '../component-descriptor'

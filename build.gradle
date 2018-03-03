@@ -13,33 +13,38 @@
  * See the License for the specific language governing permissions and
 * limitations under the License.
 */
-
 plugins {
     // project plugins
-id 'java-gradle-plugin'
-id 'groovy'
-id 'nebula.kotlin' version '1.2.30'
+    id 'java-gradle-plugin'
+    id 'groovy'
+    id 'nebula.kotlin' version '1.2.30'
 
-// test coverage
-id 'jacoco'
+    // documentation
+    id "org.jetbrains.dokka" version "0.9.16"
 
-// ide plugin
-id 'idea'
+    // code analysis for kotlin
+    id "io.gitlab.arturbosch.detekt" version "1.0.0.RC6-3"
 
-// publish plugin
-id 'maven-publish'
+    // test coverage
+    id 'jacoco'
 
-// intershop version plugin
-id 'com.intershop.gradle.scmversion' version '3.4.0'
+    // ide plugin
+    id 'idea'
 
-// plugin for documentation
-id 'org.asciidoctor.convert' version '1.5.3'
+    // publish plugin
+    id 'maven-publish'
 
-// plugin for publishing to Gradle Portal
-id 'com.gradle.plugin-publish' version '0.9.9'
+    // intershop version plugin
+    id 'com.intershop.gradle.scmversion' version '3.4.0'
 
-// plugin for publishing to jcenter
-id 'com.jfrog.bintray' version '1.8.0'
+    // plugin for documentation
+    id 'org.asciidoctor.convert' version '1.5.3'
+
+    // plugin for publishing to Gradle Portal
+    id 'com.gradle.plugin-publish' version '0.9.9'
+
+    // plugin for publishing to jcenter
+    id 'com.jfrog.bintray' version '1.8.0'
 }
 
 scm {
@@ -48,15 +53,15 @@ scm {
     }
 }
 
-group 'com.intershop.gradle.component'
+group 'com.intershop.gradle.component.build'
 description 'Gradle component plugin'
 version = scm.version.version
 
 gradlePlugin {
     plugins {
-        componentPlugin {
-            id = 'com.intershop.gradle.component'
-            implementationClass = 'com.intershop.gradle.component.ComponentPlugin'
+        componentBuildPlugin {
+            id = 'com.intershop.gradle.component.build'
+            implementationClass = 'com.intershop.gradle.component.build.ComponentBuildPlugin'
         }
     }
 }
@@ -75,7 +80,16 @@ if (project.version.endsWith('-SNAPSHOT')) {
 
 test {
     // Gradle versions for test
-    systemProperty 'intershop.gradle.versions', '4.5.1'
+    systemProperty 'intershop.gradle.versions', '4.6'
+}
+
+detekt {
+    version = "1.0.0.RC6-3"
+    profile("main") {
+        input = "$projectDir/src/main/kotlin"
+        config = "$projectDir/detekt.yml"
+        filters = ".*test.*,.*/resources/.*,.*/tmp/.*"
+    }
 }
 
 task copyAsciiDoc {
@@ -121,6 +135,10 @@ asciidoctor {
 
 asciidoctor.dependsOn copyAsciiDoc
 
+jacoco {
+    toolVersion = "0.8.0"
+}
+
 jacocoTestReport {
     reports {
         xml.enabled = true // coveralls plugin depends on xml format report
@@ -128,10 +146,14 @@ jacocoTestReport {
     }
 }
 
-task groovydocJar(type: Jar) {
-    dependsOn groovydoc
+dokka {
+    outputFormat = 'html'
+}
+
+task kotlindocJar(type: Jar) {
+    dependsOn dokka
     classifier = 'javadoc'
-    from groovydoc.destinationDir
+    from dokka.outputDirectory
 }
 
 // additional sources artifact
@@ -148,7 +170,7 @@ publishing {
                 classifier 'sources'
             }
 
-            artifact groovydocJar {
+            artifact kotlindocJar {
                 classifier "javadoc"
             }
 
@@ -223,19 +245,37 @@ pluginBundle {
     tags = ['intershop', 'gradle', 'plugin', 'build', 'component']
 
     plugins {
-        componentPlugin {
-            id = gradlePlugin.plugins.componentPlugin.id
+        componentBuildPlugin {
+            id = gradlePlugin.plugins.componentBuildPlugin.id
             displayName = project.description
         }
     }
 }
 
+configurations { codacy }
+
+task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
+    main = "com.codacy.CodacyCoverageReporter"
+    classpath = configurations.codacy
+    args = [
+            "report",
+            "-l",
+            "Java",
+            "-r",
+            "${buildDir}/reports/jacoco/test/jacocoTestReport.xml"
+    ]
+}
+
 dependencies {
+    compile 'com.intershop.gradle.component:component-descriptor:1.0.0-dev.4'
+
     compileOnly 'org.jetbrains:annotations:15.0'
 
     testCompile 'commons-io:commons-io:2.2'
     testCompile 'com.intershop.gradle.test:test-gradle-plugin:3.0.0'
     testCompile gradleTestKit()
+
+    codacy 'com.codacy:codacy-coverage-reporter:3.0.0'
 }
 
 repositories {
