@@ -26,6 +26,11 @@ import org.gradle.api.publish.plugins.PublishingPlugin
 import org.gradle.model.Defaults
 import org.gradle.model.ModelMap
 import org.gradle.model.RuleSource
+import org.gradle.model.internal.core.ModelPath
+import org.gradle.model.internal.core.ModelReference
+import org.gradle.model.internal.core.ModelRegistrations
+import org.gradle.model.internal.registry.ModelRegistry
+import javax.inject.Inject
 
 /**
  * Plugin Class for 'com.intershop.gradle.component.build'
@@ -33,7 +38,7 @@ import org.gradle.model.RuleSource
  * This class contains also Rules for publishing task outputs.
  */
 @Suppress("unused")
-class ComponentBuildPlugin : Plugin<Project> {
+class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelRegistry?) : Plugin<Project> {
 
     companion object {
         const val TASKDESCRIPTION = "Generate component file from configuration"
@@ -54,9 +59,15 @@ class ComponentBuildPlugin : Plugin<Project> {
                     ?: extensions.create(ComponentExtension.COMPONENT_EXTENSION_NAME,
                             ComponentExtension::class.java,
                             this)
+
+            if(modelRegistry?.state(ModelPath.nonNullValidatedPath("componentBuildConf")) == null) {
+                modelRegistry?.register(ModelRegistrations.bridgedInstance(
+                        ModelReference.of("componentBuildConf", ComponentExtension::class.java), extension)
+                        .descriptor("Deployment configuration").build())
+            }
         }
     }
-
+/**
     // configure task for the creation of the file
     private fun configureTask(project: Project, extension: ComponentExtension) {
         project.tasks.maybeCreate(TASKNAME, CreateComponentDescriptor::class.java).apply {
@@ -72,7 +83,7 @@ class ComponentBuildPlugin : Plugin<Project> {
             provideDescriptorFile((project.layout.buildDirectory.file(ComponentExtension.DESCRIPTOR_FILE)))
         }
     }
-
+**/
     /**
      * This RuleSource adds rules for publishing task output
      * of CreateComponentDescriptor Task.
@@ -86,7 +97,11 @@ class ComponentBuildPlugin : Plugin<Project> {
          */
         @Suppress("unused")
         @Defaults
-        fun configurePublishingPublications(tasks: ModelMap<Task>, publishing: PublishingExtension) {
+        fun configurePublishingPublications(tasks: ModelMap<Task>,
+                                            publishing: PublishingExtension,
+                                            componentBuildConf:ComponentExtension) {
+            println("---->" + componentBuildConf.displayName)
+
             val publications = publishing.publications
 
             //TODO: only ivy will be used. It is necessary also Maven - depending on configured publishing.

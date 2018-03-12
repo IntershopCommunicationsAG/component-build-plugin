@@ -17,8 +17,8 @@ package com.intershop.gradle.component.build
 
 import com.intershop.gradle.test.AbstractIntegrationSpec
 import com.intershop.gradle.test.builder.TestIvyRepoBuilder
-import com.intershop.gradle.test.builder.TestIvyRepoBuilder.ArchiveFileEntry
 import com.intershop.gradle.test.builder.TestIvyRepoBuilder.ArchiveDirectoryEntry
+import com.intershop.gradle.test.builder.TestIvyRepoBuilder.ArchiveFileEntry
 import com.intershop.gradle.test.builder.TestMavenRepoBuilder
 import spock.lang.Unroll
 

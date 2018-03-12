@@ -23,13 +23,13 @@ import com.intershop.gradle.component.build.extension.container.PropertyItemCont
 import com.intershop.gradle.component.build.extension.inheritance.InheritanceSpec
 import com.intershop.gradle.component.build.extension.inheritance.InheritanceSpecFactory
 import com.intershop.gradle.component.build.extension.items.DeploymentObject
-import com.intershop.gradle.component.build.utils.getValue
-import com.intershop.gradle.component.build.utils.setValue
 import org.gradle.api.Action
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
-import org.gradle.api.provider.Provider
+import java.io.File
 import javax.inject.Inject
+import kotlin.properties.Delegates
 
 /**
  * This class provides the main extension for the
@@ -47,10 +47,9 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
         const val DESCRIPTOR_FILE = "component/descriptor/file.component"
     }
 
-    private val displayNameProperty = project.objects.property(String::class.java)
-    private val componentDescriptionProperty = project.objects.property(String::class.java)
-
     private val inheritContainer = project.container(InheritanceSpec::class.java, InheritanceSpecFactory(project))
+
+    private val typeList: MutableSet<String> = mutableSetOf()
 
     private val libContainer =
             project.objects.newInstance(LibraryItemContainer::class.java, project.dependencies, this)
@@ -67,19 +66,14 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
     private val propertyContainer =
             project.objects.newInstance(PropertyItemContainer::class.java, this)
 
-
-    init {
-        displayNameProperty.set(project.name)
-        componentDescriptionProperty.set("")
-    }
-
     /**
-     * The provider for the display name of the component.
+     * This is the root configuration
+     * for all component items.
      *
-     * @property displayNameProvider (read only) extension provider for display name
+     * @property the component configuration self.
      */
-    val displayNameProvider: Provider<String>
-        get() = displayNameProperty
+    override val parentItem = this
+
 
     /**
      * This attribute defines a component's display name.
@@ -87,16 +81,7 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
      * @property displayName provides the display name of the component
      */
     @Suppress("unused")
-    var displayName: String by displayNameProperty
-
-
-    /**
-     * The provider for the component description.
-     *
-     * @property componentDescriptionProvider (read only) extension provider for component description
-     */
-    val componentDescriptionProvider: Provider<String>
-        get() = componentDescriptionProperty
+    var displayName: String = project.name
 
     /**
      * This attribute defines the description for a component.
@@ -104,7 +89,39 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
      * @property componentDescription provides the description of the component
      */
     @Suppress("unused")
-    var componentDescription: String by componentDescriptionProperty
+    var componentDescription: String = ""
+
+    /**
+     * This attribute defines a predefined install target.
+     * The default value is an empty string.
+     *
+     * @property targetPath a relative path
+     */
+    @Suppress("unused")
+    var targetPath: String by Delegates.vetoable("") { _, _, newValue ->
+        val invalidChars = Utils.getIllegalChars(newValue)
+        if(!invalidChars.isEmpty()) {
+            throw InvalidUserDataException("Target path of component '${displayName}'" +
+                    "contains invalid characters '$invalidChars'.")
+        }
+        if(newValue.startsWith("/")) {
+            throw InvalidUserDataException("Target path of compoent '${displayName}'" +
+                    "starts with a leading '/' - only a relative path is allowed.")
+        }
+        if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {
+            project.logger.warn("Target path of container container is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
+        }
+        invalidChars.isEmpty() && ! newValue.startsWith("/")
+    }
+
+    /**
+     * This file configuration is used for the output
+     * of the descriptor file.
+     *
+     * @property descriptorOutput descriptor output file
+     */
+    @Suppress("unused")
+    var decriptorOutputFile: File = File(project.buildDir, DESCRIPTOR_FILE)
 
     /**
      * The container for all inherit configurations.
@@ -125,6 +142,40 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
     @Suppress("unused")
     fun inherit(name: String, inheritFrom: Action<in InheritanceSpec>) {
         inheritFrom.execute(inheritContainer.maybeCreate(name))
+    }
+
+    /**
+     * This set contains deployment or environment type
+     * definitions, like 'production', 'test' etc. The set
+     * can be extended.
+     * The set is empty per default.
+     * It is defined as an task input property.
+     *
+     * @property types the set of deployment or environment types
+     */
+    override val types: Set<String>
+        get() = typeList
+
+    /**
+     * Adds a new deployment or environment type. The characters will
+     * be changed to lower cases.
+     *
+     * @param type a deployment or environment type
+     * @return if the environment type is available, false will be returned.
+     */
+    fun type(type: String): Boolean {
+        return typeList.add(type.toLowerCase())
+    }
+
+    /**
+     * Adds a list of new deployment or environment types. The
+     * characters will be changed to lower cases.
+     *
+     * @param types a list of deployment or environment types
+     * @return if one environment type of the list is available, false will be returned.
+     */
+    fun types(types: Collection<String>): Boolean {
+        return typeList.addAll(types.map { it.toLowerCase() })
     }
 
     /**
@@ -218,12 +269,14 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
         action.execute(propertyContainer)
     }
 
-
+    /**
+     * Provides the target path for all
+     * component items.
+     *
+     * @return component target (targetPath property is used)
+     */
     override fun getInstallPath(): String {
-        return ""
+        return targetPath
     }
 
-    override val parentItem = this
-
-    override val types: Set<String> = mutableSetOf()
 }
