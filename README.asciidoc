@@ -6,6 +6,10 @@ Note: This library requires Gradle 4 and JDK 8
 
 Note: This library is under development and not final released.
 
+image:https://travis-ci.org/IntershopCommunicationsAG/component-build-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/IntershopCommunicationsAG/component-build-plugin"]
+image:https://api.codacy.com/project/badge/Grade/9d88a63723864ca7bd77e9c05e8d1e48["Codacy code quality", link="https://www.codacy.com/app/IntershopCommunicationsAG/component-build-plugin?utm_source=github.com&utm_medium=referral&utm_content=IntershopCommunicationsAG/component-build-plugin&utm_campaign=Badge_Grade"]
+
+
 == License
 
 Copyright 2014-2018 Intershop Communications.
