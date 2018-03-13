@@ -163,7 +163,7 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
      * @param type a deployment or environment type
      * @return if the environment type is available, false will be returned.
      */
-    fun type(type: String): Boolean {
+    fun addType(type: String): Boolean {
         return typeList.add(type.toLowerCase())
     }
 
@@ -174,7 +174,7 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
      * @param types a list of deployment or environment types
      * @return if one environment type of the list is available, false will be returned.
      */
-    fun types(types: Collection<String>): Boolean {
+    fun addTypes(types: Collection<String>): Boolean {
         return typeList.addAll(types.map { it.toLowerCase() })
     }
 

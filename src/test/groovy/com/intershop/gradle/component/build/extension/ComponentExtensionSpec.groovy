@@ -16,10 +16,11 @@
 package com.intershop.gradle.component.build.extension
 
 import com.intershop.gradle.component.build.ComponentBuildPlugin
-import com.intershop.gradle.component.build.extension.container.FileItemContainer
-import com.intershop.gradle.component.build.extension.container.LibraryItemContainer
-import com.intershop.gradle.component.build.extension.container.ModuleItemContainer
-import com.intershop.gradle.component.build.extension.container.PropertyItemContainer
+import com.intershop.gradle.component.build.extension.container.*
+import com.intershop.gradle.component.build.extension.items.FileContainerItem
+import com.intershop.gradle.component.build.extension.items.FileItem
+import com.intershop.gradle.component.build.extension.items.LibraryItem
+import com.intershop.gradle.component.build.extension.items.ModuleItem
 import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
@@ -45,6 +46,7 @@ class ComponentExtensionSpec extends Specification {
         extension.propertyItems instanceof PropertyItemContainer
         extension.libs instanceof LibraryItemContainer
         extension.modules instanceof ModuleItemContainer
+        extension.containers instanceof FileContainerItemContainer
     }
 
     def 'add file to extension'() {
@@ -57,6 +59,39 @@ class ComponentExtensionSpec extends Specification {
         extension.fileItems.items.first().name == "testname"
     }
 
+    def 'check path input for file'() {
+        when:
+        FileItem item = extension.fileItems.add(new File("testname.testextension"))
+        item.setTargetPath('testmodule')
+
+        then:
+        extension.fileItems.items.size() == 1
+        extension.fileItems.items.first().extension == "testextension"
+        extension.fileItems.items.first().name == "testname"
+        extension.fileItems.items.first().targetPath == 'testmodule'
+    }
+
+    def 'check wrong path input for file'() {
+        when:
+        FileItem item = extension.fileItems.add(new File("testname.testextension"))
+        item.setTargetPath('/testmodule')
+
+        then:
+        thrown(org.gradle.api.InvalidUserDataException)
+    }
+
+    def 'check type handling for file'() {
+        when:
+        extension.addType('all')
+        extension.addType('development')
+        extension.fileItems.add(new File("testname.testextension"))
+
+        then:
+        extension.fileItems.items.first().types.contains('all')
+        extension.fileItems.items.first().types.contains('development')
+        extension.fileItems.items.first().types.size() == 2
+    }
+
     def 'add property to extension'() {
         when:
         extension.propertyItems.add('test.key', 'test.value')
@@ -65,6 +100,18 @@ class ComponentExtensionSpec extends Specification {
         extension.propertyItems.items.size() == 1
         extension.propertyItems.items.first().key == "test.key"
         extension.propertyItems.items.first().value == "test.value"
+    }
+
+    def 'check type handling for property'() {
+        when:
+        extension.addType('all')
+        extension.addType('development')
+        extension.propertyItems.add('test.key', 'test.value')
+
+        then:
+        extension.propertyItems.items.first().types.contains('all')
+        extension.propertyItems.items.first().types.contains('development')
+        extension.propertyItems.items.first().types.size() == 2
     }
 
     def 'add library to extension'() {
@@ -76,6 +123,38 @@ class ComponentExtensionSpec extends Specification {
         extension.libs.items.first().dependency.moduleString == 'com.intershop.test:testname:1.0.0'
     }
 
+    def 'check path input for library'() {
+        when:
+        LibraryItem item = extension.libs.add('com.intershop.test:testmodule:1.0.0')
+        item.targetName = 'testmodule'
+
+        then:
+        extension.libs.items.size() == 1
+        extension.libs.items.first().dependency.moduleString == 'com.intershop.test:testmodule:1.0.0'
+        extension.libs.items.first().targetName == 'testmodule'
+    }
+
+    def 'check wrong path input for library'() {
+        when:
+        LibraryItem item = extension.libs.add('com.intershop.test:testmodule:1.0.0')
+        item.targetName = '/testmodule'
+
+        then:
+        thrown(org.gradle.api.InvalidUserDataException)
+    }
+
+    def 'check type handling for library'() {
+        when:
+        extension.addType('all')
+        extension.addType('development')
+        extension.libs.add('com.intershop.test:testmodule:1.0.0')
+
+        then:
+        extension.libs.items.first().types.contains('all')
+        extension.libs.items.first().types.contains('development')
+        extension.libs.items.first().types.size() == 2
+    }
+
     def 'add module to extension'() {
         when:
         extension.modules.add('com.intershop.test:testmodule:1.0.0')
@@ -83,5 +162,78 @@ class ComponentExtensionSpec extends Specification {
         then:
         extension.modules.items.size() == 1
         extension.modules.items.first().dependency.moduleString == 'com.intershop.test:testmodule:1.0.0'
+    }
+
+    def 'check path input for module'() {
+        when:
+        ModuleItem item = extension.modules.add('com.intershop.test:testmodule:1.0.0')
+        item.setTargetPath('testmodule')
+
+        then:
+        extension.modules.items.size() == 1
+        extension.modules.items.first().dependency.moduleString == 'com.intershop.test:testmodule:1.0.0'
+        extension.modules.items.first().targetPath == 'testmodule'
+    }
+
+    def 'check wrong path input for module'() {
+        when:
+        ModuleItem item = extension.modules.add('com.intershop.test:testmodule:1.0.0')
+        item.setTargetPath('/testmodule')
+
+        then:
+        thrown(org.gradle.api.InvalidUserDataException)
+    }
+
+    def 'check type handling for module'() {
+        when:
+        extension.addType('all')
+        extension.addType('development')
+        extension.modules.add('com.intershop.test:testmodule:1.0.0')
+
+        then:
+        extension.modules.items.first().types.contains('all')
+        extension.modules.items.first().types.contains('development')
+        extension.modules.items.first().types.size() == 2
+    }
+
+    def 'add container to extension'() {
+        when:
+        extension.containers.add('cartridge')
+
+        then:
+        extension.containers.items.size() == 1
+        extension.containers.items.first().name == 'cartridge'
+    }
+
+    def 'check path input for container'() {
+        when:
+        FileContainerItem item = extension.containers.add('cartridge')
+        item.setTargetPath('testmodule')
+
+        then:
+        extension.containers.items.size() == 1
+        extension.containers.items.first().name == 'cartridge'
+        extension.containers.items.first().targetPath == 'testmodule'
+    }
+
+    def 'check wrong path input for container'() {
+        when:
+        FileContainerItem item = extension.containers.add('cartridge')
+        item.setTargetPath('/testmodule')
+
+        then:
+        thrown(org.gradle.api.InvalidUserDataException)
+    }
+
+    def 'check type handling for container'() {
+        when:
+        extension.addType('all')
+        extension.addType('development')
+        extension.containers.add('cartridge')
+
+        then:
+        extension.containers.items.first().types.contains('all')
+        extension.containers.items.first().types.contains('development')
+        extension.containers.items.first().types.size() == 2
     }
 }

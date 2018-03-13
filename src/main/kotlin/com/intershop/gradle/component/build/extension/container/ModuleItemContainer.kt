@@ -16,16 +16,13 @@
 package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.Utils
-import com.intershop.gradle.component.build.extension.items.AbstractTypeItem
 import com.intershop.gradle.component.build.extension.items.DependencyConfig
 import com.intershop.gradle.component.build.extension.items.DeploymentObject
 import com.intershop.gradle.component.build.extension.items.ModuleItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.dsl.DependencyHandler
-import org.slf4j.LoggerFactory
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 /**
  * This class provides all properties for
@@ -37,55 +34,11 @@ import kotlin.properties.Delegates
  */
 open class ModuleItemContainer
         @Inject constructor(val dpendencyHandler: DependencyHandler, override val parentItem: DeploymentObject) :
-        AbstractTypeItem(parentItem) {
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(ModuleItemContainer::class.java.simpleName)
-    }
+        AbstractContainer(parentItem, "Module Container") {
 
     // backing properties
     private val itemSet: MutableSet<ModuleItem> = mutableSetOf()
     private val excludeList: MutableList<DependencyConfig> = mutableListOf()
-
-    /**
-     * This path describes the installation in the default
-     * installation of the component.
-     *
-     * @property targetPath contains the default installation path
-     */
-    var targetPath: String by Delegates.vetoable("") { _, _, newValue ->
-        val invalidChars = Utils.getIllegalChars(newValue)
-        if(!invalidChars.isEmpty()) {
-            throw InvalidUserDataException("Target path of module container " +
-                    "contains invalid characters '$invalidChars'.")
-        }
-        if(newValue.startsWith("/")) {
-            throw InvalidUserDataException("Target path of module container " +
-                    "starts with a leading '/' - only a relative path is allowed.")
-        }
-        if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {
-            logger.warn("Target path of module container is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
-        }
-        invalidChars.isEmpty() && ! newValue.startsWith("/")
-    }
-
-    /**
-     * The complete install target of this item.
-     *
-     * @return a string representation of the item.
-     */
-    override fun getInstallPath(): String {
-        val installPath: StringBuilder = StringBuilder(parentItem.getInstallPath())
-
-        if(! targetPath.isEmpty()) {
-            if(! installPath.endsWith("/")) {
-                installPath.append("/")
-            }
-            installPath.append(targetPath)
-        }
-
-        return installPath.toString()
-    }
 
     /**
      * This set provides all configured modules. This list will be completed
@@ -124,7 +77,7 @@ open class ModuleItemContainer
                 "It can not be added to the module container.")
 
         val item = ModuleItem(depConf, this)
-        item.types(types.asList())
+        item.setTypes(types.asList())
 
         if(itemSet.contains(item)) {
             throw InvalidUserDataException("Dependency '$dependency' is already part of the current configuration!")
@@ -142,6 +95,9 @@ open class ModuleItemContainer
      */
     @Throws(InvalidUserDataException::class)
     fun add(dependency: Any) : ModuleItem {
+        if(types.isEmpty() && parentItem.types.isNotEmpty()) {
+            return add(dependency, *parentItem.types.toTypedArray())
+        }
         return add(dependency, *this.types.toTypedArray())
     }
 

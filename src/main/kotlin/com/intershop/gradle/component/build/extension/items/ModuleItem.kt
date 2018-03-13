@@ -38,6 +38,7 @@ class ModuleItem(@get:Nested val dependency: DependencyConfig,
     companion object {
         private val logger = LoggerFactory.getLogger(ModuleItem::class.java.simpleName)
     }
+
     /**
      * The default target path of the component.
      * This is sub path in the component.

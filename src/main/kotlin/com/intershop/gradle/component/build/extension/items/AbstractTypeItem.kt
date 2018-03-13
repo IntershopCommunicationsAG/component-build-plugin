@@ -46,8 +46,18 @@ abstract class AbstractTypeItem(override val parentItem: DeploymentObject) : Dep
      * @param type a deployment or environment type
      * @return if the environment type is available, false will be returned.
      */
-    fun type(type: String): Boolean {
+    fun addType(type: String): Boolean {
         return typeList.add(type.toLowerCase())
+    }
+
+    /**
+     * Reset the set with new values from input.
+     *
+     * @param types a new list of types
+     */
+    fun setTypes(types: Collection<String>) {
+        typeList.clear()
+        typeList.addAll(types)
     }
 
     /**
@@ -57,7 +67,7 @@ abstract class AbstractTypeItem(override val parentItem: DeploymentObject) : Dep
      * @param types a list of deployment or environment types
      * @return if one environment type of the list is available, false will be returned.
      */
-    fun types(types: Collection<String>): Boolean {
+    fun addTypes(types: Collection<String>): Boolean {
         return typeList.addAll(types.map { it.toLowerCase() })
     }
 

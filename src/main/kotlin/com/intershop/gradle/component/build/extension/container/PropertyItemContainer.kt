@@ -55,7 +55,7 @@ open class PropertyItemContainer
     @Throws(InvalidUserDataException::class)
     fun add(key: String, value: String, vararg types: String): PropertyItem {
         val item = PropertyItem(key, this)
-        item.types(types.asList())
+        item.setTypes(types.asList())
 
         item.value = value
 
@@ -77,7 +77,10 @@ open class PropertyItemContainer
      */
     @Throws(InvalidUserDataException::class)
     fun add(key: String, value: String) : PropertyItem {
-        return add(key, value, *this.types.toTypedArray())
+        if(types.isEmpty() && parentItem.types.isNotEmpty()) {
+            return add(key,value, *parentItem.types.toTypedArray())
+        }
+        return add(key,value, *this.types.toTypedArray())
     }
 
 }

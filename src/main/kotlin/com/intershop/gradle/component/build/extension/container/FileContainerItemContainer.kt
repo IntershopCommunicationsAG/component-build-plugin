@@ -15,16 +15,12 @@
  */
 package com.intershop.gradle.component.build.extension.container
 
-import com.intershop.gradle.component.build.extension.Utils
-import com.intershop.gradle.component.build.extension.items.AbstractTypeItem
 import com.intershop.gradle.component.build.extension.items.DeploymentObject
 import com.intershop.gradle.component.build.extension.items.FileContainerItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
-import org.slf4j.LoggerFactory
 import javax.inject.Inject
-import kotlin.properties.Delegates
 
 /**
  * This class provides a container for
@@ -35,53 +31,9 @@ import kotlin.properties.Delegates
  */
 open class FileContainerItemContainer
         @Inject constructor(val project: Project, override val parentItem: DeploymentObject) :
-        AbstractTypeItem(parentItem) {
-
-    companion object {
-        private val logger = LoggerFactory.getLogger(FileContainerItemContainer::class.java.simpleName)
-    }
+        AbstractContainer(parentItem, "File Container Container") {
 
     private val itemSet: MutableSet<FileContainerItem> = mutableSetOf()
-
-    /**
-     * This path describes the installation in the default
-     * installation of the component.
-     *
-     * @property targetPath contains the default installation path
-     */
-    var targetPath: String by Delegates.vetoable("") { _, _, newValue ->
-        val invalidChars = Utils.getIllegalChars(newValue)
-        if(!invalidChars.isEmpty()) {
-            throw InvalidUserDataException("Target path of container container " +
-                    "contains invalid characters '$invalidChars'.")
-        }
-        if(newValue.startsWith("/")) {
-            throw InvalidUserDataException("Target path of container container " +
-                    "starts with a leading '/' - only a relative path is allowed.")
-        }
-        if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {
-            logger.warn("Target path of container container is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
-        }
-        invalidChars.isEmpty() && ! newValue.startsWith("/")
-    }
-
-    /**
-     * The complete install target of this item.
-     *
-     * @return a string representation of the item.
-     */
-    override fun getInstallPath(): String {
-        val installPath = StringBuilder(parentItem.getInstallPath())
-
-        if(! targetPath.isEmpty()) {
-            if(! installPath.endsWith("/")) {
-                installPath.append("/")
-            }
-            installPath.append(targetPath)
-        }
-
-        return installPath.toString()
-    }
 
     /**
      * This set provides all configured files.
@@ -101,7 +53,7 @@ open class FileContainerItemContainer
     @Suppress("unused")
     fun add(name: String, vararg types: String): FileContainerItem {
         val item = FileContainerItem(project, name, this)
-        item.types(types.asList())
+        item.setTypes(types.asList())
 
         if(itemSet.contains(item)) {
             throw InvalidUserDataException("File container $name is already part of the current configuration!")
@@ -119,6 +71,9 @@ open class FileContainerItemContainer
      */
     @Throws(InvalidUserDataException::class)
     fun add(name: String) : FileContainerItem {
+        if(types.isEmpty() && parentItem.types.isNotEmpty()) {
+            return add(name, *parentItem.types.toTypedArray())
+        }
         return add(name, *this.types.toTypedArray())
     }
 
