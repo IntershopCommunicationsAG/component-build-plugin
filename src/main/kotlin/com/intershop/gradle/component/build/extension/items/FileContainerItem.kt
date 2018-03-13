@@ -31,7 +31,7 @@ import kotlin.properties.Delegates
  * @param name package name for identification. It is also used for the installed path of the package
  * @constructor provides a preconfigured package with a name
  */
-open class FileContainerItem(project: Project, private val name: String, override val parentItem: DeploymentObject) :
+open class FileContainerItem(project: Project, val name: String, override val parentItem: DeploymentObject) :
         AbstractItem(parentItem), ComponentObject, DeploymentObject, ContainerObject {
 
     companion object {
@@ -48,6 +48,15 @@ open class FileContainerItem(project: Project, private val name: String, overrid
      */
     @Suppress("unused")
     var containerType: String = ""
+
+    /**
+     * This property is used for the creation of
+     * the container artifact. The default value is
+     * the project name.
+     *
+     * @property baseName the base name of the artifact.
+     */
+    var baseName = project.name
 
     /**
      * The default target path of the component.
@@ -99,16 +108,6 @@ open class FileContainerItem(project: Project, private val name: String, overrid
 
         return installPath.toString()
     }
-
-    /**
-     * The classifier of the package type is used
-     * for special platforms, like Windows, Linux, MacOS.
-     * The default value is an empty string.
-     *
-     * @property classifier description of a target platform
-     */
-    @Suppress("unused")
-    var classifier: String = ""
 
     /**
      * All files that will be packaged to a

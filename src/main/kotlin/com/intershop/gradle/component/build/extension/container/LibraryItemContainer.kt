@@ -78,7 +78,7 @@ open class LibraryItemContainer
         val item = LibraryItem(depConf, this)
         item.setTypes(types.asList())
 
-        if(itemSet.contains(item)) {
+        if(itemSet.find { it.dependency == item.dependency } != null) {
             throw InvalidUserDataException("Dependency '$dependency' is already part of the current configuration!")
         } else {
             itemSet.add(item)

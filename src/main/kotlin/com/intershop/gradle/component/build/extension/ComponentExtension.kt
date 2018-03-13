@@ -42,9 +42,14 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
 
     companion object {
         const val COMPONENT_EXTENSION_NAME = "component"
-        const val DEPLOYMENT_GROUP_NAME = "Component Deployment"
+        const val COMPONENT_GROUP_NAME = "Component Build"
 
-        const val DESCRIPTOR_FILE = "component/descriptor/file.component"
+        const val PLUGIN_OUTPUTDIR = "componentBuild"
+        const val DESCRIPTOR_FILE = "$PLUGIN_OUTPUTDIR/descriptor/file.component"
+        const val CONTAINER_OUTPUTDIR = "$PLUGIN_OUTPUTDIR/container"
+
+        const val DEFAULT_IVYPUBLICATION = "ivyIntershop"
+        const val DEFAULT_MAVENPUBLICATION = "mvnIntershop"
     }
 
     private val inheritContainer = project.container(InheritanceSpec::class.java, InheritanceSpecFactory(project))
@@ -74,6 +79,19 @@ open class ComponentExtension @Inject constructor(project: Project) : Deployment
      */
     override val parentItem = this
 
+    /**
+     * This is used for the publishing configuration of this plugin.
+     *
+     * @property ivyPublicationName name is used for ivy publishing.
+     */
+    var ivyPublicationName: String = DEFAULT_IVYPUBLICATION
+
+    /**
+     * This is used for the publishing configuration of this plugin.
+     *
+     * @property mavenPublicationName name is used for maven publishing.
+     */
+    var mavenPublicationName: String = DEFAULT_MAVENPUBLICATION
 
     /**
      * This attribute defines a component's display name.

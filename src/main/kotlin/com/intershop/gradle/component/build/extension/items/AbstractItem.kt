@@ -24,9 +24,6 @@ import kotlin.properties.Delegates
  */
 abstract class AbstractItem(override val parentItem: DeploymentObject) :
         AbstractTypeItem(parentItem), ComponentObject, DeploymentObject, OSSpecificObject {
-
-    private val classifiersList: MutableSet<String> = mutableSetOf()
-
     /**
      * This property contains the content type of the item.
      * The following values are allowed:
@@ -54,29 +51,5 @@ abstract class AbstractItem(override val parentItem: DeploymentObject) :
      * @property classifiers the set of OS specific strings
      */
     @get:Input
-    override val classifiers: Set<String>
-        get() = classifiersList
-
-
-    /**
-     * Adds a new classifier string. The characters will
-     * be changed to lower cases.
-     *
-     * @param classifier a classifier string like win, linux, macos
-     * @return if the classifier string is available, false will be returned.
-     */
-    fun classifier(classifier: String): Boolean {
-        return classifiersList.add(classifier.toLowerCase())
-    }
-
-    /**
-     * Adds a list of classifier strings. The
-     * characters will be changed to lower cases.
-     *
-     * @param classifiers a list of classifier strings like win, linux, macos
-     * @return if one classifier string of the list is available, false will be returned.
-     */
-    fun classifiers(classifiers: Collection<String>): Boolean {
-        return classifiersList.addAll(classifiers.map { it.toLowerCase() })
-    }
+    override val classifier: String = ""
 }

@@ -21,7 +21,11 @@ package com.intershop.gradle.component.build.extension.items
 interface OSSpecificObject {
 
     /**
-     * OS specific usage of a component.
+     * The classifier of the package type is used
+     * for special platforms, like Windows, Linux, MacOS.
+     * The default value is an empty string.
+     *
+     * @property classifier description of a target platform
      */
-    val classifiers: Set<String>
+    val classifier: String
 }

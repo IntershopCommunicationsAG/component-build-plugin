@@ -55,7 +55,7 @@ open class FileContainerItemContainer
         val item = FileContainerItem(project, name, this)
         item.setTypes(types.asList())
 
-        if(itemSet.contains(item)) {
+        if(itemSet.find { it.name == item.name } != null) {
             throw InvalidUserDataException("File container $name is already part of the current configuration!")
         } else {
             itemSet.add(item)
@@ -90,7 +90,7 @@ open class FileContainerItemContainer
 
         action.execute(item)
 
-        if(itemSet.contains(item)) {
+        if(itemSet.find { it.name == item.name } != null) {
             throw InvalidUserDataException("File container $name is already part of the current configuration!")
         } else {
             itemSet.add(item)
