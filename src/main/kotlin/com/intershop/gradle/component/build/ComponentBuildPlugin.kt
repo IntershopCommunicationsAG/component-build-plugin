@@ -88,7 +88,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
             private fun createContainerTask(tasks: ModelMap<Task>, container: FileContainerItem): String {
                 val taskName = "zipContainer${container.name.capitalize()}"
-                if(tasks.containsKey(taskName)) {
+                if(! tasks.containsKey(taskName)) {
                     tasks.create(taskName, ZipContainer::class.java) {
                         with(it) {
                             group = ComponentExtension.COMPONENT_GROUP_NAME

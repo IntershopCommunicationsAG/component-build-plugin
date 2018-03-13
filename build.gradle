@@ -267,7 +267,7 @@ task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
 }
 
 dependencies {
-    compile 'com.intershop.gradle.component:component-descriptor:1.0.0-dev.4'
+    compile 'com.intershop.gradle.component:component-descriptor:1.0.0-dev.5'
 
     compileOnly 'org.jetbrains:annotations:15.0'
 
