@@ -32,8 +32,8 @@ import kotlin.properties.Delegates
  * @param name package name for identification. It is also used for the installed path of the package
  * @constructor provides a preconfigured package with a name
  */
-open class FileContainerItem(project: Project, val name: String, override val parentItem: DeploymentObject) :
-        AbstractItem(parentItem), ComponentObject, DeploymentObject, OSSpecificObject, ContainerObject {
+open class FileContainerItem(project: Project, val name: String, override val parentItem: IDeployment) :
+        AItem(parentItem), IComponent, IDeployment, IOSSpecific, IContainer {
 
     companion object {
         private val logger = LoggerFactory.getLogger(FileContainerItem::class.java.simpleName)

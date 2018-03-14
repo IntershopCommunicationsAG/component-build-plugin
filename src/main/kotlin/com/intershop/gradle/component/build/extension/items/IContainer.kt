@@ -16,12 +16,17 @@
 package com.intershop.gradle.component.build.extension.items
 
 /**
- * This interface provides basic methods of a component object.
+ * This interface provides basic methods of a container object.
  */
-interface ComponentObject {
+interface IContainer {
 
     /**
-     * Content type of this file.
+     * If the target path is included in the file container it returns true.
      */
-    var contentType: String
+    val targetIncluded: Boolean
+
+    /**
+     * Target path of the container item.
+     */
+    val targetPath: String
 }

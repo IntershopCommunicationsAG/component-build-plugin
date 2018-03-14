@@ -34,8 +34,8 @@ import kotlin.properties.Delegates
  * @constructor initialize an module with a defined dependency
  */
 class ModuleItem(@get:Nested override val dependency: DependencyConfig,
-                 @get:Internal override val parentItem: DeploymentObject) :
-        AbstractDependencyItem(parentItem), ComponentObject, ContainerObject, DependencyObject {
+                 @get:Internal override val parentItem: IDeployment) :
+        ADependencyItem(parentItem), IComponent, IContainer, IDependency {
 
     companion object {
         private val logger = LoggerFactory.getLogger(ModuleItem::class.java.simpleName)

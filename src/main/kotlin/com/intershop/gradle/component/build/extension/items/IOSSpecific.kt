@@ -16,17 +16,16 @@
 package com.intershop.gradle.component.build.extension.items
 
 /**
- * This interface provides basic methods of a container object.
+ * This interface provides the basic property of a OS specific object.
  */
-interface ContainerObject {
+interface IOSSpecific {
 
     /**
-     * If the target path is included in the file container it returns true.
+     * The classifier of the package type is used
+     * for special platforms, like Windows, Linux, MacOS.
+     * The default value is an empty string.
+     *
+     * @property classifier description of a target platform
      */
-    val targetIncluded: Boolean
-
-    /**
-     * Target path of the container item.
-     */
-    val targetPath: String
+    val classifier: String
 }

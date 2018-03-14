@@ -27,8 +27,8 @@ import org.gradle.api.tasks.Internal
  * @constructor initialize an property item without a value.
  */
 class PropertyItem(@get:Input val key: String,
-                   @get:Internal override val parentItem: DeploymentObject):
-        AbstractItem(parentItem), ComponentObject, DeploymentObject, OSSpecificObject {
+                   @get:Internal override val parentItem: IDeployment):
+        AItem(parentItem), IComponent, IDeployment, IOSSpecific {
 
     /**
      * The value of the item. This is marked as task input.

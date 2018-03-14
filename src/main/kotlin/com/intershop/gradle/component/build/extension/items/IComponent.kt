@@ -16,16 +16,12 @@
 package com.intershop.gradle.component.build.extension.items
 
 /**
- * This interface provides the basic property of a OS specific object.
+ * This interface provides basic methods of a component object.
  */
-interface OSSpecificObject {
+interface IComponent {
 
     /**
-     * The classifier of the package type is used
-     * for special platforms, like Windows, Linux, MacOS.
-     * The default value is an empty string.
-     *
-     * @property classifier description of a target platform
+     * Content type of this file.
      */
-    val classifier: String
+    var contentType: String
 }

@@ -17,18 +17,18 @@
 package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.Utils
-import com.intershop.gradle.component.build.extension.items.AbstractTypeItem
-import com.intershop.gradle.component.build.extension.items.DeploymentObject
+import com.intershop.gradle.component.build.extension.items.ATypeItem
+import com.intershop.gradle.component.build.extension.items.IDeployment
 import org.gradle.api.InvalidUserDataException
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
-abstract class AbstractContainer @Inject constructor(override val parentItem: DeploymentObject,
-                                                     protected val description: String) : AbstractTypeItem(parentItem) {
+abstract class AContainer @Inject constructor(override val parentItem: IDeployment,
+                                              protected val description: String) : ATypeItem(parentItem) {
 
     companion object {
-        private val logger = LoggerFactory.getLogger(AbstractContainer::class.java.simpleName)
+        private val logger = LoggerFactory.getLogger(AContainer::class.java.simpleName)
     }
 
     /**

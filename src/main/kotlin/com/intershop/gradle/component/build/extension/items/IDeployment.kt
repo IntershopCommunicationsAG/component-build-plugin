@@ -15,17 +15,27 @@
  */
 package com.intershop.gradle.component.build.extension.items
 
-import com.intershop.gradle.component.build.utils.DependencyConfig
-
 /**
- * This interface defines properties for
- * objects with dependency configurations.
+ * This interface provides the basic property of a deployment object.
  */
-interface DependencyObject: DeploymentObject {
+interface IDeployment {
 
-    val dependency: DependencyConfig
-    var resolveTransitive: Boolean
+    /**
+     * Deployment or environment types.
+     */
+    val types: Set<String>
 
-    val excludes: Set<DependencyConfig>
+    /**
+     * Get the install path of the item.
+     *
+     * @return the complete install path of the item
+     */
+    fun getInstallPath(): String
 
+    /**
+     * The parent of the item.
+     *
+     * @return the parent of items.
+     */
+    val parentItem : IDeployment
 }

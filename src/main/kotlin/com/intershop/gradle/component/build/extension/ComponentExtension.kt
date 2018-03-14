@@ -22,7 +22,7 @@ import com.intershop.gradle.component.build.extension.container.ModuleItemContai
 import com.intershop.gradle.component.build.extension.container.PropertyItemContainer
 import com.intershop.gradle.component.build.extension.inheritance.InheritanceSpec
 import com.intershop.gradle.component.build.extension.inheritance.InheritanceSpecFactory
-import com.intershop.gradle.component.build.extension.items.DeploymentObject
+import com.intershop.gradle.component.build.extension.items.IDeployment
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.NamedDomainObjectContainer
@@ -38,7 +38,7 @@ import kotlin.properties.Delegates
  * @param project provides the current Gradle project.
  * @constructor Creates a pre configured extension
  */
-open class ComponentExtension @Inject constructor(project: Project) : DeploymentObject {
+open class ComponentExtension @Inject constructor(project: Project) : IDeployment {
 
     companion object {
         const val COMPONENT_EXTENSION_NAME = "component"

@@ -22,8 +22,8 @@ import kotlin.properties.Delegates
 /**
  * This class provides the basic properties of any component item.
  */
-abstract class AbstractItem(override val parentItem: DeploymentObject) :
-        AbstractTypeItem(parentItem), ComponentObject, DeploymentObject {
+abstract class AItem(override val parentItem: IDeployment) :
+        ATypeItem(parentItem), IComponent, IDeployment {
     /**
      * This property contains the content type of the item.
      * The following values are allowed:

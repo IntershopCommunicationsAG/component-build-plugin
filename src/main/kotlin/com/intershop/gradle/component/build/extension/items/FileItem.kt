@@ -32,8 +32,8 @@ import kotlin.properties.Delegates
  * @constructor provides a configured file item
  */
 class FileItem(@get:InputFile val file: File,
-               @get:Internal override val parentItem: DeploymentObject) :
-        AbstractItem(parentItem), ComponentObject, DeploymentObject, OSSpecificObject {
+               @get:Internal override val parentItem: IDeployment) :
+        AItem(parentItem), IComponent, IDeployment, IOSSpecific {
 
     companion object {
         private val logger = LoggerFactory.getLogger(FileItem::class.java.simpleName)

@@ -18,7 +18,7 @@ package com.intershop.gradle.component.build.tasks
 
 import com.intershop.gradle.component.build.extension.container.LibraryItemContainer
 import com.intershop.gradle.component.build.extension.container.ModuleItemContainer
-import com.intershop.gradle.component.build.extension.items.DependencyObject
+import com.intershop.gradle.component.build.extension.items.IDependency
 import com.intershop.gradle.component.build.extension.items.LibraryItem
 import com.intershop.gradle.component.build.extension.items.ModuleItem
 import com.intershop.gradle.component.build.utils.DependencyConfig
@@ -140,7 +140,7 @@ open class CreateDescriptor : DefaultTask() {
     @get:Internal
     var libs: LibraryItemContainer? = null
 
-    private fun addDependencyObjects(compDescr: Component, item: DependencyObject,
+    private fun addDependencyObjects(compDescr: Component, item: IDependency,
                                      procModules: MutableMap<DependencyConfig, ExtDependencyConfig>,
                                      procLibs: MutableMap<DependencyConfig, ExtDependencyConfig>,
                                      resModules: MutableMap<DependencyConfig, ExtDependencyConfig>,

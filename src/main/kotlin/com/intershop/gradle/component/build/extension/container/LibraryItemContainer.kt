@@ -16,7 +16,7 @@
 package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.Utils.Companion.getDependencyConf
-import com.intershop.gradle.component.build.extension.items.DeploymentObject
+import com.intershop.gradle.component.build.extension.items.IDeployment
 import com.intershop.gradle.component.build.extension.items.LibraryItem
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.Action
@@ -33,8 +33,8 @@ import javax.inject.Inject
  * @constructor provides an empty preconfigured library container
  */
 open class LibraryItemContainer
-        @Inject constructor(val dpendencyHandler: DependencyHandler, override val parentItem: DeploymentObject) :
-        AbstractContainer(parentItem, "Library Container") {
+        @Inject constructor(val dpendencyHandler: DependencyHandler, override val parentItem: IDeployment) :
+        AContainer(parentItem, "Library Container") {
 
     // backing properties
     private val itemSet: MutableSet<LibraryItem> = mutableSetOf()

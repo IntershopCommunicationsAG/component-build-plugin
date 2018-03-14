@@ -15,7 +15,7 @@
  */
 package com.intershop.gradle.component.build.extension.container
 
-import com.intershop.gradle.component.build.extension.items.DeploymentObject
+import com.intershop.gradle.component.build.extension.items.IDeployment
 import com.intershop.gradle.component.build.extension.items.FileItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
@@ -30,8 +30,8 @@ import javax.inject.Inject
  * @constructor provides an empty preconfigured file item container
  */
 open class FileItemContainer
-        @Inject constructor(override val parentItem: DeploymentObject) :
-        AbstractContainer(parentItem, "File Item Container") {
+        @Inject constructor(override val parentItem: IDeployment) :
+        AContainer(parentItem, "File Item Container") {
 
     private val itemSet: MutableSet<FileItem> = mutableSetOf()
 

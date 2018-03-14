@@ -16,7 +16,7 @@
 package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.Utils
-import com.intershop.gradle.component.build.extension.items.DeploymentObject
+import com.intershop.gradle.component.build.extension.items.IDeployment
 import com.intershop.gradle.component.build.extension.items.ModuleItem
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.Action
@@ -33,8 +33,8 @@ import javax.inject.Inject
  * @constructor provides an empty preconfigured module container
  */
 open class ModuleItemContainer
-        @Inject constructor(val dpendencyHandler: DependencyHandler, override val parentItem: DeploymentObject) :
-        AbstractContainer(parentItem, "Module Container") {
+        @Inject constructor(val dpendencyHandler: DependencyHandler, override val parentItem: IDeployment) :
+        AContainer(parentItem, "Module Container") {
 
     // backing properties
     private val itemSet: MutableSet<ModuleItem> = mutableSetOf()

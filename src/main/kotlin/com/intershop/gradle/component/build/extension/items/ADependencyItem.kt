@@ -18,8 +18,8 @@ package com.intershop.gradle.component.build.extension.items
 
 import com.intershop.gradle.component.build.utils.DependencyConfig
 
-abstract class AbstractDependencyItem(override val parentItem: DeploymentObject) :
-        AbstractTypeItem(parentItem), DependencyObject {
+abstract class ADependencyItem(override val parentItem: IDeployment) :
+        ATypeItem(parentItem), IDependency {
 
     private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
 

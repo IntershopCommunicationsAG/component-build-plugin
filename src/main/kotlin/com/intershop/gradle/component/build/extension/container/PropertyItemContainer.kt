@@ -16,8 +16,8 @@
 
 package com.intershop.gradle.component.build.extension.container
 
-import com.intershop.gradle.component.build.extension.items.AbstractTypeItem
-import com.intershop.gradle.component.build.extension.items.DeploymentObject
+import com.intershop.gradle.component.build.extension.items.ATypeItem
+import com.intershop.gradle.component.build.extension.items.IDeployment
 import com.intershop.gradle.component.build.extension.items.PropertyItem
 import org.gradle.api.InvalidUserDataException
 import javax.inject.Inject
@@ -29,8 +29,8 @@ import javax.inject.Inject
  * @constructor provides the property container
  */
 open class PropertyItemContainer
-        @Inject constructor(override val parentItem: DeploymentObject) :
-        AbstractTypeItem(parentItem) {
+        @Inject constructor(override val parentItem: IDeployment) :
+        ATypeItem(parentItem) {
 
     // backing properties
     private val itemSet: MutableSet<PropertyItem> = mutableSetOf()

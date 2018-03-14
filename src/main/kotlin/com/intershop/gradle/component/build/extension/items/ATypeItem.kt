@@ -22,7 +22,7 @@ import org.gradle.api.tasks.Input
  *
  * @property parentItem the parent of this container.
  */
-abstract class AbstractTypeItem(override val parentItem: DeploymentObject) : DeploymentObject {
+abstract class ATypeItem(override val parentItem: IDeployment) : IDeployment {
 
     private val typeList: MutableSet<String> = mutableSetOf()
 

@@ -31,8 +31,8 @@ import kotlin.properties.Delegates
  * @constructor initialize a library based on the dependency
  */
 class LibraryItem(@get:Nested override val dependency: DependencyConfig,
-                  @get:Internal override val parentItem: DeploymentObject) :
-        AbstractDependencyItem(parentItem), DependencyObject {
+                  @get:Internal override val parentItem: IDeployment) :
+        ADependencyItem(parentItem), IDependency {
 
     /**
      * This will be configured for the deployment
