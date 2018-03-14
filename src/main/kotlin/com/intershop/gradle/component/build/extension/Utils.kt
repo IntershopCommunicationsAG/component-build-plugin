@@ -15,7 +15,7 @@
  */
 package com.intershop.gradle.component.build.extension
 
-import com.intershop.gradle.component.build.extension.items.DependencyConfig
+import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.ProjectDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
@@ -71,7 +71,8 @@ class Utils {
             val dep = handler.create(dependency)
 
             val depStr = if(dep is ProjectDependency) dependency.toString() else ""
-            val depConf = DependencyConfig(dep.group ?: "", dep.name, dep.version ?: "", depStr)
+            val depConf = DependencyConfig(dep.group
+                    ?: "", dep.name, dep.version ?: "", depStr)
 
             if(depConf.emptyConfig) {
                 throw InvalidUserDataException("Dependency '$dependency' is empty. $errormessage")

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.intershop.gradle.component.build.extension.items
+package com.intershop.gradle.component.build.utils
 
 import org.gradle.api.tasks.Input
 

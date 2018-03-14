@@ -16,9 +16,9 @@
 package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.Utils
-import com.intershop.gradle.component.build.extension.items.DependencyConfig
 import com.intershop.gradle.component.build.extension.items.DeploymentObject
 import com.intershop.gradle.component.build.extension.items.ModuleItem
+import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.dsl.DependencyHandler
@@ -38,7 +38,7 @@ open class ModuleItemContainer
 
     // backing properties
     private val itemSet: MutableSet<ModuleItem> = mutableSetOf()
-    private val excludeList: MutableList<DependencyConfig> = mutableListOf()
+    private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
 
     /**
      * This set provides all configured modules. This list will be completed
@@ -50,6 +50,15 @@ open class ModuleItemContainer
         get() = itemSet
 
     /**
+     * This set provides exclude configurations for dependencies.
+     *
+     * @property excludes set of exclude configurations
+     */
+    @Suppress("unused")
+    val excludes: Set<DependencyConfig>
+        get() = excludeSet
+
+    /**
      * With exclude it is possible to exclude modules from the list of dependent modules.
      *
      * @param group Group or oganization of the dependency
@@ -59,7 +68,7 @@ open class ModuleItemContainer
     @Suppress("unused")
     @JvmOverloads
     fun exclude(group: String = "", module: String = "", version: String = "") {
-        excludeList.add(DependencyConfig(group, module, version))
+        excludeSet.add(DependencyConfig(group, module, version))
     }
 
     /**
@@ -77,10 +86,13 @@ open class ModuleItemContainer
                 "It can not be added to the module container.")
 
         val item = ModuleItem(depConf, this)
-        item.setTypes(types.asList())
 
-        if(itemSet.find { it.dependency == item.dependency } != null)  {
-            throw InvalidUserDataException("Dependency '$dependency' is already part of the current configuration!")
+        item.setTypes(types.asList())
+        item.targetPath = depConf.module
+        item.resolveTransitive = resolveTransitive
+
+        if(itemSet.find { it.dependency.module == item.dependency.module } != null)  {
+            throw InvalidUserDataException("Dependency '${item.dependency.module}' is already part of the current configuration!")
         } else {
             itemSet.add(item)
         }
@@ -126,13 +138,25 @@ open class ModuleItemContainer
         val depConf = Utils.getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the module container.")
         val item = ModuleItem(depConf, this)
+        item.targetPath = depConf.module
+        item.resolveTransitive = resolveTransitive
 
         action.execute(item)
 
-        if(itemSet.contains(item)) {
-            throw InvalidUserDataException("Dependency '$dependency' is already part of the current configuration!")
+        if(itemSet.find { it.dependency.module == item.dependency.module } != null)  {
+            throw InvalidUserDataException("Dependency '${item.dependency.module}' is already part of the current configuration!")
         } else {
             itemSet.add(item)
         }
     }
+
+    /**
+     * This property configures the dependency resolution
+     * of the configured dependencies during the creation
+     * of the descriptor. The descriptor must be complete!
+     * The default value is true.
+     *
+     * @property resolveTransitive if true dependencies will be resolved transitive.
+     */
+    var resolveTransitive: Boolean = true
 }

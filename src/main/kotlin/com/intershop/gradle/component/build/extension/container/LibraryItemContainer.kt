@@ -16,9 +16,9 @@
 package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.Utils.Companion.getDependencyConf
-import com.intershop.gradle.component.build.extension.items.DependencyConfig
 import com.intershop.gradle.component.build.extension.items.DeploymentObject
 import com.intershop.gradle.component.build.extension.items.LibraryItem
+import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.dsl.DependencyHandler
@@ -38,7 +38,7 @@ open class LibraryItemContainer
 
     // backing properties
     private val itemSet: MutableSet<LibraryItem> = mutableSetOf()
-    private val excludeList: MutableList<DependencyConfig> = mutableListOf()
+    private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
 
     /**
      * This set provides all configured libraries. This list will be completed
@@ -50,6 +50,15 @@ open class LibraryItemContainer
         get() = itemSet
 
     /**
+     * This set provides exclude configuration for dependencies.
+     *
+     * @property excludes set of exclude configurations
+     */
+    @Suppress("unused")
+    val excludes: Set<DependencyConfig>
+        get() = excludeSet
+
+    /**
      * With exclude it is possible to exclude libraries from the list of dependent libraries.
      *
      * @param group Group or oganization of the dependency
@@ -59,7 +68,7 @@ open class LibraryItemContainer
     @Suppress("unused")
     @JvmOverloads
     fun exclude(group: String = "", module: String = "", version: String = "") {
-        excludeList.add(DependencyConfig(group, module, version))
+        excludeSet.add(DependencyConfig(group, module, version))
     }
 
     /**
@@ -77,6 +86,8 @@ open class LibraryItemContainer
 
         val item = LibraryItem(depConf, this)
         item.setTypes(types.asList())
+        item.targetName = "${depConf.group}_${depConf.module}_${depConf.version}"
+        item.resolveTransitive = resolveTransitive
 
         if(itemSet.find { it.dependency == item.dependency } != null) {
             throw InvalidUserDataException("Dependency '$dependency' is already part of the current configuration!")
@@ -125,13 +136,25 @@ open class LibraryItemContainer
         val depConf = getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the library container.")
         val item = LibraryItem(depConf, this)
+        item.targetName = "${depConf.group}_${depConf.module}_${depConf.version}"
+        item.resolveTransitive = resolveTransitive
 
         action.execute(item)
 
-        if(itemSet.contains(item)) {
+        if(itemSet.find { it.dependency == item.dependency } != null) {
             throw InvalidUserDataException("Dependency '$dependency' is already part of the current configuration!")
         } else {
             itemSet.add(item)
         }
     }
+
+    /**
+     * This property configures the dependency resolution
+     * of the configured dependencies during the creation
+     * of the descriptor. The descriptor must be complete!
+     * The default value is true.
+     *
+     * @property resolveTransitive if true dependencies will be resolved transitive.
+     */
+    var resolveTransitive: Boolean = true
 }

@@ -16,7 +16,9 @@
 package com.intershop.gradle.component.build.extension.items
 
 import com.intershop.gradle.component.build.extension.Utils
+import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.internal.impldep.org.bouncycastle.asn1.x500.style.RFC4519Style.name
@@ -31,9 +33,9 @@ import kotlin.properties.Delegates
  * @property parentItem the parent of this container.
  * @constructor initialize an module with a defined dependency
  */
-class ModuleItem(@get:Nested val dependency: DependencyConfig,
+class ModuleItem(@get:Nested override val dependency: DependencyConfig,
                  @get:Internal override val parentItem: DeploymentObject) :
-        AbstractItem(parentItem), ComponentObject, DeploymentObject, OSSpecificObject, ContainerObject {
+        AbstractDependencyItem(parentItem), ComponentObject, ContainerObject, DependencyObject {
 
     companion object {
         private val logger = LoggerFactory.getLogger(ModuleItem::class.java.simpleName)
@@ -88,5 +90,23 @@ class ModuleItem(@get:Nested val dependency: DependencyConfig,
         }
 
         return installPath.toString()
+    }
+
+    /**
+     * This property contains the content type of the item.
+     * The following values are allowed:
+     *  - IMMUTABLE/STATIC
+     *  - DATA
+     *  - CONFIGURATION
+     *  - UNSPECIFIED
+     */
+    @get:Input
+    override var contentType by Delegates.vetoable(ContentType.IMMUTABLE.name) { _, _, newValue ->
+        try {
+            ContentType.values().map { it.name }.contains(newValue)
+        } catch (ex: IllegalArgumentException) {
+            throw InvalidUserDataException("Content type must be 'IMMUTABLE', 'DATA', " +
+                    "'CONFIGURATION', but it is $newValue", ex)
+        }
     }
 }

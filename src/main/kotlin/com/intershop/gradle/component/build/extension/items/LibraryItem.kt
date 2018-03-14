@@ -16,6 +16,7 @@
 package com.intershop.gradle.component.build.extension.items
 
 import com.intershop.gradle.component.build.extension.Utils
+import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
@@ -29,9 +30,9 @@ import kotlin.properties.Delegates
  * @property parentItem the parent of this container.
  * @constructor initialize a library based on the dependency
  */
-class LibraryItem(@get:Nested val dependency: DependencyConfig,
+class LibraryItem(@get:Nested override val dependency: DependencyConfig,
                   @get:Internal override val parentItem: DeploymentObject) :
-        AbstractTypeItem(parentItem), DeploymentObject {
+        AbstractDependencyItem(parentItem), DependencyObject {
 
     /**
      * This will be configured for the deployment
@@ -68,5 +69,6 @@ class LibraryItem(@get:Nested val dependency: DependencyConfig,
 
         return installPath.toString()
     }
+
 
 }

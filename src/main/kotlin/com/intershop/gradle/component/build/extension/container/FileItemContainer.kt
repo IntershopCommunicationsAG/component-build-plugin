@@ -94,7 +94,9 @@ open class FileItemContainer
 
         action.execute(item)
 
-        if(itemSet.contains(item)) {
+        if(itemSet.find { it.name == item.name &&
+                        it.extension == item.extension &&
+                        it.classifier == item.classifier} != null) {
             throw InvalidUserDataException("File ${file.nameWithoutExtension}.${file.extension} " +
                     "is already part of the current configuration!")
         } else {

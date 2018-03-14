@@ -146,6 +146,9 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             displayName = extension.displayName
                             componentDescription = extension.componentDescription
 
+                            libs = extension.libs
+                            modules = extension.modules
+
                             descriptorFile = File(buildDir, ComponentExtension.DESCRIPTOR_FILE)
 
                         }

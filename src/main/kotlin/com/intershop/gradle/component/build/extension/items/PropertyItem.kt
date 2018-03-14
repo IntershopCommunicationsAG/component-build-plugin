@@ -36,4 +36,15 @@ class PropertyItem(@get:Input val key: String,
      */
     @get:Input
     var value: String = ""
+
+
+    /**
+     * This set contains OS specific descriptions.
+     * The set is empty per default.
+     * It is defined as an task input property.
+     *
+     * @property classifiers the set of OS specific strings
+     */
+    @get:Input
+    override val classifier: String = ""
 }

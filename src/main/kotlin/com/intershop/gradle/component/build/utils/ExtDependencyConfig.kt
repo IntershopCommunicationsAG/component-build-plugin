@@ -13,25 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intershop.gradle.component.build
+package com.intershop.gradle.component.build.utils
 
-import com.intershop.gradle.component.build.extension.ComponentExtension
-import com.intershop.gradle.test.AbstractProjectSpec
-import org.gradle.api.Plugin
+data class ExtDependencyConfig(val dep: DependencyConfig,
+                               val types: Set<String>) {
 
-class ComponentBuildPluginSpec extends AbstractProjectSpec {
-
-    @Override
-    Plugin getPlugin() {
-        return new ComponentBuildPlugin()
-    }
-
-    def 'should add extension'() {
-        when:
-        plugin.apply(project)
-
-        then:
-        project.extensions.getByName(ComponentExtension.COMPONENT_EXTENSION_NAME)
+    fun addTypes(types: Set<String>) {
+        if(! types.isEmpty()) {
+            (this.types as MutableSet<String>).addAll(types)
+        }
     }
 }
-

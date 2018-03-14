@@ -13,25 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intershop.gradle.component.build
+package com.intershop.gradle.component.build.extension.items
 
-import com.intershop.gradle.component.build.extension.ComponentExtension
-import com.intershop.gradle.test.AbstractProjectSpec
-import org.gradle.api.Plugin
+import com.intershop.gradle.component.build.utils.DependencyConfig
 
-class ComponentBuildPluginSpec extends AbstractProjectSpec {
+/**
+ * This interface defines properties for
+ * objects with dependency configurations.
+ */
+interface DependencyObject: DeploymentObject {
 
-    @Override
-    Plugin getPlugin() {
-        return new ComponentBuildPlugin()
-    }
+    val dependency: DependencyConfig
+    var resolveTransitive: Boolean
 
-    def 'should add extension'() {
-        when:
-        plugin.apply(project)
+    val excludes: Set<DependencyConfig>
 
-        then:
-        project.extensions.getByName(ComponentExtension.COMPONENT_EXTENSION_NAME)
-    }
 }
-

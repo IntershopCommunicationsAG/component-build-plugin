@@ -21,6 +21,7 @@ import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
+import org.gradle.api.tasks.Input
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
@@ -32,7 +33,7 @@ import kotlin.properties.Delegates
  * @constructor provides a preconfigured package with a name
  */
 open class FileContainerItem(project: Project, val name: String, override val parentItem: DeploymentObject) :
-        AbstractItem(parentItem), ComponentObject, DeploymentObject, ContainerObject {
+        AbstractItem(parentItem), ComponentObject, DeploymentObject, OSSpecificObject, ContainerObject {
 
     companion object {
         private val logger = LoggerFactory.getLogger(FileContainerItem::class.java.simpleName)
@@ -131,4 +132,15 @@ open class FileContainerItem(project: Project, val name: String, override val pa
     fun source(vararg paths: Any) {
         sourceProperty.from(*paths)
     }
+
+
+    /**
+     * This set contains OS specific descriptions.
+     * The set is empty per default.
+     * It is defined as an task input property.
+     *
+     * @property classifiers the set of OS specific strings
+     */
+    @get:Input
+    override val classifier: String = ""
 }
