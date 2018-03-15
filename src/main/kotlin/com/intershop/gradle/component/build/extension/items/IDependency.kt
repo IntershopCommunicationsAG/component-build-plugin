@@ -27,5 +27,4 @@ interface IDependency: IDeployment {
     var resolveTransitive: Boolean
 
     val excludes: Set<DependencyConfig>
-
 }

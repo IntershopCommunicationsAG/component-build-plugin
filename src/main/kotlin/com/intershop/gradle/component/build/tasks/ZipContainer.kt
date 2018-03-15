@@ -107,7 +107,7 @@ open class ZipContainer : Zip() {
      * Calls the zip action to create the package.
      */
     @TaskAction
-    @Suppress("unused")
+    @Suppress("unused", "MagicNumber")
     fun action() {
         // default configuration for component zip
         includeEmptyDirs = true

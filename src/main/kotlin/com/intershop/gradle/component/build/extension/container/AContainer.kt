@@ -24,6 +24,14 @@ import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import kotlin.properties.Delegates
 
+/**
+ * This class contains functions and properties for all containers
+ * of the component extension.
+ *
+ * @property parentItem a reference to the parent of this container.
+ * @property description a short description of this container for log messages.
+ * @constructor provides an empty container
+ */
 abstract class AContainer @Inject constructor(override val parentItem: IDeployment,
                                               protected val description: String) : ATypeItem(parentItem) {
 

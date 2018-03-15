@@ -84,7 +84,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
     class ComponentBuildRule: RuleSource() {
 
         companion object {
-            val logger = LoggerFactory.getLogger(ComponentBuildRule::class.java.simpleName)!!
+            val logger = LoggerFactory.getLogger(ComponentBuildRule::class.java.simpleName)
 
             private fun createContainerTask(tasks: ModelMap<Task>, container: FileContainerItem): String {
                 val taskName = "zipContainer${container.name.capitalize()}"
@@ -148,6 +148,9 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
                             libs = extension.libs
                             modules = extension.modules
+                            properties = extension.propertyItems
+                            containers = extension.containers
+                            files = extension.fileItems
 
                             descriptorFile = File(buildDir, ComponentExtension.DESCRIPTOR_FILE)
 
@@ -156,30 +159,11 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                 }
                 return taskName
             }
-        }
 
-        /**
-         * Configures publishing of task output
-         * depending on configured publishing.
-         */
-        @Suppress("unused")
-        @Defaults
-        fun configurePublishingPublications(tasks: ModelMap<Task>,
-                                            publishing: PublishingExtension,
-                                            componentBuildConf:ComponentExtension,
-                                            @Path("buildDir") buildDir: File) {
-
-            val publications = publishing.publications
-
-            // create container, if configuration is available
-            componentBuildConf.containers.items.forEach { container ->
-                createContainerTask(tasks, container)
-            }
-
-            createDescriptorTask(tasks, componentBuildConf, buildDir)
-
-            try {
-                publications.maybeCreate(componentBuildConf.mavenPublicationName, MavenPublication::class.java).apply {
+            private fun configureMvnPublishing(mvnPublication: MavenPublication,
+                                               tasks: ModelMap<Task>,
+                                               componentBuildConf: ComponentExtension) {
+                with(mvnPublication) {
                     tasks.withType(ZipContainer::class.java).forEach { task ->
                         this.artifact(task) { mvnArtifact ->
                             mvnArtifact.extension = task.extension
@@ -201,7 +185,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                         }
                     }
 
-                    componentBuildConf.fileItems.items.forEach {item ->
+                    componentBuildConf.fileItems.items.forEach { item ->
                         this.artifact(item.file) { mvnArtifact ->
                             mvnArtifact.extension = item.extension
                             mvnArtifact.classifier = createClassifierForFile(item)
@@ -215,12 +199,12 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                         }
                     }
                 }
-            } catch(ex: InvalidUserDataException) {
-                logger.debug("Maven Publishing is not applied for component build plugin.")
             }
 
-            try {
-                publications.maybeCreate(componentBuildConf.ivyPublicationName, IvyPublication::class.java).apply {
+            private fun configureIvyPublishing(ivyPublication: IvyPublication,
+                                               tasks: ModelMap<Task>,
+                                               componentBuildConf: ComponentExtension) {
+                with(ivyPublication) {
                     tasks.withType(ZipContainer::class.java).forEach { task ->
                         this.artifact(task) { ivyArtifact ->
                             ivyArtifact.name = task.artifactBaseName
@@ -250,6 +234,41 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             it.type = "component"
                         })
                     }
+                }
+            }
+        }
+
+        /**
+         * Configures publishing of task output
+         * depending on configured publishing.
+         */
+        @Suppress("unused")
+        @Defaults
+        fun configurePublishingPublications(tasks: ModelMap<Task>,
+                                            publishing: PublishingExtension,
+                                            componentBuildConf: ComponentExtension,
+                                            @Path("buildDir") buildDir: File) {
+
+            val publications = publishing.publications
+
+            // create container, if configuration is available
+            componentBuildConf.containers.items.forEach { container ->
+                createContainerTask(tasks, container)
+            }
+
+            createDescriptorTask(tasks, componentBuildConf, buildDir)
+
+            try {
+                publications.maybeCreate(componentBuildConf.mavenPublicationName, MavenPublication::class.java).apply {
+                    configureMvnPublishing(this, tasks, componentBuildConf )
+                }
+            } catch(ex: InvalidUserDataException) {
+                logger.debug("Maven Publishing is not applied for component build plugin.")
+            }
+
+            try {
+                publications.maybeCreate(componentBuildConf.ivyPublicationName, IvyPublication::class.java).apply {
+                    configureIvyPublishing(this, tasks, componentBuildConf)
                 }
             } catch(ex: InvalidUserDataException) {
                 logger.debug("Ivy Publishing is not applied for component build plugin.")

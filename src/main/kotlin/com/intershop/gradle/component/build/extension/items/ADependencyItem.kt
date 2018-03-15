@@ -18,6 +18,13 @@ package com.intershop.gradle.component.build.extension.items
 
 import com.intershop.gradle.component.build.utils.DependencyConfig
 
+/**
+ * This class contains methods for items with additional
+ * dependencies.
+ *
+ * @property parentItem reference to container
+ * @constructor provides an empty item with parent item
+ */
 abstract class ADependencyItem(override val parentItem: IDeployment) :
         ATypeItem(parentItem), IDependency {
 

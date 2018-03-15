@@ -92,7 +92,8 @@ open class ModuleItemContainer
         item.resolveTransitive = resolveTransitive
 
         if(itemSet.find { it.dependency.module == item.dependency.module } != null)  {
-            throw InvalidUserDataException("Dependency '${item.dependency.module}' is already part of the current configuration!")
+            throw InvalidUserDataException("Dependency '${item.dependency.module}' is " +
+                    "already part of the current configuration!")
         } else {
             itemSet.add(item)
         }
@@ -144,7 +145,8 @@ open class ModuleItemContainer
         action.execute(item)
 
         if(itemSet.find { it.dependency.module == item.dependency.module } != null)  {
-            throw InvalidUserDataException("Dependency '${item.dependency.module}' is already part of the current configuration!")
+            throw InvalidUserDataException("Dependency '${item.dependency.module}' is " +
+                    "already part of the current configuration!")
         } else {
             itemSet.add(item)
         }
