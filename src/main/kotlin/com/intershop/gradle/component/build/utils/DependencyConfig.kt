@@ -43,7 +43,4 @@ data class DependencyConfig @JvmOverloads constructor(
 
     val moduleString: String
         get() = "$group:$module:$version"
-
-    val projectString: String
-        get() = dependency
 }

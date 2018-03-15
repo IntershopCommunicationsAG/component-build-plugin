@@ -71,6 +71,7 @@ open class ZipContainer : Zip() {
      *
      * @property inputFiles file collection with all files
      */
+    @Suppress( "unused")
     @get:InputFiles
     val inputFiles: FileCollection
         get() {
@@ -85,7 +86,7 @@ open class ZipContainer : Zip() {
      * @property artifactBaseName the base name
      */
     @get:Input
-    var artifactBaseName by artifactBaseNameProperty
+    var artifactBaseName: String by artifactBaseNameProperty
 
     /**
      * Appendix string of the artifact.
@@ -93,7 +94,7 @@ open class ZipContainer : Zip() {
      * @property artifactAppendix the appendix string
      */
     @get:Input
-    var artifactAppendix by artifactAppendixProperty
+    var artifactAppendix: String by artifactAppendixProperty
 
     /**
      * Classifier string of the artifact.
@@ -101,7 +102,7 @@ open class ZipContainer : Zip() {
      * @property artifactClassifier the classifier string
      */
     @get:Input
-    var artifactClassifier by artifactClassifierProperty
+    var artifactClassifier: String by artifactClassifierProperty
 
     /**
      * Calls the zip action to create the package.

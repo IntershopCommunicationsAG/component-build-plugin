@@ -47,8 +47,6 @@ import com.intershop.gradle.component.descriptor.Module as ModuleDescr
  * @property rootProj root project of the current project
  * @property configurations ConfigurationHandler of this project
  * @property dependencyHandler DependencyHandler of this project
- * @property libExcludes list of all excludes of the library configuration
- * @property moduleExcludes list of all excludes of the module configuration
  *
  * @constructor provides a class with configured exclude list based on regex with
  * a different maps for handling the dependencies.
@@ -128,7 +126,7 @@ class DependencyProcessor(val rootProj: Project,
             val conf = configurationFor(it.dep, false)
             with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
                 val libDescr = LibDesr(dependency = Dependency(moduleGroup, moduleName, moduleVersion),
-                        targetName = "${moduleGroup}_${moduleName}_${moduleVersion}")
+                        targetName = "${moduleGroup}_${moduleName}_$moduleVersion")
 
                 addLibDependency(libDescr, this, it.types)
                 compDescr.addLib(libDescr)

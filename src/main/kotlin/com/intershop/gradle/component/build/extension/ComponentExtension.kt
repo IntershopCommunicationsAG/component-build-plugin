@@ -75,7 +75,7 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
      * This is the root configuration
      * for all component items.
      *
-     * @property the component configuration self.
+     * @property parentItem the component configuration self.
      */
     override val parentItem = this
 
@@ -119,11 +119,11 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
     var targetPath: String by Delegates.vetoable("") { _, _, newValue ->
         val invalidChars = Utils.getIllegalChars(newValue)
         if(!invalidChars.isEmpty()) {
-            throw InvalidUserDataException("Target path of component '${displayName}'" +
+            throw InvalidUserDataException("Target path of component '$displayName'" +
                     "contains invalid characters '$invalidChars'.")
         }
         if(newValue.startsWith("/")) {
-            throw InvalidUserDataException("Target path of compoent '${displayName}'" +
+            throw InvalidUserDataException("Target path of compoent '$displayName'" +
                     "starts with a leading '/' - only a relative path is allowed.")
         }
         if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {
@@ -136,7 +136,7 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
      * This file configuration is used for the output
      * of the descriptor file.
      *
-     * @property descriptorOutput descriptor output file
+     * @property decriptorOutputFile descriptor output file
      */
     @Suppress("unused")
     var decriptorOutputFile: File = File(project.buildDir, DESCRIPTOR_FILE)
@@ -192,6 +192,7 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
      * @param types a list of deployment or environment types
      * @return if one environment type of the list is available, false will be returned.
      */
+    @Suppress("unused")
     fun addTypes(types: Collection<String>): Boolean {
         return typeList.addAll(types.map { it.toLowerCase() })
     }

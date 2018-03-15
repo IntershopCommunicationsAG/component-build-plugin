@@ -57,7 +57,7 @@ open class FileContainerItem(project: Project, val name: String, override val pa
      *
      * @property baseName the base name of the artifact.
      */
-    var baseName = project.name
+    var baseName = project.name!!
 
     /**
      * The default target path of the component.
@@ -139,7 +139,7 @@ open class FileContainerItem(project: Project, val name: String, override val pa
      * The set is empty per default.
      * It is defined as an task input property.
      *
-     * @property classifiers the set of OS specific strings
+     * @property classifier the set of OS specific strings
      */
     @get:Input
     override val classifier: String = ""

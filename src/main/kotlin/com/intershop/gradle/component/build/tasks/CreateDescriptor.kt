@@ -47,7 +47,6 @@ import com.intershop.gradle.component.descriptor.Module as ModuleDescr
  * This task hast currently no declared inputs and outputs and builds
  * file not incremental.
  *
- * @property dependencyHandler is used for internal dependency handling.
  * @constructor Creates the task with a dependencyHandler
  */
 open class CreateDescriptor : DefaultTask() {
@@ -75,6 +74,7 @@ open class CreateDescriptor : DefaultTask() {
      *
      * @param descriptorFile set provider for property.
      */
+    @Suppress( "unused")
     fun provideDescriptorFile(descriptorFile: Provider<RegularFile>)
             = descriptorFileProperty.set(descriptorFile)
 
@@ -93,6 +93,7 @@ open class CreateDescriptor : DefaultTask() {
      *
      * @param displayName set provider for property.
      */
+    @Suppress( "unused")
     fun provideDisplayName(displayName: Provider<String>)
             = displayNameProperty.set(displayName)
 
@@ -111,6 +112,7 @@ open class CreateDescriptor : DefaultTask() {
      *
      * @param description set provider for property.
      */
+    @Suppress( "unused")
     fun provideComponentDescription(description: Provider<String>)
             = componentDescriptionProperty.set(description)
 

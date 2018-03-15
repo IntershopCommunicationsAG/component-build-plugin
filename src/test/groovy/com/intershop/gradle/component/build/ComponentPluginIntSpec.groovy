@@ -88,7 +88,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         return settingsFile
     }
 
-    String createRepo(File dir) {
+    def createRepo(File dir) {
 
         File repoDir = new File(dir, 'repo')
 

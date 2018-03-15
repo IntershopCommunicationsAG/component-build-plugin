@@ -52,11 +52,11 @@ abstract class AContainer @Inject constructor(override val parentItem: IDeployme
                     "invalid characters '$invalidChars'.")
         }
         if(newValue.startsWith("/")) {
-            throw InvalidUserDataException("Target path of container '${description}' starts " +
+            throw InvalidUserDataException("Target path of container '$description' starts " +
                     "with a leading '/' - only a relative path is allowed.")
         }
         if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {
-            logger.warn("Target path of container '${description}' is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
+            logger.warn("Target path of container '$description' is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
         }
         invalidChars.isEmpty() && ! newValue.startsWith("/")
     }

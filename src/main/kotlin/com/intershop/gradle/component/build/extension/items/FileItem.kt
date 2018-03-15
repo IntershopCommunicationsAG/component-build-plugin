@@ -101,7 +101,7 @@ class FileItem(@get:InputFile val file: File,
      * The set is empty per default.
      * It is defined as an task input property.
      *
-     * @property classifiers the set of OS specific strings
+     * @property classifier the set of OS specific strings
      */
     @get:Input
     override val classifier: String = ""
