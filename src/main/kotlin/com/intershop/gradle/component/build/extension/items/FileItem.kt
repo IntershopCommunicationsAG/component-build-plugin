@@ -19,7 +19,6 @@ import com.intershop.gradle.component.build.extension.Utils
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFile
-import org.gradle.api.tasks.Internal
 import org.slf4j.LoggerFactory
 import java.io.File
 import kotlin.properties.Delegates
@@ -31,9 +30,7 @@ import kotlin.properties.Delegates
  * @property file the real file item of the component. This is marked as task input.
  * @constructor provides a configured file item
  */
-class FileItem(@get:InputFile val file: File,
-               @get:Internal override val parentItem: IDeployment) :
-        AItem(parentItem), IComponent, IDeployment, IOSSpecific {
+class FileItem(@get:InputFile val file: File) : AItem(), IItem, IOSSpecific {
 
     companion object {
         private val logger = LoggerFactory.getLogger(FileItem::class.java.simpleName)
@@ -75,26 +72,6 @@ class FileItem(@get:InputFile val file: File,
         }
         invalidChars.isEmpty() && ! newValue.startsWith("/")
     }
-
-    /**
-     * The complete install target of this item.
-     *
-     * @return a string representation of the item.
-     */
-    override fun getInstallPath(): String {
-        val installPath = StringBuilder(parentItem.getInstallPath())
-
-        if(! targetPath.isEmpty()) {
-            if(! installPath.endsWith("/")) {
-                installPath.append("/")
-            }
-            installPath.append(targetPath)
-        }
-        installPath.append(name).append('.').append(extension)
-
-        return installPath.toString()
-    }
-
 
     /**
      * This set contains OS specific descriptions.

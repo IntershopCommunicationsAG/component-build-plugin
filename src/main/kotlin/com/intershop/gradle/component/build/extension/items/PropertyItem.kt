@@ -16,19 +16,15 @@
 package com.intershop.gradle.component.build.extension.items
 
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 
 /**
  * This class provides a property object for the component
  * extension of the component build plugin.
  *
  * @property key the property key of the item
- * @property parentItem the parent of this container.
  * @constructor initialize an property item without a value.
  */
-class PropertyItem(@get:Input val key: String,
-                   @get:Internal override val parentItem: IDeployment):
-        AItem(parentItem), IComponent, IDeployment, IOSSpecific {
+class PropertyItem(@get:Input val key: String): AItem(), IItem, IOSSpecific {
 
     /**
      * The value of the item. This is marked as task input.
@@ -36,7 +32,6 @@ class PropertyItem(@get:Input val key: String,
      */
     @get:Input
     var value: String = ""
-
 
     /**
      * This set contains OS specific descriptions.

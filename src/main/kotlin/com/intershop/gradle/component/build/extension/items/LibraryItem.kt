@@ -18,7 +18,6 @@ package com.intershop.gradle.component.build.extension.items
 import com.intershop.gradle.component.build.extension.Utils
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.InvalidUserDataException
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import kotlin.properties.Delegates
 
@@ -27,12 +26,10 @@ import kotlin.properties.Delegates
  * extension of the component build plugin.
  *
  * @property dependency a dependency object of tis library
- * @property parentItem the parent of this container.
  * @constructor initialize a library based on the dependency
  */
-class LibraryItem(@get:Nested override val dependency: DependencyConfig,
-                  @get:Internal override val parentItem: IDeployment) :
-        ADependencyItem(parentItem), IDependency {
+class LibraryItem(@get:Nested override val dependency: DependencyConfig) :
+        ADependencyItem(), IItem, IDependency {
 
     /**
      * This will be configured for the deployment
@@ -48,27 +45,5 @@ class LibraryItem(@get:Nested override val dependency: DependencyConfig,
             }
             ! newValue.startsWith("/")
         }
-
-    /**
-     * The complete install target of this item.
-     *
-     * @return a string representation of the item.
-     */
-    override fun getInstallPath(): String {
-        val installPath = StringBuilder(parentItem.getInstallPath())
-
-        if(! installPath.endsWith("/")) {
-            installPath.append("/")
-        }
-
-        if(targetName.isEmpty()) {
-            installPath.append(dependency.module).append('-').append(dependency.version).append('.').append("jar")
-        } else {
-            installPath.append(targetName)
-        }
-
-        return installPath.toString()
-    }
-
 
 }

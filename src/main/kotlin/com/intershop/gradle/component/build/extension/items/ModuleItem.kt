@@ -19,7 +19,6 @@ import com.intershop.gradle.component.build.extension.Utils
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.internal.impldep.org.bouncycastle.asn1.x500.style.RFC4519Style.name
 import org.slf4j.LoggerFactory
@@ -30,12 +29,10 @@ import kotlin.properties.Delegates
  * extension of the component build plugin.
  *
  * @property dependency a dependency configuration of this module
- * @property parentItem the parent of this container.
  * @constructor initialize an module with a defined dependency
  */
-class ModuleItem(@get:Nested override val dependency: DependencyConfig,
-                 @get:Internal override val parentItem: IDeployment) :
-        ADependencyItem(parentItem), IComponent, IContainer, IDependency {
+class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
+        ADependencyItem(), IItem, IContainer, IDependency {
 
     companion object {
         private val logger = LoggerFactory.getLogger(ModuleItem::class.java.simpleName)
@@ -73,24 +70,6 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig,
      * @property targetIncluded if true, the target path is included in the module fileContainers.
      */
     override var targetIncluded:Boolean = false
-
-    /**
-     * The complete install target of this item.
-     *
-     * @return a string representation of the item.
-     */
-    override fun getInstallPath(): String {
-        val installPath = StringBuilder(parentItem.getInstallPath())
-
-        if(! targetPath.isEmpty() && ! targetIncluded) {
-            if(! installPath.endsWith("/")) {
-                installPath.append("/")
-            }
-            installPath.append(targetPath)
-        }
-
-        return installPath.toString()
-    }
 
     /**
      * This property contains the content type of the item.

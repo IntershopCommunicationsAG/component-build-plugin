@@ -32,7 +32,7 @@ import java.io.File
  * This class provides a preconfigured Zip task
  * to prepare the container for a component.
  */
-open class ZipContainer : Zip() {
+open class ZipContainerTask : Zip() {
 
     private val inputFilesProperty = project.files()
 
@@ -112,7 +112,7 @@ open class ZipContainer : Zip() {
     fun action() {
         // default configuration for component zip
         includeEmptyDirs = true
-        setDuplicatesStrategy(DuplicatesStrategy.FAIL)
+        duplicatesStrategy = DuplicatesStrategy.FAIL
 
         // only three digits are configured (mask is 0000)
         fileMode = 640

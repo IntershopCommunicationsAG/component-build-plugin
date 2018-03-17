@@ -22,6 +22,7 @@ import com.intershop.gradle.component.build.utils.DependencyConfig
 import com.intershop.gradle.component.descriptor.Component
 import com.intershop.gradle.component.descriptor.ContentType
 import com.intershop.gradle.component.descriptor.Dependency
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
@@ -42,53 +43,31 @@ import com.intershop.gradle.component.descriptor.Module as ModuleDescr
 
 /**
  * This class provides the handling of the module item and library item
- * set for the CreateDescriptor task.
+ * set for the CreateDescriptorTask task.
  *
  * @property rootProj root project of the current project
  * @property configurations ConfigurationHandler of this project
  * @property dependencyHandler DependencyHandler of this project
+ * @property excludes set of dependency patterns for excluding dependencies
  *
  * @constructor provides a class with configured exclude list based on regex with
  * a different maps for handling the dependencies.
  */
-class DependencyProcessor(val rootProj: Project,
-                          val configurations: ConfigurationContainer,
-                          val dependencyHandler: DependencyHandler,
-                          libExcludes: Set<DependencyConfig>?,
-                          moduleExcludes: Set<DependencyConfig>?) {
+class DependencyProcessor(private val rootProj: Project,
+                          private val configurations: ConfigurationContainer,
+                          private val dependencyHandler: DependencyHandler,
+                          private val excludes: Set<DependencyConfig>) {
 
     private val resModuleDeps: MutableMap<DependencyConfig, ExtendedDepConfig> = mutableMapOf()
     private val procModuleDeps: MutableMap<DependencyConfig, ExtendedDepConfig> = mutableMapOf()
-    private val excludeModuleSet: MutableSet<ExcludeConfig> = mutableSetOf()
     private val resLibDeps: MutableMap<DependencyConfig, ExtendedDepConfig> = mutableMapOf()
     private val procLibDeps: MutableMap<DependencyConfig, ExtendedDepConfig> = mutableMapOf()
-    private val excludeLibSet: MutableSet<ExcludeConfig> = mutableSetOf()
+
+    private var modulesDeps: List<DependencyConfig>? = null
+    private var libsDeps: List<DependencyConfig>? = null
 
     companion object {
         private val logger = LoggerFactory.getLogger(DependencyProcessor::class.java.simpleName)
-
-        private fun createRegex(input: String): Regex {
-            if (input.isBlank()) {
-                return ".*".toRegex()
-            } else {
-                return input.replace(".", "\\.").replace("*", ".*").toRegex()
-            }
-        }
-    }
-
-    init {
-        if (moduleExcludes != null) {
-            moduleExcludes.forEach {
-                excludeModuleSet.add(ExcludeConfig(createRegex(it.group),
-                        createRegex(it.module), createRegex(it.version)))
-            }
-        }
-        if (libExcludes != null) {
-            libExcludes.forEach {
-                excludeLibSet.add(ExcludeConfig(createRegex(it.group),
-                        createRegex(it.module), createRegex(it.version)))
-            }
-        }
     }
 
     /**
@@ -98,6 +77,7 @@ class DependencyProcessor(val rootProj: Project,
      * @param modules a set of configured modules
      * @param libs a set of configured libraries
      */
+    @Throws(InvalidUserDataException::class)
     fun addDependencies(compDescr: Component, modules: Set<ModuleItem>?, libs: Set<LibraryItem>?) {
         // reset all sets
         resModuleDeps.clear()
@@ -105,17 +85,16 @@ class DependencyProcessor(val rootProj: Project,
         resLibDeps.clear()
         procLibDeps.clear()
 
+        libsDeps = libs?.map { it.dependency }
+        modulesDeps = modules?.map { it.dependency }
+
         // add configured dependencies
-        if(libs != null) {
-            libs.forEach {
-                addDependencyObjects(compDescr, it)
-            }
+        libs?.forEach {
+            addDependencyObjects(compDescr, it)
         }
 
-        if(modules != null) {
-            modules.forEach {
-                addDependencyObjects(compDescr, it)
-            }
+        modules?.forEach {
+            addDependencyObjects(compDescr, it)
         }
 
         procModuleDeps.keys.forEach { resModuleDeps.remove(it) }
@@ -125,52 +104,87 @@ class DependencyProcessor(val rootProj: Project,
         resLibDeps.values.forEach {
             val conf = configurationFor(it.dep, false)
             with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
-                val libDescr = LibDesr(dependency = Dependency(moduleGroup, moduleName, moduleVersion),
-                        targetName = "${moduleGroup}_${moduleName}_$moduleVersion")
-
-                addLibDependency(libDescr, this, it.types)
-                compDescr.addLib(libDescr)
+                val targetName = "${moduleGroup}_${moduleName}_$moduleVersion"
+                if(! compDescr.libs.keys.contains(targetName)) {
+                    val libDescr = LibDesr(dependency = Dependency(moduleGroup, moduleName, moduleVersion),
+                            targetName = targetName)
+                    libDescr.types.addAll(it.types)
+                    compDescr.addLib(libDescr)
+                } else {
+                    logger.error("Target name '{}' for '{}' exists in list of targets." +
+                        "Check your configuration! The target name is module_name_version in " +
+                        "the default configuration", targetName, it.dep.moduleString)
+                    throw InvalidUserDataException("Target name '$targetName' for '${it.dep.moduleString}' exists " +
+                            "in list of targets. Check your configuration!")
+                }
             }
         }
 
         resModuleDeps.values.forEach {
             val conf = configurationFor(it.dep, false)
             with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
-                val moduleDesc = ModuleDescr(name = moduleName,
-                    targetPath = moduleName,
-                    dependency = Dependency(moduleGroup, moduleName, moduleVersion),
-                    targetIncluded = false,
-                    contentType = ContentType.IMMUTABLE)
+                if(! compDescr.modules.keys.contains(moduleName)) {
+                    val moduleDesc = ModuleDescr(name = moduleName,
+                            targetPath = moduleName,
+                            dependency = Dependency(moduleGroup, moduleName, moduleVersion),
+                            targetIncluded = false,
+                            contentType = ContentType.IMMUTABLE)
 
-                addModuleDependency(moduleDesc, this, it.types)
+                    addModuleDependency(moduleDesc, this, it.types)
 
-                compDescr.addModule(moduleDesc)
+                    compDescr.addModule(moduleDesc)
+                } else {
+                    logger.error("Target path '{}' for '{}' exists in list of targets." +
+                            "Check your configuration! The module name is the target path in " +
+                            "the default configuration", moduleName, it.dep.moduleString)
+                    throw InvalidUserDataException("Target path '$moduleName' for '${it.dep.moduleString}' exists " +
+                            "in List of targets. Check your configuration.")
+                }
             }
         }
     }
 
+    @Throws(InvalidUserDataException::class)
     private fun addDependencyObjects(compDescr: Component, item: IDependency) {
         val conf = configurationFor(item.dependency, item.resolveTransitive)
 
         with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
             when (item) {
                 is ModuleItem -> {
-                    val moduleDesc = ModuleDescr(name = moduleName,
+                    if(! compDescr.modules.keys.contains(item.targetPath)) {
+                        val moduleDesc = ModuleDescr(name = moduleName,
                             targetPath = item.targetPath,
                             dependency = Dependency(moduleGroup, moduleName, moduleVersion),
                             targetIncluded = item.targetIncluded,
                             contentType = ContentType.valueOf(item.contentType))
 
-                    addModuleDependency(moduleDesc, this, item.types)
-                    compDescr.addModule(moduleDesc)
-                    procModuleDeps.put(item.dependency, ExtendedDepConfig(item.dependency, item.types))
+                        addModuleDependency(moduleDesc, this, item.types)
+                        compDescr.addModule(moduleDesc)
+                        procModuleDeps.put(item.dependency, ExtendedDepConfig(item.dependency, item.types))
+                    } else {
+                        logger.error("Target path '{}' for '{}' exists in list of targets." +
+                                "Check your configuration! The module name is the target path in " +
+                                "the default configuration", item.targetPath, item.dependency.moduleString)
+                        throw InvalidUserDataException("Target path '${item.targetPath}' for '" +
+                                "${item.dependency.moduleString}' exists in list of targets. Check your" +
+                                " logs and configuration!")
+                    }
                 }
                 is LibraryItem -> {
-                    val libDescr = LibDesr(dependency = Dependency(moduleGroup, moduleName, moduleVersion),
-                            targetName = item.targetName)
-                    addLibDependency(libDescr, this, item.types)
-                    compDescr.addLib(libDescr)
-                    procLibDeps.put(item.dependency, ExtendedDepConfig(item.dependency, item.types))
+                    if(! compDescr.libs.keys.contains(item.targetName)) {
+                        val libDescr = LibDesr(dependency = Dependency(moduleGroup, moduleName, moduleVersion),
+                                targetName = item.targetName)
+                        libDescr.types.addAll(item.types)
+                        compDescr.addLib(libDescr)
+                        procLibDeps.put(item.dependency, ExtendedDepConfig(item.dependency, item.types))
+                    } else {
+                        logger.error("Target name '{}' for '{}' exists in list of targets." +
+                                "Check your configuration! The target name is module_name_version in " +
+                                "the default configuration", item.targetName, item.dependency.moduleString)
+                        throw InvalidUserDataException("Target name '${item.targetName}' for '" +
+                                "${item.dependency.moduleString}' exists in list of targets. Check your " +
+                                " logs and configuration!")
+                    }
                 }
                 else -> {
                     logger.warn("The item type {} is not supported.", item::class.java.simpleName)
@@ -178,13 +192,7 @@ class DependencyProcessor(val rootProj: Project,
             }
         }
 
-        val excludeItemSet: MutableSet<ExcludeConfig> = mutableSetOf()
-
-        item.excludes.forEach {
-            excludeItemSet.add(ExcludeConfig(createRegex(it.group),createRegex(it.module),createRegex(it.version)))
-        }
-
-        addTransitiveDependencies(conf, excludeItemSet, item.types)
+        addTransitiveDependencies(conf, item.types)
     }
 
     private fun addModuleDependency(moduleDesc: ModuleDescr,
@@ -213,39 +221,35 @@ class DependencyProcessor(val rootProj: Project,
         }
     }
 
-    private fun addLibDependency(libDesc: LibDesr,
-                                 resolvedDependency: ResolvedDependency,
-                                 types: Set<String>) {
+    @Throws(InvalidUserDataException::class)
+    private fun addTransitiveDependencies(conf: Configuration, types: Set<String>) {
+        var fromDep = ""
 
-        with(resolvedDependency) {
-            // filter for jars
-            moduleArtifacts.
-                    filter({ it.type == "jar" })
-                    .forEach {
-                        // validate jar ...
-                    }
-
-            libDesc.types.addAll(types)
-        }
-    }
-
-    private fun addTransitiveDependencies(conf: Configuration,
-                                          excludeItemSet:  MutableSet<ExcludeConfig>,
-                                          types: Set<String>) {
         val componentIds = conf.incoming.resolutionResult.allDependencies.mapNotNull {
-            if(it is ResolvedDependencyResult) { it.selected.id } else { null }
+            fromDep = it.from.toString()
+            (it as? ResolvedDependencyResult)?.selected?.id
         }
 
         val ivyArtifactResolutionResult = dependencyHandler.createArtifactResolutionQuery().forComponents(componentIds).
                 withArtifacts(IvyModule::class.java, IvyDescriptorArtifact::class.java).execute()
 
-        ivyArtifactResolutionResult.resolvedComponents.mapNotNull { idToDependencyConfig(it.id) }.forEach {
-            val module: ExtendedDepConfig? = resModuleDeps.get(it)
+        ivyArtifactResolutionResult.resolvedComponents.mapNotNull { idToDependencyConfig(it.id) }.forEach {dep ->
+            val module: ExtendedDepConfig? = resModuleDeps[dep]
             if(module != null) {
                 module.addTypes(types)
             } else {
-                if(isNotExcluded(it, excludeItemSet, excludeModuleSet)) {
-                    resModuleDeps.put(it, ExtendedDepConfig(it, types))
+                if ( isNotExcluded(dep) ) {
+                    val availableDep = resModuleDeps.keys.find { it.group == dep.group && it.module == dep.module }
+                    if( availableDep == null) {
+                        resModuleDeps[dep] = ExtendedDepConfig(dep, types)
+                    } else {
+                        logger.error("There is a version conflict! {}:{} exists " +
+                                "in the list of resolved Depedendencies. [source: {}, availabble: {}, new: {}]",
+                                dep.group, dep.module, fromDep, dep.moduleString, availableDep.moduleString)
+
+                        throw InvalidUserDataException("There is a version conflict! " + dep.group + ":" + dep.module +
+                                " exists in the list of resolved Depedendencies.")
+                    }
                 }
             }
         }
@@ -253,33 +257,38 @@ class DependencyProcessor(val rootProj: Project,
         val pomArtifactResolutionResult = dependencyHandler.createArtifactResolutionQuery().forComponents(componentIds).
                 withArtifacts(MavenModule::class.java,  MavenPomArtifact::class.java).execute()
 
-        pomArtifactResolutionResult.resolvedComponents.mapNotNull { idToDependencyConfig(it.id) }.forEach {
-            val lib: ExtendedDepConfig? = resLibDeps.get(it)
+        pomArtifactResolutionResult.resolvedComponents.mapNotNull { idToDependencyConfig(it.id) }.forEach {dep ->
+            val lib: ExtendedDepConfig? = resLibDeps[dep]
             if(lib != null) {
                 lib.addTypes(types)
             } else {
-                if(isNotExcluded(it, excludeLibSet, excludeItemSet)) {
-                    resLibDeps.put(it, ExtendedDepConfig(it, types))
+                if ( isNotExcluded(dep) ) {
+                    val availableDep = resLibDeps.keys.find { it.group == dep.group && it.module == dep.module }
+                    if( availableDep == null ) {
+                        resLibDeps[dep] = ExtendedDepConfig(dep, types)
+                    } else {
+                        logger.error("There is a version conflict! {}:{} exists " +
+                                "in the list of resolved Depedendencies. [source: {}, availabble: {}, new: {}]",
+                                dep.group, dep.module, fromDep, dep.moduleString, availableDep.moduleString)
+
+                        throw InvalidUserDataException("There is a version conflict! " + dep.group + ":" + dep.module +
+                                " exists in the list of resolved Depedendencies.")
+                    }
                 }
             }
         }
     }
 
-    private fun isNotExcluded(dep: DependencyConfig,
-                              excludeItemSet:  MutableSet<ExcludeConfig>,
-                              excludeSet:  MutableSet<ExcludeConfig>) : Boolean {
+    private fun isNotExcluded(dep: DependencyConfig) : Boolean {
 
-        val resItem = excludeItemSet.filter {
-            it.group.matches(dep.group) && it.module.matches(dep.module) && it.version.matches(dep.version)
-        }.isEmpty()
+        val confDepIncluded = modulesDeps?.find { it.group == dep.group && it.module == dep.module } != null &&
+                libsDeps?.find { it.group == dep.group && it.module == dep.module } != null
 
-        if (resItem) {
-            return true
+        return confDepIncluded || excludes.none {
+            it.group.toRegex().matches(dep.group)
+                    && it.module.toRegex().matches(dep.module)
+                    && it.version.toRegex().matches(dep.version)
         }
-
-        return excludeSet.filter {
-            it.group.matches(dep.group) && it.module.matches(dep.module) && it.version.matches(dep.version)
-        }.isEmpty()
     }
 
     private fun configurationFor(dependency: DependencyConfig, transitive: Boolean) : Configuration {
@@ -328,8 +337,4 @@ class DependencyProcessor(val rootProj: Project,
             }
         }
     }
-
-    private data class ExcludeConfig(val group: Regex,
-                                     val module: Regex,
-                                     val version: Regex)
 }

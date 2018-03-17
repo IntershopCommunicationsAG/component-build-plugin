@@ -13,15 +13,19 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.intershop.gradle.component.build.extension.items
+package com.intershop.gradle.component.build.utils
+
+import java.io.File
+import java.io.Serializable
 
 /**
- * This interface provides basic methods of a component object.
+ * Data clas for jar files with dependency information.
+ * It is used by the class collision check.
+ *
+ * @property dependency jar file dependency
+ * @property parentDependency the parent dependency of the jar file
+ * @property jarFile the jar file self
  */
-interface IComponent {
-
-    /**
-     * Content type of this file.
-     */
-    var contentType: String
-}
+data class JarFileInfo(val dependency: String,
+                       val parentDependency: String,
+                       val jarFile: File) : Serializable

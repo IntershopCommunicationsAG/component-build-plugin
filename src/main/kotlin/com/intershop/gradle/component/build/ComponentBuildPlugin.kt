@@ -18,8 +18,9 @@ package com.intershop.gradle.component.build
 import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.FileContainerItem
 import com.intershop.gradle.component.build.extension.items.FileItem
-import com.intershop.gradle.component.build.tasks.CreateDescriptor
-import com.intershop.gradle.component.build.tasks.ZipContainer
+import com.intershop.gradle.component.build.tasks.CheckClassCollisionsTask
+import com.intershop.gradle.component.build.tasks.CreateDescriptorTask
+import com.intershop.gradle.component.build.tasks.ZipContainerTask
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
 import org.gradle.api.Project
@@ -36,6 +37,7 @@ import org.gradle.model.internal.core.ModelPath
 import org.gradle.model.internal.core.ModelReference
 import org.gradle.model.internal.core.ModelRegistrations
 import org.gradle.model.internal.registry.ModelRegistry
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import java.io.File
 import javax.inject.Inject
@@ -78,18 +80,18 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
     /**
      * This RuleSource adds rules for publishing task output
-     * of CreateDescriptor Task.
+     * of CreateDescriptorTask Task.
      */
     @Suppress("unused")
     class ComponentBuildRule: RuleSource() {
 
         companion object {
-            val logger = LoggerFactory.getLogger(ComponentBuildRule::class.java.simpleName)
+            val logger: Logger = LoggerFactory.getLogger(ComponentBuildRule::class.java.simpleName)
 
             private fun createContainerTask(tasks: ModelMap<Task>, container: FileContainerItem): String {
                 val taskName = "zipContainer${container.name.capitalize()}"
                 if(! tasks.containsKey(taskName)) {
-                    tasks.create(taskName, ZipContainer::class.java) {
+                    tasks.create(taskName, ZipContainerTask::class.java) {
                         with(it) {
                             group = ComponentExtension.COMPONENT_GROUP_NAME
                             description = "Creates zip for container configuration '${container.name}'."
@@ -138,7 +140,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                 val componentName = extension.displayName.replace(" ", "_").capitalize()
                 val taskName = "deploymentDescr$componentName"
                 if(! tasks.containsKey(taskName)) {
-                    tasks.create(taskName, CreateDescriptor::class.java) {
+                    tasks.create(taskName, CreateDescriptorTask::class.java) {
                         with(it) {
                             group = ComponentExtension.COMPONENT_GROUP_NAME
                             description = "Creates descriptor for component deployment '${extension.displayName}'"
@@ -148,6 +150,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
                             libs = extension.libs
                             modules = extension.modules
+                            excludes = extension.dependenciesConf.excludes
                             properties = extension.propertyItems
                             containers = extension.containers
                             files = extension.fileItems
@@ -160,11 +163,37 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                 return taskName
             }
 
+            private fun createVerifyClassCollisionTask(tasks: ModelMap<Task>,
+                                                       extension: ComponentExtension,
+                                                       buildDir: File) : String {
+                val componentName = extension.displayName.replace(" ", "_").capitalize()
+                val taskName = "verifyClassCollision$componentName"
+                if(! tasks.containsKey(taskName)) {
+                    tasks.create(taskName, CheckClassCollisionsTask::class.java) {
+                        with(it) {
+                            group = ComponentExtension.COMPONENT_GROUP_NAME
+                            description = "Check jars for class collisions of '${extension.displayName}'"
+
+                            enabled = extension.dependenciesConf.classCollision.enabled
+
+                            libSet = extension.libs.items
+                            moduleSet = extension.modules.items
+                            excludes = extension.dependenciesConf.excludes
+                            excludedClasses = extension.dependenciesConf.classCollision.excludedClasses
+                            collisionExcludes = extension.dependenciesConf.classCollision.excludes
+
+                            reportOutput = File(buildDir, ComponentExtension.CLASSCOLLISION_REPORT)
+                        }
+                    }
+                }
+                return taskName
+            }
+
             private fun configureMvnPublishing(mvnPublication: MavenPublication,
                                                tasks: ModelMap<Task>,
                                                componentBuildConf: ComponentExtension) {
                 with(mvnPublication) {
-                    tasks.withType(ZipContainer::class.java).forEach { task ->
+                    tasks.withType(ZipContainerTask::class.java).forEach { task ->
                         this.artifact(task) { mvnArtifact ->
                             mvnArtifact.extension = task.extension
 
@@ -192,7 +221,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                         }
                     }
 
-                    tasks.withType(CreateDescriptor::class.java).forEach {
+                    tasks.withType(CreateDescriptorTask::class.java).forEach {
                         this.artifact(it.outputs.files.singleFile) {
                             it.builtBy(it)
                             it.classifier = "component"
@@ -205,7 +234,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                                                tasks: ModelMap<Task>,
                                                componentBuildConf: ComponentExtension) {
                 with(ivyPublication) {
-                    tasks.withType(ZipContainer::class.java).forEach { task ->
+                    tasks.withType(ZipContainerTask::class.java).forEach { task ->
                         this.artifact(task) { ivyArtifact ->
                             ivyArtifact.name = task.artifactBaseName
                             ivyArtifact.type = task.artifactAppendix
@@ -227,7 +256,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                         }
                     }
 
-                    tasks.withType(CreateDescriptor::class.java).forEach { task ->
+                    tasks.withType(CreateDescriptorTask::class.java).forEach { task ->
                         this.artifact(task.outputs.files.singleFile, {
                             it.builtBy(task)
                             it.name = task.project.name
@@ -256,7 +285,11 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                 createContainerTask(tasks, container)
             }
 
-            createDescriptorTask(tasks, componentBuildConf, buildDir)
+            val taskCreateDescr = createDescriptorTask(tasks, componentBuildConf, buildDir)
+
+            val taskVerifyClassCollion = createVerifyClassCollisionTask(tasks, componentBuildConf, buildDir)
+
+            tasks.get(taskCreateDescr)?.dependsOn(taskVerifyClassCollion)
 
             try {
                 publications.maybeCreate(componentBuildConf.mavenPublicationName, MavenPublication::class.java).apply {

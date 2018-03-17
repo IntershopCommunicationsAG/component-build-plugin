@@ -16,8 +16,8 @@
 
 package com.intershop.gradle.component.build.extension.container
 
-import com.intershop.gradle.component.build.extension.items.ATypeItem
-import com.intershop.gradle.component.build.extension.items.IDeployment
+import com.intershop.gradle.component.build.extension.ComponentExtension
+import com.intershop.gradle.component.build.extension.items.AItem
 import com.intershop.gradle.component.build.extension.items.PropertyItem
 import org.gradle.api.InvalidUserDataException
 import javax.inject.Inject
@@ -25,12 +25,10 @@ import javax.inject.Inject
 /**
  * This class provides a container for properties, that will be transferred for an deployment.
  *
- * @property parentItem the parent of this container.
+ * @property parent the parent of this container.
  * @constructor provides the property container
  */
-open class PropertyItemContainer
-        @Inject constructor(override val parentItem: IDeployment) :
-        ATypeItem(parentItem) {
+open class PropertyItemContainer @Inject constructor(private val parent: ComponentExtension) : AItem() {
 
     // backing properties
     private val itemSet: MutableSet<PropertyItem> = mutableSetOf()
@@ -54,7 +52,7 @@ open class PropertyItemContainer
     @Suppress("unused")
     @Throws(InvalidUserDataException::class)
     fun add(key: String, value: String, vararg types: String): PropertyItem {
-        val item = PropertyItem(key, this)
+        val item = PropertyItem(key)
         item.setTypes(types.asList())
 
         item.value = value
@@ -77,8 +75,8 @@ open class PropertyItemContainer
      */
     @Throws(InvalidUserDataException::class)
     fun add(key: String, value: String) : PropertyItem {
-        if(types.isEmpty() && parentItem.types.isNotEmpty()) {
-            return add(key,value, *parentItem.types.toTypedArray())
+        if(types.isEmpty() && parent.types.isNotEmpty()) {
+            return add(key,value, *parent.types.toTypedArray())
         }
         return add(key,value, *this.types.toTypedArray())
     }

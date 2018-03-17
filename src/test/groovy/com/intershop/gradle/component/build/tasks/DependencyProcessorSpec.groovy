@@ -68,8 +68,8 @@ class DependencyProcessorSpec extends Specification {
 
         Component descr = new Component("TestComponent", "Test Description")
         DependencyConfig conf = new DependencyConfig("")
-        DependencyProcessor processor = new DependencyProcessor(project.rootProject, project.configurations, project.dependencies,
-                [ conf ] as Set<DependencyConfig>, [ conf ] as Set<DependencyConfig>)
+        DependencyProcessor processor = new DependencyProcessor(project.rootProject, project.configurations,
+                project.dependencies, [ conf ] as Set<DependencyConfig>)
 
         extension.libs {
             add("com.intershop:library1:1.0.0")

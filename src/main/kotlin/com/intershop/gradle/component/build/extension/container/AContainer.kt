@@ -17,8 +17,7 @@
 package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.Utils
-import com.intershop.gradle.component.build.extension.items.ATypeItem
-import com.intershop.gradle.component.build.extension.items.IDeployment
+import com.intershop.gradle.component.build.extension.items.AItem
 import org.gradle.api.InvalidUserDataException
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
@@ -28,12 +27,10 @@ import kotlin.properties.Delegates
  * This class contains functions and properties for all containers
  * of the component extension.
  *
- * @property parentItem a reference to the parent of this container.
  * @property description a short description of this container for log messages.
  * @constructor provides an empty container
  */
-abstract class AContainer @Inject constructor(override val parentItem: IDeployment,
-                                              protected val description: String) : ATypeItem(parentItem) {
+abstract class AContainer @Inject constructor(protected val description: String) : AItem() {
 
     companion object {
         private val logger = LoggerFactory.getLogger(AContainer::class.java.simpleName)
@@ -59,23 +56,5 @@ abstract class AContainer @Inject constructor(override val parentItem: IDeployme
             logger.warn("Target path of container '$description' is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
         }
         invalidChars.isEmpty() && ! newValue.startsWith("/")
-    }
-
-    /**
-     * The complete install target of this item.
-     *
-     * @return a string representation of the item.
-     */
-    override fun getInstallPath(): String {
-        val installPath = StringBuilder(parentItem.getInstallPath())
-
-        if(! targetPath.isEmpty()) {
-            if(! installPath.endsWith("/")) {
-                installPath.append("/")
-            }
-            installPath.append(targetPath)
-        }
-
-        return installPath.toString()
     }
 }

@@ -22,8 +22,10 @@ import kotlin.properties.Delegates
 /**
  * This class provides the basic properties of any component item.
  */
-abstract class AItem(override val parentItem: IDeployment) :
-        ATypeItem(parentItem), IComponent, IDeployment {
+abstract class AItem: IItem {
+
+    private val typeList: MutableSet<String> = mutableSetOf()
+
     /**
      * This property contains the content type of the item.
      * The following values are allowed:
@@ -40,5 +42,50 @@ abstract class AItem(override val parentItem: IDeployment) :
             throw InvalidUserDataException("Content type must be 'IMMUTABLE', 'DATA', " +
                     "'CONFIGURATION', but it is $newValue", ex)
         }
+    }
+
+    /**
+     * This set contains deployment or environment type
+     * definitions, like 'production', 'test' etc. The set
+     * can be extended.
+     * The set is empty per default.
+     * It is defined as an task input property.
+     *
+     * @property types the set of deployment or environment types
+     */
+    @get:Input
+    override val types: Set<String>
+        get() = typeList
+
+    /**
+     * Adds a new deployment or environment type. The characters will
+     * be changed to lower cases.
+     *
+     * @param type a deployment or environment type
+     * @return if the environment type is available, false will be returned.
+     */
+    fun addType(type: String): Boolean {
+        return typeList.add(type.toLowerCase())
+    }
+
+    /**
+     * Reset the set with new values from input.
+     *
+     * @param types a new list of types
+     */
+    fun setTypes(types: Collection<String>) {
+        typeList.clear()
+        typeList.addAll(types)
+    }
+
+    /**
+     * Adds a list of new deployment or environment types. The
+     * characters will be changed to lower cases.
+     *
+     * @param types a list of deployment or environment types
+     * @return if one environment type of the list is available, false will be returned.
+     */
+    fun addTypes(types: Collection<String>): Boolean {
+        return typeList.addAll(types.map { it.toLowerCase() })
     }
 }

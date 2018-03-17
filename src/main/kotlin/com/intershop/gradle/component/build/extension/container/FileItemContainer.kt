@@ -15,7 +15,7 @@
  */
 package com.intershop.gradle.component.build.extension.container
 
-import com.intershop.gradle.component.build.extension.items.IDeployment
+import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.FileItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
@@ -26,12 +26,11 @@ import javax.inject.Inject
  * This class provides a container for
  * deployable single files.
  *
- * @property parentItem the parent of this container.
+ * @property parent the parent of this container.
  * @constructor provides an empty preconfigured file item container
  */
-open class FileItemContainer
-        @Inject constructor(override val parentItem: IDeployment) :
-        AContainer(parentItem, "File Item Container") {
+open class FileItemContainer @Inject constructor(private val parent: ComponentExtension) :
+        AContainer("File Item Container") {
 
     private val itemSet: MutableSet<FileItem> = mutableSetOf()
 
@@ -53,7 +52,7 @@ open class FileItemContainer
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(file: File, vararg types: String): FileItem {
-        val item = FileItem(file, this)
+        val item = FileItem(file)
         item.setTypes(types.asList())
 
         if(itemSet.find { it.name == item.name &&
@@ -75,8 +74,8 @@ open class FileItemContainer
      */
     @Throws(InvalidUserDataException::class)
     fun add(file: File) : FileItem {
-        if(types.isEmpty() && parentItem.types.isNotEmpty()) {
-            return add(file, *parentItem.types.toTypedArray())
+        if(types.isEmpty() && parent.types.isNotEmpty()) {
+            return add(file, *parent.types.toTypedArray())
         }
         return add(file, *this.types.toTypedArray())
     }
@@ -90,7 +89,7 @@ open class FileItemContainer
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(file: File, action: Action<in FileItem>) {
-        val item = FileItem(file, this)
+        val item = FileItem(file)
 
         action.execute(item)
 

@@ -27,8 +27,9 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 class Utils {
 
     companion object {
-        val ILLEGAL_CHARACTERS = arrayListOf(' ', '\n', '\r', '\t', '`', '?', '*', '\\', '<', '>', '|', '\"', ':')
-        val MAX_PATH_LENGTH = 4096
+        private val ILLEGAL_CHARACTERS = arrayListOf(' ', '\n', '\r', '\t', '`', '?',
+                '*', '\\', '<', '>', '|', '\"', ':')
+        const val MAX_PATH_LENGTH = 4096
 
         /**
          * Calculates illegal characters for path configuration.

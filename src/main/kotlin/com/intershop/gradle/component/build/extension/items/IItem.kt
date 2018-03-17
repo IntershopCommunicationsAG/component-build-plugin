@@ -16,9 +16,9 @@
 package com.intershop.gradle.component.build.extension.items
 
 /**
- * This interface provides the basic property of a deployment object.
+ * This interface provides basic methods of a component object.
  */
-interface IDeployment {
+interface IItem {
 
     /**
      * Deployment or environment types.
@@ -26,16 +26,8 @@ interface IDeployment {
     val types: Set<String>
 
     /**
-     * Get the install path of the item.
-     *
-     * @return the complete install path of the item
+     * Content type of this file.
      */
-    fun getInstallPath(): String
+    var contentType: String
 
-    /**
-     * The parent of the item.
-     *
-     * @return the parent of items.
-     */
-    val parentItem : IDeployment
 }

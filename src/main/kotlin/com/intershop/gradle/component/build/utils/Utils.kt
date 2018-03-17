@@ -18,6 +18,8 @@ package com.intershop.gradle.component.build.utils
 import org.gradle.api.model.ObjectFactory
 import org.gradle.api.provider.Property
 import org.gradle.api.provider.SetProperty
+import java.util.zip.ZipEntry
+import java.util.zip.ZipInputStream
 import kotlin.reflect.KProperty
 
 /**
@@ -42,3 +44,19 @@ operator fun <T> SetProperty<T>.getValue(receiver: Any?, property: KProperty<*>)
  * Provides functional extension for primitve objects.
  */
 inline fun <reified T> ObjectFactory.property(): Property<T> = property(T::class.java)
+
+/**
+ * Operator to add an iterator to the ZipInputStream.
+ */
+operator fun ZipInputStream.iterator() = object : Iterator<ZipEntry> {
+    // This line eagerly pulls the first element from the stream when the iterator is created.
+    // You may have to do something in next() if this doesn't work for you.
+    var next: ZipEntry? = nextEntry
+
+    override operator fun hasNext() = next != null
+    override operator fun next(): ZipEntry {
+        val tmp = next ?: throw NoSuchElementException()
+        next = nextEntry
+        return tmp
+    }
+}

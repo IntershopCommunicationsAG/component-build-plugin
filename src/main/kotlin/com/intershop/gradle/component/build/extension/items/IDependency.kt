@@ -21,10 +21,8 @@ import com.intershop.gradle.component.build.utils.DependencyConfig
  * This interface defines properties for
  * objects with dependency configurations.
  */
-interface IDependency: IDeployment {
+interface IDependency: IItem {
 
     val dependency: DependencyConfig
     var resolveTransitive: Boolean
-
-    val excludes: Set<DependencyConfig>
 }

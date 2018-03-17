@@ -32,8 +32,8 @@ import kotlin.properties.Delegates
  * @param name package name for identification. It is also used for the installed path of the package
  * @constructor provides a preconfigured package with a name
  */
-open class FileContainerItem(project: Project, val name: String, override val parentItem: IDeployment) :
-        AItem(parentItem), IComponent, IDeployment, IOSSpecific, IContainer {
+open class FileContainerItem(project: Project, val name: String) :
+        AItem(), IItem, IOSSpecific, IContainer {
 
     companion object {
         private val logger = LoggerFactory.getLogger(FileContainerItem::class.java.simpleName)
@@ -57,7 +57,7 @@ open class FileContainerItem(project: Project, val name: String, override val pa
      *
      * @property baseName the base name of the artifact.
      */
-    var baseName = project.name!!
+    var baseName: String = project.name
 
     /**
      * The default target path of the component.
@@ -91,24 +91,6 @@ open class FileContainerItem(project: Project, val name: String, override val pa
      * @property targetIncluded if true, the target path is included in the module fileContainers.
      */
     override var targetIncluded:Boolean = false
-
-    /**
-     * The complete install target of this item.
-     *
-     * @return a string representation of the item.
-     */
-    override fun getInstallPath(): String {
-        val installPath = StringBuilder(parentItem.getInstallPath())
-
-        if(! targetPath.isEmpty() && ! targetIncluded) {
-            if(! installPath.endsWith("/")) {
-                installPath.append("/")
-            }
-            installPath.append(targetPath)
-        }
-
-        return installPath.toString()
-    }
 
     /**
      * All files that will be packaged to a

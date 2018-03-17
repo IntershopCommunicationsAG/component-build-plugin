@@ -21,6 +21,7 @@ import com.intershop.gradle.component.build.extension.container.FileItemContaine
 import com.intershop.gradle.component.build.extension.container.LibraryItemContainer
 import com.intershop.gradle.component.build.extension.container.ModuleItemContainer
 import com.intershop.gradle.component.build.extension.container.PropertyItemContainer
+import com.intershop.gradle.component.build.utils.DependencyConfig
 import com.intershop.gradle.component.build.utils.getValue
 import com.intershop.gradle.component.build.utils.setValue
 import com.intershop.gradle.component.descriptor.Component
@@ -30,6 +31,7 @@ import com.intershop.gradle.component.descriptor.FileItem
 import com.intershop.gradle.component.descriptor.Property
 import com.intershop.gradle.component.descriptor.util.ComponentUtil
 import org.gradle.api.DefaultTask
+import org.gradle.api.InvalidUserDataException
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
@@ -41,7 +43,7 @@ import com.intershop.gradle.component.descriptor.Library as LibDesr
 import com.intershop.gradle.component.descriptor.Module as ModuleDescr
 
 /**
- * CreateDescriptor Gradle task 'createComponent'
+ * CreateDescriptorTask Gradle task 'createComponent'
  *
  * The injected dependencyHandler is used for internal dependency handling.
  * This task hast currently no declared inputs and outputs and builds
@@ -49,7 +51,7 @@ import com.intershop.gradle.component.descriptor.Module as ModuleDescr
  *
  * @constructor Creates the task with a dependencyHandler
  */
-open class CreateDescriptor : DefaultTask() {
+open class CreateDescriptorTask : DefaultTask() {
 
     // Outputfile configurationFor
     private val descriptorFileProperty = this.newOutputFile()
@@ -130,6 +132,9 @@ open class CreateDescriptor : DefaultTask() {
     var libs: LibraryItemContainer? = null
 
     @get:Internal
+    var excludes: Set<DependencyConfig> = mutableSetOf()
+
+    @get:Internal
     var files: FileItemContainer? = null
 
     @get:Internal
@@ -143,6 +148,7 @@ open class CreateDescriptor : DefaultTask() {
      * This is one of the artifacts of a component.
      */
     @Suppress("unused")
+    @Throws(InvalidUserDataException::class)
     @TaskAction
     fun createDescriptor() {
 
@@ -157,30 +163,42 @@ open class CreateDescriptor : DefaultTask() {
         val dependencyProcessor = DependencyProcessor(project.rootProject,
                                                       project.configurations,
                                                       project.dependencies,
-                                                      modules?.excludes,
-                                                      libs?.excludes)
+                                                      excludes)
 
         dependencyProcessor.addDependencies(componentDescr, modules?.items, libs?.items)
 
-        containers?.items?.forEach {
-            if(! it.source.isEmpty) {
-                val container = FileContainer(it.name, it.targetPath, it.containerType, it.classifier,
-                        it.targetIncluded, ContentType.valueOf(it.contentType))
-                container.types.addAll(it.types)
-                componentDescr.addFileContainer(container)
-            } else {
-                logger.error("Container sources are '{}' empty! It is not possible to publish this container.")
+        containers?.items?.forEach { item ->
+            with(item) {
+                if(! source.isEmpty) {
+                    val container = FileContainer(name, targetPath, containerType, classifier, targetIncluded,
+                            ContentType.valueOf(contentType))
+                    container.types.addAll(types)
+                    if(! componentDescr.addFileContainer(container)) {
+                        logger.error("Container '{}' exists in this configuration.", name)
+                        throw InvalidUserDataException("Container '$name' exists in this configuration.")
+                    }
+                } else {
+                    logger.error("Container sources of '{}' are empty! Publishing of this container is not possibble.",
+                            name)
+                    throw InvalidUserDataException("Container sources of '$name' are empty!" +
+                            "It will be not possible to publish this container.")
+                }
             }
         }
 
-        files?.items?.forEach {
-            if(! it.file.exists() && it.file.isFile && it.file.canRead()) {
-                val file = FileItem(it.name, it.extension, it.targetPath, it.classifier,
-                        ContentType.valueOf(it.contentType))
-                file.types.addAll(it.types)
-                componentDescr.addFileItem(file)
-            } else {
-                logger.error("File {} does not exists or it is not readable!", it.file.absolutePath)
+        files?.items?.forEach { item ->
+            with(item) {
+                if (!file.exists() && file.isFile && file.canRead()) {
+                    val file = FileItem(name, extension, targetPath, classifier, ContentType.valueOf(contentType))
+                    file.types.addAll(types)
+                    if(! componentDescr.addFileItem(file)) {
+                        logger.error("This file '{}.{}' item exists in this configuration.", name, extension)
+                        throw InvalidUserDataException("File item '$name.$extension' exists in this configuration.")
+                    }
+                } else {
+                    logger.error("File {} does not exists or it is not readable!", file.absolutePath)
+                    throw InvalidUserDataException("File ${file.absolutePath} does not exists or it is not readable!")
+                }
             }
         }
 

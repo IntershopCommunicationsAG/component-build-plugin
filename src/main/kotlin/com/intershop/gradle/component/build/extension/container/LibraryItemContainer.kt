@@ -15,10 +15,9 @@
  */
 package com.intershop.gradle.component.build.extension.container
 
+import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.Utils.Companion.getDependencyConf
-import com.intershop.gradle.component.build.extension.items.IDeployment
 import com.intershop.gradle.component.build.extension.items.LibraryItem
-import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.dsl.DependencyHandler
@@ -29,16 +28,15 @@ import javax.inject.Inject
  * the library container extension.
  *
  * @property dpendencyHandler necessary for dependency handling
- * @property parentItem the parent of this container.
+ * @property parent the parent of this container.
  * @constructor provides an empty preconfigured library container
  */
 open class LibraryItemContainer
-        @Inject constructor(val dpendencyHandler: DependencyHandler, override val parentItem: IDeployment) :
-        AContainer(parentItem, "Library Container") {
+        @Inject constructor(private val dpendencyHandler: DependencyHandler, private val parent: ComponentExtension) :
+        AContainer("Library Container") {
 
     // backing properties
     private val itemSet: MutableSet<LibraryItem> = mutableSetOf()
-    private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
 
     /**
      * This set provides all configured libraries. This list will be completed
@@ -49,27 +47,6 @@ open class LibraryItemContainer
     val items: Set<LibraryItem>
         get() = itemSet
 
-    /**
-     * This set provides exclude configuration for dependencies.
-     *
-     * @property excludes set of exclude configurations
-     */
-    @Suppress("unused")
-    val excludes: Set<DependencyConfig>
-        get() = excludeSet
-
-    /**
-     * With exclude it is possible to exclude libraries from the list of dependent libraries.
-     *
-     * @param group Group or oganization of the dependency
-     * @param module Name or module of the dependency
-     * @param version Version configuration of the dependency
-     */
-    @Suppress("unused")
-    @JvmOverloads
-    fun exclude(group: String = "", module: String = "", version: String = "") {
-        excludeSet.add(DependencyConfig(group, module, version))
-    }
 
     /**
      * Add a dependency from any possible definition with
@@ -84,7 +61,7 @@ open class LibraryItemContainer
         val depConf = getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the library container.")
 
-        val item = LibraryItem(depConf, this)
+        val item = LibraryItem(depConf)
         item.setTypes(types.asList())
         item.targetName = "${depConf.group}_${depConf.module}_${depConf.version}"
         item.resolveTransitive = resolveTransitive
@@ -105,8 +82,8 @@ open class LibraryItemContainer
      */
     @Throws(InvalidUserDataException::class)
     fun add(dependency: Any) : LibraryItem {
-        if(types.isEmpty() && parentItem.types.isNotEmpty()) {
-            return add(dependency, *parentItem.types.toTypedArray())
+        if(types.isEmpty() && parent.types.isNotEmpty()) {
+            return add(dependency, *parent.types.toTypedArray())
         }
         return add(dependency, *this.types.toTypedArray())
     }
@@ -135,7 +112,7 @@ open class LibraryItemContainer
     fun add(dependency: Any, action: Action<in LibraryItem>) {
         val depConf = getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the library container.")
-        val item = LibraryItem(depConf, this)
+        val item = LibraryItem(depConf)
         item.targetName = "${depConf.group}_${depConf.module}_${depConf.version}"
         item.resolveTransitive = resolveTransitive
 
@@ -156,5 +133,6 @@ open class LibraryItemContainer
      *
      * @property resolveTransitive if true dependencies will be resolved transitive.
      */
+    @Suppress("unused")
     var resolveTransitive: Boolean = true
 }

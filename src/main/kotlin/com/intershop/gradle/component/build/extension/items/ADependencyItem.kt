@@ -16,41 +16,13 @@
 
 package com.intershop.gradle.component.build.extension.items
 
-import com.intershop.gradle.component.build.utils.DependencyConfig
-
 /**
  * This class contains methods for items with additional
  * dependencies.
  *
- * @property parentItem reference to container
  * @constructor provides an empty item with parent item
  */
-abstract class ADependencyItem(override val parentItem: IDeployment) :
-        ATypeItem(parentItem), IDependency {
-
-    private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
-
-    /**
-     * This set provides exclude configuration for dependencies.
-     *
-     * @property excludes set of exclude configurations
-     */
-    @Suppress("unused")
-    override val excludes: Set<DependencyConfig>
-        get() = excludeSet
-
-    /**
-     * With exclude it is possible to exclude libraries from the list of dependent libraries.
-     *
-     * @param group Group or oganization of the dependency
-     * @param module Name or module of the dependency
-     * @param version Version configuration of the dependency
-     */
-    @Suppress("unused")
-    @JvmOverloads
-    fun exclude(group: String = "", module: String = "", version: String = "") {
-        excludeSet.add(DependencyConfig(group, module, version))
-    }
+abstract class ADependencyItem : AItem(), IDependency {
 
     /**
      * This property configures the dependency resolution

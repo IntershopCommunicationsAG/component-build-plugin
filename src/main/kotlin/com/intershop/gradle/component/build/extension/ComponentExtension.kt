@@ -15,6 +15,7 @@
  */
 package com.intershop.gradle.component.build.extension
 
+import com.intershop.gradle.component.build.extension.container.DependencyConfContainer
 import com.intershop.gradle.component.build.extension.container.FileContainerItemContainer
 import com.intershop.gradle.component.build.extension.container.FileItemContainer
 import com.intershop.gradle.component.build.extension.container.LibraryItemContainer
@@ -22,7 +23,6 @@ import com.intershop.gradle.component.build.extension.container.ModuleItemContai
 import com.intershop.gradle.component.build.extension.container.PropertyItemContainer
 import com.intershop.gradle.component.build.extension.inheritance.InheritanceSpec
 import com.intershop.gradle.component.build.extension.inheritance.InheritanceSpecFactory
-import com.intershop.gradle.component.build.extension.items.IDeployment
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.NamedDomainObjectContainer
@@ -35,17 +35,18 @@ import kotlin.properties.Delegates
  * This class provides the main extension for the
  * component build plugin.
  *
- * @param project provides the current Gradle project.
+ * @param project provides the current Gradle project instance.
  * @constructor Creates a pre configured extension
  */
-open class ComponentExtension @Inject constructor(project: Project) : IDeployment {
+open class ComponentExtension @Inject constructor(project: Project) {
 
     companion object {
         const val COMPONENT_EXTENSION_NAME = "component"
         const val COMPONENT_GROUP_NAME = "Component Build"
 
-        const val PLUGIN_OUTPUTDIR = "componentBuild"
+        private const val PLUGIN_OUTPUTDIR = "componentBuild"
         const val DESCRIPTOR_FILE = "$PLUGIN_OUTPUTDIR/descriptor/file.component"
+        const val CLASSCOLLISION_REPORT = "$PLUGIN_OUTPUTDIR/reports/classcollision/collisionReport.txt"
         const val CONTAINER_OUTPUTDIR = "$PLUGIN_OUTPUTDIR/container"
 
         const val DEFAULT_IVYPUBLICATION = "ivyIntershop"
@@ -62,6 +63,9 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
     private val moduleContainer =
             project.objects.newInstance(ModuleItemContainer::class.java, project.dependencies, this)
 
+    private val dependenciesConfContainer =
+            project.objects.newInstance(DependencyConfContainer::class.java, project)
+
     private val fileContainer =
             project.objects.newInstance(FileItemContainer::class.java, this)
 
@@ -70,14 +74,6 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
 
     private val propertyContainer =
             project.objects.newInstance(PropertyItemContainer::class.java, this)
-
-    /**
-     * This is the root configuration
-     * for all component items.
-     *
-     * @property parentItem the component configuration self.
-     */
-    override val parentItem = this
 
     /**
      * This is used for the publishing configuration of this plugin.
@@ -171,7 +167,7 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
      *
      * @property types the set of deployment or environment types
      */
-    override val types: Set<String>
+     val types: Set<String>
         get() = typeList
 
     /**
@@ -232,6 +228,24 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
     }
 
     /**
+     * The container for dependencies configurations.
+     *
+     * @property dependenciesConf container of dependencies configurations
+     */
+    val dependenciesConf: DependencyConfContainer
+        get() = dependenciesConfContainer
+
+    /**
+     * Configures dependencies container of a component.
+     *
+     * @param action execute the dependencies container configuration
+     */
+    @Suppress("unused")
+    fun dependenciesConf(action: Action<in DependencyConfContainer>) {
+        action.execute(dependenciesConfContainer)
+    }
+
+    /**
      * The container for all single file configurations.
      * These files will be installed as they are
      *
@@ -246,6 +260,7 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
      *
      * @param action execute the file container configuration
      */
+    @Suppress("unused")
     fun fileItems(action: Action<in FileItemContainer>) {
         action.execute(fileContainer)
     }
@@ -264,6 +279,7 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
      *
      * @param action execute the file container container configuration
      */
+    @Suppress("unused")
     fun containers(action: Action<in FileContainerItemContainer>) {
         action.execute(containerContainer)
     }
@@ -287,15 +303,4 @@ open class ComponentExtension @Inject constructor(project: Project) : IDeploymen
     fun propertyItems(action: Action<in PropertyItemContainer>) {
         action.execute(propertyContainer)
     }
-
-    /**
-     * Provides the target path for all
-     * component items.
-     *
-     * @return component target (targetPath property is used)
-     */
-    override fun getInstallPath(): String {
-        return targetPath
-    }
-
 }
