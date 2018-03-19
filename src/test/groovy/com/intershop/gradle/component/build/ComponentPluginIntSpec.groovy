@@ -82,6 +82,81 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
+    def 'Test plugin with packages'(){
+        given:
+        String projectName = "testcomponent"
+        createSettingsGradle(projectName)
+
+        def testFile1 = new File(testProjectDir, 'src/bin/test1.sh')
+        def testFile2 = new File(testProjectDir, 'src/bin/test2.sh')
+        testFile1.parentFile.mkdirs()
+
+        testFile1 << """
+        # testfile1.sh
+        """.stripIndent()
+
+        testFile2 << """
+        # testfile2.sh
+        """.stripIndent()
+
+        buildFile << """
+        plugins {
+            id 'com.intershop.gradle.component.build'
+            id 'ivy-publish'
+        }
+
+        group 'com.intershop.test'
+        version = '1.0.0'
+        
+        component {
+            containers {
+                add('startscripts') {
+                    baseName = 'startscripts'
+                    containerType = 'bin'
+                    targetPath = 'bin'
+                    source(fileTree(dir: 'src/bin', include: '*.sh').files)
+                }
+            }
+
+            modules {
+                add("com.intershop:testmodule1:1.0.0")
+                add("com.intershop:testmodule2:1.0.0")
+            }
+            
+            libs {
+                add("com.intershop:library1:1.0.0")
+                targetPath = "lib/release/libs"
+            }
+
+            dependenciesConf.classCollision.enabled = false
+        }
+        
+        ${createRepo(testProjectDir)}
+
+ 
+        //}
+        publishing {
+            ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+        }
+        
+
+        """.stripIndent()
+
+        when:
+        List<String> args = ['publish', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        true
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    @Unroll
     def 'Test plugin with version conflicts'(){
         given:
         String projectName = "testcomponent"

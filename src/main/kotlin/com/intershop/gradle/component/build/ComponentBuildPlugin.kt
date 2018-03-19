@@ -96,7 +96,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             group = ComponentExtension.COMPONENT_GROUP_NAME
                             description = "Creates zip for container configuration '${container.name}'."
 
-                            source.add(container.source)
+                            inputFiles = container.source
 
                             if(container.containerType.isNotBlank()) {
                                 artifactAppendix = container.containerType

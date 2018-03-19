@@ -40,6 +40,11 @@ open class ZipContainerTask : Zip() {
     private val artifactAppendixProperty = project.objects.property(String::class.java)
     private val artifactClassifierProperty = project.objects.property(String::class.java)
 
+    init {
+        artifactClassifierProperty.set("")
+        artifactAppendixProperty.set("")
+    }
+
     /**
      * The path of the zip package.
      *
@@ -73,12 +78,15 @@ open class ZipContainerTask : Zip() {
      */
     @Suppress( "unused")
     @get:InputFiles
-    val inputFiles: FileCollection
+    var inputFiles: FileCollection
         get() {
-        // necessary to  trigger the Zip task!
-        from(inputFilesProperty)
-        return inputFilesProperty
-    }
+            // necessary to  trigger the Zip task!
+            from(inputFilesProperty)
+            return inputFilesProperty
+        }
+        set(value) {
+            inputFilesProperty.setFrom(value)
+        }
 
     /**
      * Base name of the artifact.

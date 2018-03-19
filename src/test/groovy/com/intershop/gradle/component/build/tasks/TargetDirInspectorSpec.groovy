@@ -40,7 +40,7 @@ class TargetDirInspectorSpec extends Specification {
             TargetDirInspector inspector = new TargetDirInspector(comp)
 
         then:
-            inspector.check()
+            inspector.check() == ""
     }
 
     def 'Test TargetDirInspector - HappyPath with external configuration'() {
@@ -70,7 +70,7 @@ class TargetDirInspectorSpec extends Specification {
         TargetDirInspector inspector = new TargetDirInspector(comp)
 
         then:
-        inspector.check()
+        inspector.check() == ""
     }
 
     def 'Module and container are located in the same directory'() {
@@ -101,7 +101,7 @@ class TargetDirInspectorSpec extends Specification {
         TargetDirInspector inspector = new TargetDirInspector(comp)
 
         then:
-        inspector.check()
+        inspector.check() == ""
     }
 
     def 'Container with different OS'() {
@@ -133,7 +133,7 @@ class TargetDirInspectorSpec extends Specification {
         TargetDirInspector inspector = new TargetDirInspector(comp)
 
         then:
-        inspector.check()
+        inspector.check() == ""
     }
 
     def 'Container with different OS - failed'() {
@@ -166,7 +166,7 @@ class TargetDirInspectorSpec extends Specification {
         TargetDirInspector inspector = new TargetDirInspector(comp)
 
         then:
-        ! inspector.check()
+        inspector.check() != ""
     }
 
     def 'Container with different OS and types'() {
@@ -208,7 +208,7 @@ class TargetDirInspectorSpec extends Specification {
         TargetDirInspector inspector = new TargetDirInspector(comp)
 
         then:
-        inspector.check()
+        inspector.check() == ""
     }
 
     def 'Container with different OS and types - failed'() {
@@ -250,6 +250,6 @@ class TargetDirInspectorSpec extends Specification {
         TargetDirInspector inspector = new TargetDirInspector(comp)
 
         then:
-        ! inspector.check()
+        inspector.check() != ""
     }
 }
