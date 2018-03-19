@@ -36,6 +36,7 @@ import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import java.io.File
@@ -119,28 +120,63 @@ open class CreateDescriptorTask : DefaultTask() {
             = componentDescriptionProperty.set(description)
 
     /**
-     * Container for all modules.
+     * Container for all modules. This contains dependencies
+     * that must be resolved. Depending on the final version
+     * of this dependency, the descriptor must be new generated.
+     * Therefore this input is marked as internal and the task
+     * is not incremental.
+     *
+     * @property modules container for all modules
      */
-    //TODO: This should be a nested property.
     @get:Internal
     var modules: ModuleItemContainer? = null
 
     /**
-     * Container for all libs.
+     * Container for all libs. This contains dependencies
+     * that must be resolved. Depending on the final version
+     * of this dependency, the descriptor must be new generated.
+     * Therefore this input is marked as internal and the task
+     * is not incremental.
+     *
+     * @property libs container for all libraries
      */
     @get:Internal
     var libs: LibraryItemContainer? = null
 
-    @get:Internal
+    /**
+     * This is a set with all eexclude patterns
+     * for all dependencies.
+     *
+     * @property excludes set of all exclude patterns
+     */
+    @get:Nested
     var excludes: Set<DependencyConfig> = mutableSetOf()
 
-    @get:Internal
+    /**
+     * This is the container for all single files
+     * of this component.
+     *
+     * @property files container for single file items
+     */
+    @get:Nested
     var files: FileItemContainer? = null
 
-    @get:Internal
+    /**
+     * This is the container for all properties
+     * of this component.
+     *
+     * @property properties container for properties
+     */
+    @get:Nested
     var properties: PropertyItemContainer? = null
 
-    @get:Internal
+    /**
+     * This is the container for all zip container
+     * of this component.
+     *
+     * @property containers container for file containers (zip) packages
+     */
+    @get:Nested
     var containers: FileContainerItemContainer? = null
 
     /**

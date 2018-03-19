@@ -20,6 +20,7 @@ import com.intershop.gradle.component.build.extension.items.FileContainerItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
+import org.gradle.api.tasks.Nested
 import javax.inject.Inject
 
 /**
@@ -40,6 +41,7 @@ open class FileContainerItemContainer
      *
      * @property items set of all configured containers
      */
+    @get:Nested
     val items: Set<FileContainerItem>
         get() = itemSet
 

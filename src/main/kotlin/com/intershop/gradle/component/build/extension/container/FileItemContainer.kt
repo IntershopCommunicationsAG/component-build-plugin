@@ -19,6 +19,7 @@ import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.FileItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.tasks.Nested
 import java.io.File
 import javax.inject.Inject
 
@@ -39,6 +40,7 @@ open class FileItemContainer @Inject constructor(private val parent: ComponentEx
      *
      * @property items set of all configured files
      */
+    @get:Nested
     val items: Set<FileItem>
         get() = itemSet
 

@@ -20,7 +20,9 @@ import com.intershop.gradle.component.build.extension.items.ModuleItem
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.DefaultTask
 import org.gradle.api.file.RegularFileProperty
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
+import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.workers.ForkMode
@@ -67,7 +69,7 @@ open class CheckClassCollisionsTask @Inject constructor(private val workerExecut
      *
      * @property excludes set of exclude patterns
      */
-    @get:Internal
+    @get:Nested
     var excludes: Set<DependencyConfig> = mutableSetOf()
 
     /**
@@ -76,7 +78,7 @@ open class CheckClassCollisionsTask @Inject constructor(private val workerExecut
      *
      * @property collisionExcludes set of exclude patterns
      */
-    @get:Internal
+    @get:Nested
     var collisionExcludes: Set<DependencyConfig> = mutableSetOf()
 
     /**
@@ -85,7 +87,7 @@ open class CheckClassCollisionsTask @Inject constructor(private val workerExecut
      *
      * @property excludedClasses set of class patterns
      */
-    @get:Internal
+    @get:Input
     var excludedClasses: Set<String> = mutableSetOf()
 
     /**

@@ -22,6 +22,7 @@ import org.gradle.api.Project
 import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.InputFiles
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
@@ -48,6 +49,7 @@ open class FileContainerItem(project: Project, val name: String) :
      * @property containerType type of the package
      */
     @Suppress("unused")
+    @get:Input
     var containerType: String = ""
 
     /**
@@ -57,6 +59,7 @@ open class FileContainerItem(project: Project, val name: String) :
      *
      * @property baseName the base name of the artifact.
      */
+    @get:Input
     var baseName: String = project.name
 
     /**
@@ -66,6 +69,7 @@ open class FileContainerItem(project: Project, val name: String) :
      *
      * @property targetPath target path
      */
+    @get:Input
     override var targetPath by Delegates.vetoable("") {_, _, newValue ->
         val invalidChars = Utils.getIllegalChars(newValue)
         if(!invalidChars.isEmpty()) {
@@ -90,6 +94,7 @@ open class FileContainerItem(project: Project, val name: String) :
      *
      * @property targetIncluded if true, the target path is included in the module fileContainers.
      */
+    @get:Input
     override var targetIncluded:Boolean = false
 
     /**
@@ -99,6 +104,7 @@ open class FileContainerItem(project: Project, val name: String) :
      * @property source file collection with all source files
      */
     @Suppress("unused")
+    @get:InputFiles
     var source: FileCollection
         get() = sourceProperty
         set(value) {

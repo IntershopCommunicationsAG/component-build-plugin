@@ -20,6 +20,7 @@ import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.AItem
 import com.intershop.gradle.component.build.extension.items.PropertyItem
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.tasks.Nested
 import javax.inject.Inject
 
 /**
@@ -38,6 +39,7 @@ open class PropertyItemContainer @Inject constructor(private val parent: Compone
      *
      * @property items set of all configured modules
      */
+    @get:Nested
     val items: Set<PropertyItem>
         get() = itemSet
 

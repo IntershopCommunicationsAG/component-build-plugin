@@ -19,6 +19,7 @@ package com.intershop.gradle.component.build.extension.container
 import com.intershop.gradle.component.build.extension.Utils
 import com.intershop.gradle.component.build.extension.items.AItem
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.tasks.Input
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -42,6 +43,7 @@ abstract class AContainer @Inject constructor(protected val description: String)
      *
      * @property targetPath contains the default installation path
      */
+    @get:Input
     var targetPath: String by Delegates.vetoable("") { _, _, newValue ->
         val invalidChars = Utils.getIllegalChars(newValue)
         if(!invalidChars.isEmpty()) {
