@@ -15,17 +15,18 @@
  */
 package com.intershop.gradle.component.build.utils
 
-import java.io.File
-import java.io.Serializable
-
 /**
- * Data class for jar files with dependency information.
- * It is used by the class collision check.
+ * Data class for target directories with all
+ * necessary information also for error output.
  *
- * @property dependency jar file dependency
- * @property parentDependency the parent dependency of the jar file
- * @property jarFile the jar file self
+ * @property target target path
+ * @property classifiers classifier - support for different OS
+ * @property types information for deployment and environment types
+ * @property owner information about the owner of the target
+ *
+ * @constructor provides the data class
  */
-data class JarFileInfo(val dependency: String,
-                       val parentDependency: String,
-                       val jarFile: File) : Serializable
+data class TargetDirInfo @JvmOverloads constructor(val target: String,
+                                                   val classifiers: MutableSet<String>,
+                                                   val types: MutableSet<String>,
+                                                   val owner: String)

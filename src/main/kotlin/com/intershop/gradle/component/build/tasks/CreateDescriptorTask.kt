@@ -208,6 +208,14 @@ open class CreateDescriptorTask : DefaultTask() {
             componentDescr.addProperty(property)
         }
 
+        // validate targets
+        val inspector = TargetDirInspector(componentDescr)
+        val errorMsg = inspector.check()
+        if(errorMsg.isNotBlank()) {
+            logger.error(errorMsg)
+            throw InvalidUserDataException(errorMsg)
+        }
+
         ComponentUtil.writeToFile(componentDescr, descriptorFile)
     }
 }
