@@ -38,6 +38,8 @@ open class CheckClassCollisionsTask @Inject constructor(private val workerExecut
 
     private val reportOutputProperty: RegularFileProperty = this.newOutputFile()
 
+    private val dependencyJarManager = DependencyJarManager(project)
+
     /**
      * This is the output file with the report list of this task.
      *
@@ -91,17 +93,29 @@ open class CheckClassCollisionsTask @Inject constructor(private val workerExecut
     var excludedClasses: Set<String> = mutableSetOf()
 
     /**
+     * Contains all resolved configured dependencies.
+     * @property resolvedDependencies resolved dependency configurations
+     */
+    @get:Nested
+    @Suppress("unused")
+    val resolvedDependencies: Set<DependencyConfig>
+        get() {
+            this.outputs.upToDateWhen {
+                dependencyJarManager.getDependencies(libSet, moduleSet).none {
+                    it.version.endsWith("SNAPSHOT") || it.version.endsWith("LOCAL")
+                }
+            }
+            return dependencyJarManager.getDependencies(libSet, moduleSet)
+        }
+
+    /**
      * The task action starts a runner in the backround.
      */
     @Suppress("unused")
     @TaskAction
     fun verify() {
-        val processor = DependencyJarProcessor(
-                project.configurations,
-                project.dependencies,
-                excludes,
-                collisionExcludes)
-        val jarFileList = processor.collectJarFiles(moduleSet, libSet)
+
+        val jarFileList = dependencyJarManager.collectJarFiles(excludes, collisionExcludes)
 
         workerExecutor.submit(ClassCollisionRunner::class.java, {
             it.displayName = "'Check jars for class collisions.'"

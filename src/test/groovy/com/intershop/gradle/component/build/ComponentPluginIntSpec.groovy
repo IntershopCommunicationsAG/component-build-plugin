@@ -77,6 +77,15 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         then:
         true
 
+        when:
+        def result2 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        true
+
         where:
         gradleVersion << supportedGradleVersions
     }
@@ -177,7 +186,6 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 add('com.google.code.findbugs:annotations:3.0.0')
                 add('javax.persistence:persistence-api:1.0.2')
                 add('javax.validation:validation-api:1.0.0.GA')
-                add('commons-logging:commons-logging:1.2')
                 add('org.ow2.asm:asm:5.1')
                 add('org.slf4j:slf4j-api:1.7.21')
                 add('junit:junit:4.12')

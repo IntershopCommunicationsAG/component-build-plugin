@@ -20,6 +20,7 @@ import com.intershop.gradle.component.build.extension.Utils
 import com.intershop.gradle.component.build.extension.items.AItem
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 import org.slf4j.LoggerFactory
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -31,7 +32,7 @@ import kotlin.properties.Delegates
  * @property description a short description of this container for log messages.
  * @constructor provides an empty container
  */
-abstract class AContainer @Inject constructor(protected val description: String) : AItem() {
+abstract class AContainer @Inject constructor(@get:Internal protected val description: String) : AItem() {
 
     companion object {
         private val logger = LoggerFactory.getLogger(AContainer::class.java.simpleName)

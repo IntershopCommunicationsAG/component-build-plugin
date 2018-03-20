@@ -23,6 +23,7 @@ import org.gradle.api.file.ConfigurableFileCollection
 import org.gradle.api.file.FileCollection
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.InputFiles
+import org.gradle.api.tasks.Internal
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
@@ -33,7 +34,7 @@ import kotlin.properties.Delegates
  * @param name package name for identification. It is also used for the installed path of the package
  * @constructor provides a preconfigured package with a name
  */
-open class FileContainerItem(project: Project, val name: String) :
+open class FileContainerItem(@get:Internal private val project: Project, @get:Input val name: String) :
         AItem(), IItem, IOSSpecific, IContainer {
 
     companion object {

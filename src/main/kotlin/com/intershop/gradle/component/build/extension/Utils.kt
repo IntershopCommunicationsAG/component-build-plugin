@@ -75,7 +75,7 @@ class Utils {
             val depConf = DependencyConfig(dep.group
                     ?: "", dep.name, dep.version ?: "", depStr)
 
-            if(depConf.emptyConfig) {
+            if(depConf.isEmptyConfig()) {
                 throw InvalidUserDataException("Dependency '$dependency' is empty. $errormessage")
             }
 

@@ -20,6 +20,7 @@ import com.intershop.gradle.component.build.extension.items.FileContainerItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import javax.inject.Inject
 
@@ -31,7 +32,7 @@ import javax.inject.Inject
  * @constructor provides an empty preconfigured file item container
  */
 open class FileContainerItemContainer
-        @Inject constructor(val project: Project, private val parent: ComponentExtension) :
+        @Inject constructor(@get:Internal val project: Project,@get:Internal private val parent: ComponentExtension) :
         AContainer("File Container Container") {
 
     private val itemSet: MutableSet<FileContainerItem> = mutableSetOf()

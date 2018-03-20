@@ -61,6 +61,9 @@ open class CreateDescriptorTask : DefaultTask() {
     // component description configurationFor
     private val componentDescriptionProperty = project.objects.property(String::class.java)
 
+
+    private val dependencyManager = DependencyManager(project)
+
     /**
      * The output file contains the descriptor of the component.
      *
@@ -179,6 +182,30 @@ open class CreateDescriptorTask : DefaultTask() {
     @get:Nested
     var containers: FileContainerItemContainer? = null
 
+    @get:Nested
+    @Suppress("unused")
+    val resolvedModules: Set<DependencyConfig>
+        get() {
+            this.outputs.upToDateWhen {
+                dependencyManager.getModuleDependencies(modules?.items ?: mutableSetOf()).none {
+                    it.version.endsWith("SNAPSHOT") || it.version.endsWith("LOCAL")
+                }
+            }
+            return dependencyManager.getModuleDependencies(modules?.items ?: mutableSetOf())
+        }
+
+    @get:Nested
+    @Suppress("unused")
+    val resolvedLibs: Set<DependencyConfig>
+        get() {
+            this.outputs.upToDateWhen {
+                dependencyManager.getLibDependencies( libs?.items ?: mutableSetOf()).none {
+                    it.version.endsWith("SNAPSHOT") || it.version.endsWith("LOCAL")
+                }
+            }
+            return dependencyManager.getLibDependencies(libs?.items ?: mutableSetOf())
+        }
+
     /**
      * Task method for the creation of a descriptor file.
      * This is one of the artifacts of a component.
@@ -196,12 +223,7 @@ open class CreateDescriptorTask : DefaultTask() {
                 containerTarget = containers?.targetPath ?: "",
                 fileTarget = files?.targetPath ?: "")
 
-        val dependencyProcessor = DependencyProcessor(project.rootProject,
-                                                      project.configurations,
-                                                      project.dependencies,
-                                                      excludes)
-
-        dependencyProcessor.addDependencies(componentDescr, modules?.items, libs?.items)
+        dependencyManager.addToDescriptor(componentDescr, excludes)
 
         containers?.items?.forEach { item ->
             with(item) {

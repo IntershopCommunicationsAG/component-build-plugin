@@ -26,7 +26,7 @@ package com.intershop.gradle.component.build.utils
  *
  * @constructor provides the data class
  */
-data class TargetDirInfo @JvmOverloads constructor(val target: String,
-                                                   val classifiers: MutableSet<String>,
-                                                   val types: MutableSet<String>,
-                                                   val owner: String)
+data class TargetDirInfo (val target: String,
+                          val classifiers: MutableSet<String>,
+                          val types: MutableSet<String>,
+                          val owner: String)

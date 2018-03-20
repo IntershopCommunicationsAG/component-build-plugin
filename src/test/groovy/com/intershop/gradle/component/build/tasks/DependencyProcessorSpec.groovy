@@ -68,8 +68,8 @@ class DependencyProcessorSpec extends Specification {
 
         Component descr = new Component("TestComponent", "Test Description")
         DependencyConfig conf = new DependencyConfig("")
-        DependencyProcessor processor = new DependencyProcessor(project.rootProject, project.configurations,
-                project.dependencies, [ conf ] as Set<DependencyConfig>)
+
+        DependencyManager dm = new DependencyManager(project)
 
         extension.libs {
             add("com.intershop:library1:1.0.0")
@@ -81,7 +81,9 @@ class DependencyProcessorSpec extends Specification {
             add("com.intershop:testmodule2:1.0.0")
         }
 
-        processor.addDependencies(descr, extension.modules.items , extension.libs.items)
+        dm.getLibDependencies(extension.libs.items)
+        dm.getModuleDependencies(extension.modules.items)
+        dm.addToDescriptor(descr, [] as Set<DependencyConfig>)
 
         then:
         descr.libs.size() == 3

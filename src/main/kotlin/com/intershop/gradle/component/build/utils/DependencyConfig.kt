@@ -26,6 +26,9 @@ import org.gradle.api.tasks.Input
  * @param group     group or organization of a dependency
  * @param module    name or module of a dependency
  * @param version   version of the dependency
+ * @param dependency string represenation if dependency is not module dependency
+ * @param transitive if dependency should or was transitive resolved
+ *
  * @constructor provides an empty dependency configuration.
  */
 data class DependencyConfig @JvmOverloads constructor(
@@ -36,11 +39,25 @@ data class DependencyConfig @JvmOverloads constructor(
         @get:Input
         val version: String = "",
         @get:Input
-        val dependency: String = "") {
+        val dependency: String = "",
+        @get:Input
+        val transitive: Boolean = false) {
 
-    val emptyConfig: Boolean
-        get() = group.isEmpty() && module.isEmpty() && version.isEmpty() && dependency.isEmpty()
+    /**
+     * Returns true if the dependency information is empty.
+     *
+     * @return true if the dependency information is empty
+     */
+    fun isEmptyConfig(): Boolean {
+        return (group.isEmpty() && module.isEmpty() && version.isEmpty() && dependency.isEmpty())
+    }
 
-    val moduleString: String
-        get() = "$group:$module:$version"
+    /**
+     * Returns the module string of the dependency.
+     *
+     * @return the module string
+     */
+    fun getModuleString(): String {
+        return "$group:$module:$version"
+    }
 }
