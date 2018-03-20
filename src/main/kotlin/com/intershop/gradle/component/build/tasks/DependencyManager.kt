@@ -21,11 +21,11 @@ import com.intershop.gradle.component.build.extension.items.ModuleItem
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import com.intershop.gradle.component.descriptor.Component
 import com.intershop.gradle.component.descriptor.ContentType
-import com.intershop.gradle.component.descriptor.Dependency
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
+import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.artifacts.component.ComponentIdentifier
 import org.gradle.api.artifacts.component.LibraryBinaryIdentifier
@@ -38,6 +38,7 @@ import org.gradle.ivy.IvyModule
 import org.gradle.maven.MavenModule
 import org.gradle.maven.MavenPomArtifact
 import org.slf4j.LoggerFactory
+import com.intershop.gradle.component.descriptor.Dependency as DependencyDescr
 import com.intershop.gradle.component.descriptor.Library as LibDescr
 import com.intershop.gradle.component.descriptor.Module as ModuleDescr
 
@@ -124,10 +125,18 @@ class DependencyManager(val project: Project) {
         //add modules
         procModuleDeps.values.forEach {
             component.addModule(it)
+
+            // component types and classifiers contains all available
+            // types and classifiers
+            component.types.addAll(it.types)
+            component.classifiers.addAll(it.classifiers)
         }
         //add libs
         procLibDeps.values.forEach {
             component.addLib(it)
+
+            // component types contains all available types
+            component.types.addAll(it.types)
         }
 
         //resolve transitive
@@ -155,6 +164,8 @@ class DependencyManager(val project: Project) {
         //add modules
         resModuleDeps.values.forEach {
             component.addModule(it)
+            // component classifiers contains all available classifiers
+            component.classifiers.addAll(it.classifiers)
         }
         resLibDeps.values.forEach {
             component.addLib(it)
@@ -165,8 +176,10 @@ class DependencyManager(val project: Project) {
         val conf = configurationFor(item.dependency, false)
 
         with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
-            val dependency = Dependency(moduleGroup, moduleName, moduleVersion)
-            val dependencyConf = DependencyConfig(moduleGroup, moduleName,moduleVersion, "", item.resolveTransitive)
+            val dependency = DependencyDescr(moduleGroup, moduleName, moduleVersion)
+            val dependencyConf = DependencyConfig(moduleGroup, moduleName, moduleVersion,
+                    item.dependency.dependency, item.resolveTransitive)
+
             when (item) {
                 is ModuleItem -> {
                     if (procModuleDeps.none { it.value.targetPath == item.targetPath && it.key != item.dependency }) {
@@ -202,30 +215,41 @@ class DependencyManager(val project: Project) {
         }
     }
 
-    private fun addModuleDependency(moduleDesc: ModuleDescr,
-                                    resolvedDependency: ResolvedDependency?,
+    private fun addModuleDependency(moduleDescr: ModuleDescr,
+                                    resolvedDependency: ResolvedDependency,
                                     types: Set<String>) {
 
         with(resolvedDependency) {
-            moduleDesc.types.addAll(types)
+            moduleDescr.types.addAll(types)
 
             // filter for jars
-            this?.moduleArtifacts?.
-                    filter({ it.type == "jar" })
-                    ?.forEach {
-                        moduleDesc.jars.add(it.name)
-                    }
+            moduleArtifacts.filter({ it.type == "jar" })
+                    .forEach { moduleDescr.jars.add(it.name) }
 
             // filter for fileContainers
-            this?.moduleArtifacts?.
-                    filter({ it.extension == "zip" && it.type != "sources" && it.type != "javadoc" })
-                    ?.forEach { moduleDesc.pkgs.add(it.name) }
+            moduleArtifacts.filter({ it.extension == "zip" && it.type != "sources" && it.type != "javadoc" })
+                    .forEach { moduleDescr.pkgs.add(calcArtifactName(it)) }
 
             // filter for fileContainers
-            this?.moduleArtifacts?.
-                    filter({ ! it.classifier.isNullOrBlank() && it.type != "sources" && it.type != "javadoc" })
-                    ?.forEach { moduleDesc.classifiers.add(it.classifier ?: "") }
+            moduleArtifacts.filter({ ! it.classifier.isNullOrBlank() && it.type != "sources" && it.type != "javadoc" })
+                    .forEach { moduleDescr.classifiers.add(it.classifier ?: "") }
         }
+    }
+
+    private fun calcArtifactName(artifact: ResolvedArtifact): String {
+        val artifactName = StringBuilder()
+
+        with(artifact) {
+            artifactName.append(name)
+            if(! artifactName.endsWith("-$type") && type != extension) {
+                artifactName.append("-").append(type)
+            }
+            if(! classifier.isNullOrBlank()) {
+                artifactName.append("-").append(classifier)
+            }
+        }
+
+        return artifactName.toString()
     }
 
     @Throws(InvalidUserDataException::class)
@@ -252,7 +276,7 @@ class DependencyManager(val project: Project) {
                         if(resModuleDeps.none { it.value.targetPath == dep.module}) {
                             val moduleDesc = ModuleDescr(name = dep.module,
                                     targetPath = dep.module,
-                                    dependency = Dependency(dep.group, dep.module, dep.version),
+                                    dependency = DependencyDescr(dep.group, dep.module, dep.version),
                                     targetIncluded = false,
                                     contentType = ContentType.IMMUTABLE)
                             moduleDesc.types.addAll(types)
@@ -283,7 +307,7 @@ class DependencyManager(val project: Project) {
                     if( availableDep == null ) {
                         val targetName = "${dep.group}_${dep.module}_$dep.version"
                         if(resLibDeps.none{it.value.targetName == targetName}) {
-                            val libDescr = LibDescr(dependency = Dependency(dep.group, dep.module, dep.version),
+                            val libDescr = LibDescr(dependency = DependencyDescr(dep.group, dep.module, dep.version),
                                     targetName = targetName)
                             libDescr.types.addAll(types)
                             resLibDeps[dep] = libDescr
@@ -322,8 +346,17 @@ class DependencyManager(val project: Project) {
                                                   && it.version.toRegex().matches(dep.version) }
     }
 
+    /*
+     *  Project dependencies must be handled special
+     */
     private fun configurationFor(dependency: DependencyConfig, transitive: Boolean) : Configuration {
-        val conf = configurations.detachedConfiguration(dependencyHandler.create(dependency.getModuleString()))
+        val depObj = if(dependency.dependency.isNotBlank()) {
+                        dependencyHandler.create(project.project(dependency.dependency))
+                     } else {
+                        dependencyHandler.create(dependency.getModuleString())
+                     }
+
+        val conf = configurations.detachedConfiguration(depObj)
         conf.description = "Configuration for ${dependency.getModuleString()}"
         conf.isTransitive = transitive
         conf.isVisible = false
@@ -337,23 +370,19 @@ class DependencyManager(val project: Project) {
             is ProjectComponentIdentifier ->  {
                 if(id.projectPath != ":") {
                     logger.warn("Project components are currently not implemented.")
-                    val projectComp = rootProject.project(id.projectPath)
-                    depReturnValue = DependencyConfig(
-                            projectComp.group.toString(),
-                            projectComp.name ?: id.projectName,
-                            projectComp.version.toString(),
-                            id.displayName)
+                    with(rootProject.project(id.projectPath)) {
+                        depReturnValue = DependencyConfig(group.toString(),name ?: id.projectName,
+                                version.toString(), id.projectPath)
+                    }
                 }
             }
             is LibraryBinaryIdentifier ->  {
                 if(id.projectPath != ":") {
                     logger.warn("Binary libs components are currently not implemented.")
-                    val projectComp = rootProject.project(id.projectPath)
-                    depReturnValue = DependencyConfig(
-                            projectComp.group.toString(),
-                            projectComp.name ?: id.libraryName,
-                            projectComp.version.toString(),
-                            id.displayName)
+                    with(rootProject.project(id.projectPath)) {
+                        depReturnValue = DependencyConfig(group.toString(), name ?: id.libraryName,
+                                version.toString(), id.projectPath)
+                    }
                 }
             }
         }

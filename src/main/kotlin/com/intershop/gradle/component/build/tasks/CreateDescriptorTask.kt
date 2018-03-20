@@ -231,10 +231,16 @@ open class CreateDescriptorTask : DefaultTask() {
                     val container = FileContainer(name, targetPath, containerType, classifier, targetIncluded,
                             ContentType.valueOf(contentType))
                     container.types.addAll(types)
+
                     if(! componentDescr.addFileContainer(container)) {
                         logger.error("Container '{}' exists in this configuration.", name)
                         throw InvalidUserDataException("Container '$name' exists in this configuration.")
                     }
+
+                    // component types and classifiers contains all available
+                    // types and classifiers
+                    componentDescr.types.addAll(types)
+                    componentDescr.classifiers.add(classifier)
                 } else {
                     logger.error("Container sources of '{}' are empty! Publishing of this container is not possibble.",
                             name)
@@ -249,10 +255,16 @@ open class CreateDescriptorTask : DefaultTask() {
                 if (!file.exists() && file.isFile && file.canRead()) {
                     val file = FileItem(name, extension, targetPath, classifier, ContentType.valueOf(contentType))
                     file.types.addAll(types)
+
                     if(! componentDescr.addFileItem(file)) {
                         logger.error("This file '{}.{}' item exists in this configuration.", name, extension)
                         throw InvalidUserDataException("File item '$name.$extension' exists in this configuration.")
                     }
+
+                    // component types and classifiers contains all available
+                    // types and classifiers
+                    componentDescr.types.addAll(types)
+                    componentDescr.classifiers.add(classifier)
                 } else {
                     logger.error("File {} does not exists or it is not readable!", file.absolutePath)
                     throw InvalidUserDataException("File ${file.absolutePath} does not exists or it is not readable!")
@@ -264,6 +276,11 @@ open class CreateDescriptorTask : DefaultTask() {
             val property = Property(it.key, it.value, it.classifier, ContentType.valueOf(it.contentType))
             property.types.addAll(it.types)
             componentDescr.addProperty(property)
+
+            // component types and classifiers contains all available
+            // types and classifiers
+            componentDescr.types.addAll(it.types)
+            componentDescr.classifiers.add(it.classifier)
         }
 
         // validate targets

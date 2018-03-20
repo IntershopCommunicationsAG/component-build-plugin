@@ -27,6 +27,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     public final static String ivyPattern = '[organisation]/[module]/[revision]/[type]s/ivy-[revision].xml'
     public final static String artifactPattern = '[organisation]/[module]/[revision]/[ext]s/[artifact]-[type](-[classifier])-[revision].[ext]'
 
+
     @Unroll
     def 'Test plugin happy path'(){
         given:
@@ -161,6 +162,15 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         then:
         true
 
+        when:
+        def result2 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        true
+
         where:
         gradleVersion << supportedGradleVersions
     }
@@ -283,7 +293,153 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
-    File createSettingsGradle(String projectName) {
+    @Unroll
+    def 'Test plugin with multi project and project dependencies'() {
+        given:
+        String projectName = "testproject"
+        File settingsfile = createSettingsGradle(projectName)
+
+        createSubProjectJava('project1a', settingsfile, 'com.intereshop.a')
+        createSubProjectJava('project2b', settingsfile, 'com.intereshop.b')
+
+        buildFile << """
+                plugins {
+                    id 'ivy-publish'
+                    id 'com.intershop.gradle.component.build'
+                }
+                
+
+                group 'com.intershop.test'
+                version = '1.0.0'
+                
+                ${createRepo(testProjectDir)}
+        """.stripIndent()
+
+        def compProjectBuild = """
+                apply plugin: 'ivy-publish'
+                apply plugin: 'com.intershop.gradle.component.build'
+                
+                group 'com.intershop.testcomp'
+                version = '1.0.0'
+                
+                component {
+                    
+                    modules {
+                        add(project(':project1a'))
+                        add(project(':project2b'))
+                    }
+                    
+                    libs {
+                        add("com.intershop:library1:1.0.0")
+                        targetPath = "lib/release/libs"
+                    }
+       
+                    dependenciesConf.classCollision.enabled = false
+                }
+                
+                publishing {                     
+                     ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+                }
+
+                ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+                ${TestMavenRepoBuilder.declareRepository(new File(testProjectDir, 'repo'))}
+
+        """.stripIndent()
+
+        File subProject = createSubProject('projectComponent', settingsfile, compProjectBuild)
+
+        when:
+        List<String> args = ['publish', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        true
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    private File createSubProjectJava(String projectPath, File settingsGradle, String packageName){
+
+        def String buildFileContentBase =
+                """
+                plugins {
+                     id 'java'
+                     id 'ivy-publish'
+                }
+
+                task zipbin(type: Zip) {
+                    from 'staticfiles'
+                }    
+
+                task zipsites(type: Zip) {
+                    from 'sites'
+                } 
+          
+                group 'com.intershop.test'
+                version = '1.0.0'
+
+                artifacts.add("runtime", zipsites) {
+                    type = 'sites'
+                }
+                artifacts.add("runtime", zipbin) {
+                    type = 'bin'
+                }
+
+                publishing {
+                     publications {
+                         ivyIntershop(IvyPublication) {
+                             from components.java
+
+                             artifact(zipbin) {
+                                type "bin"
+                                conf "runtime"
+                             }
+                             artifact(zipsites) {
+                                type "sites"
+                                conf "runtime"
+                             }
+                         }
+                     }
+                     
+                     ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+                }       
+                """.stripIndent()
+
+        File subProject = createSubProject(projectPath, settingsGradle, buildFileContentBase)
+        writeJavaTestClass(packageName, subProject)
+
+        def testFile1 = new File(subProject, 'staticfiles/bin/test1.sh')
+        def testFile2 = new File(subProject, 'staticfiles/bin/test2.sh')
+        testFile1.parentFile.mkdirs()
+
+        testFile1 << """
+        # testfile1.sh
+        """.stripIndent()
+
+        testFile2 << """
+        # testfile2.sh
+        """.stripIndent()
+
+        def testFile3 = new File(subProject, 'sites/test/test3.txt')
+        def testFile4 = new File(subProject, 'sites/test/test4.txt')
+        testFile3.parentFile.mkdirs()
+
+        testFile3 << """
+        # testfile3 text
+        """.stripIndent()
+
+        testFile4 << """
+        # testfile4 text
+        """.stripIndent()
+
+        return subProject
+    }
+
+    private File createSettingsGradle(String projectName) {
         File settingsFile = new File(testProjectDir, 'settings.gradle')
         settingsFile << """
         rootProject.name = '${projectName}'

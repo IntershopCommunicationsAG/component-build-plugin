@@ -71,7 +71,7 @@ class Utils {
         fun getDependencyConf(handler: DependencyHandler, dependency: Any, errormessage: String): DependencyConfig {
             val dep = handler.create(dependency)
 
-            val depStr = if(dep is ProjectDependency) dependency.toString() else ""
+            val depStr = if(dep is ProjectDependency) dep.dependencyProject.path else ""
             val depConf = DependencyConfig(dep.group
                     ?: "", dep.name, dep.version ?: "", depStr)
 
