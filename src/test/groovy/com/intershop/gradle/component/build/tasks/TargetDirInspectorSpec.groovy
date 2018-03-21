@@ -35,6 +35,7 @@ class TargetDirInspectorSpec extends Specification {
                     "modules/libs",
                     "properties",
                     "container",
+                    "defaultTarget",
                      modules,  libs, fileContainers
             )
             TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -65,6 +66,7 @@ class TargetDirInspectorSpec extends Specification {
                 "modules/libs",
                 "properties",
                 "container",
+                "defaultTarget",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -96,6 +98,7 @@ class TargetDirInspectorSpec extends Specification {
                 "modules/libs",
                 "",
                 "same",
+                "defaultTarget",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -128,6 +131,7 @@ class TargetDirInspectorSpec extends Specification {
                 "modules/libs",
                 "",
                 "same",
+                "defaultTarget",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -161,6 +165,7 @@ class TargetDirInspectorSpec extends Specification {
                 "modules/libs",
                 "",
                 "same",
+                "defaultTarget",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -203,6 +208,7 @@ class TargetDirInspectorSpec extends Specification {
                 "modules/libs",
                 "",
                 "same",
+                "defaultTarget",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -245,6 +251,7 @@ class TargetDirInspectorSpec extends Specification {
                 "modules/libs",
                 "",
                 "same",
+                "defaultTarget",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)

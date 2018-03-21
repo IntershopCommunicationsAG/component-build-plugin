@@ -30,7 +30,7 @@ class TargetDirInspector(val component: Component) {
 
     companion object {
         private fun checkInputForSuffix(input: String, suffix: String) : String {
-            return if(input.endsWith(suffix)) {
+            return if(input.endsWith(suffix) || input.isBlank()) {
                 input
             } else {
                 input.trim() + "/"
@@ -54,11 +54,11 @@ class TargetDirInspector(val component: Component) {
 
         addTarget(libsTarget, "", mutableSetOf(), "Libraries target")
 
-        if(containerTarget.startsWith(libsTarget)) {
+        if(containerTarget.startsWith(libsTarget) && containerTarget.isNotBlank()) {
             errorMsg = "The target of containers is located in the library folder. This is not allowed!"
         }
 
-        if( modulesTarget.startsWith(libsTarget) && errorMsg.isBlank()) {
+        if( modulesTarget.startsWith(libsTarget) && modulesTarget.isNotBlank() && errorMsg.isBlank()) {
             errorMsg = "The target of modules is located in the library folder. This is not allowed!"
         }
 

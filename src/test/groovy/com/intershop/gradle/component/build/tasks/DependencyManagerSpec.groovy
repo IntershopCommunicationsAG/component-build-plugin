@@ -26,7 +26,7 @@ import org.gradle.api.Project
 import org.gradle.testfixtures.ProjectBuilder
 import spock.lang.Specification
 
-class DependencyProcessorSpec extends Specification {
+class DependencyManagerSpec extends Specification {
 
     public final static String ivyPattern = '[organisation]/[module]/[revision]/[type]s/ivy-[revision].xml'
     public final static String artifactPattern = '[organisation]/[module]/[revision]/[ext]s/[artifact]-[type](-[classifier])-[revision].[ext]'

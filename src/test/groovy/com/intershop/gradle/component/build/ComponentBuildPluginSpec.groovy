@@ -15,7 +15,6 @@
  */
 package com.intershop.gradle.component.build
 
-import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.test.AbstractProjectSpec
 import org.gradle.api.Plugin
 
@@ -31,7 +30,7 @@ class ComponentBuildPluginSpec extends AbstractProjectSpec {
         plugin.apply(project)
 
         then:
-        project.extensions.getByName(ComponentExtension.COMPONENT_EXTENSION_NAME)
+        project.extensions.getByName(ComponentBuildPlugin.COMPONENT_EXTENSION_NAME)
     }
 }
 

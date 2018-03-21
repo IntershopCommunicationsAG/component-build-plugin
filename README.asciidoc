@@ -1,13 +1,199 @@
 = Build Plugin for Components to Install Anywhere
 :latestRevision: 1.0.0
 :icons: font
-
-Note: This library requires Gradle 4 and JDK 8
-
-Note: This library is under development and not final released.
+:toc:
 
 image:https://travis-ci.org/IntershopCommunicationsAG/component-build-plugin.svg?branch=master["Build Status", link="https://travis-ci.org/IntershopCommunicationsAG/component-build-plugin"]
 image:https://api.codacy.com/project/badge/Grade/9d88a63723864ca7bd77e9c05e8d1e48["Codacy code quality", link="https://www.codacy.com/app/IntershopCommunicationsAG/component-build-plugin?utm_source=github.com&utm_medium=referral&utm_content=IntershopCommunicationsAG/component-build-plugin&utm_campaign=Badge_Grade"]
+
+NOTE: This library requires Gradle 4 and JDK 8
+
+NOTE: This library is under development and not final released.
+
+
+== Summary
+This plugin generates a component descriptor, that can be used for deployments on any platforms. It is possible to
+add modules (eg Intershop Cartridges), libraries, zip files (container), single files and properties for different
+installation and environemnt types and operating systems (classifier). The configuration contains also the installation
+target.
+There is also an deployment plugin, that used the descriptor for an installation.
+
+== Usage
+To apply the component-build Gradle Plugin to your projects, add the following in your build script:
+
+[source,groovy]
+[subs=+attributes]
+.build.gradle
+----
+plugins {
+    id 'com.intershop.gradle.component.build' version '{latestRevision}'
+}
+
+component {
+    // component configuration
+}
+----
+
+== Tasks
+
+[cols="25%,30%,45%", width="95%, options="header"]
+|===
+|Task name                   | Type                 | Description
+|zipContainer<container name> | ZipContainerTask     | This task creates a zip container from configured sources.
+|verifyClasspath              | VerifyClasspathTask  | For all configured jar files the classpath will be verified for duplicated classes by this task.
+|createComponent              | CreateComponentTask  | The main task creates the descriptor file.
+|===
+
+The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
+
+== Project Extension "component"
+
+=== Properties of "component"
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
+|===
+|Property | Type | Default value | Description
+|*ivyPublicationName*   | `String` | `ivyIntershop` | This configuration name is used for ivy publication.
+|*mavenPublicationName* | `String` | `mvnIntershop` | This configuration name is used for maven publication.
+|*displayName*          | `String` | `*project.name*` | The display name is visible for the installation client.
+|*componentDescription* | `String` | `""` | This is a more detailed description of this component.
+|*targetPath*           | `String` | `""` | The default target path of the configured component.
+|*decriptorOutputFile*  | `File`   | `*project.buildDir*/ +
+componentBuild/ +
+descriptor/ +
+file.component` | The configuration of the output file of createComponent.
+|*types* | Set<String> | [] | This is a list of deployment and environement types of the component. (*read only*)
+|*libs*              | LibraryItemContainer       | &nbsp; | This is the data container for all libraries. (*read only*)
+|*modules*           | ModuleItemContainer        | &nbsp; | This configuration contains all libraries. (*read only*)
+|*dependencyMngt*    | DependencyMngtContainer    | &nbsp; | This container holds all dependency related configuration parameters. (*read only*)
+|*fileItems*         | FileItemContainer          | &nbsp; | This is the configuration of all single files. (*read only*)
+|*containers*        | FileContainerItemContainer | &nbsp; | File containers can be configured in this configuration. (*read only*)
+|*propertyItems*     | PropertyItemContainer      | &nbsp; | Properties can be configured in this container. (*read only*)
+|===
+
+=== Methods "component"
+
+[cols="18%,45%,36%"*, width="95%", options="header"]
+|===
+|Method     | Values | Description
+|*addType*  | `String` | Add a deployment or environment type to the list of types.
+|*addTypes* | `Collection<String>` | Add a collection of deployment or environment types to the list of types.
+|*libs*     | `Action<? super LibraryItemContainer>` +
+`Closure` | Initialize container for library configuration.
+|*modules*          | `Action<? super ModuleItemContainer>` +
+`Closure` | Initialize container for modul configuration.
+|*dependencyMngt*   | `Action<? super DependencyMngtContainer>` +
+`Closure` | Initialize container for dependency management container. This includes also the configuration for the class collision verification.
+|*fileItems*        | `Action<? super FileItemContainer>` +
+`Closure` | Initialize container for single files.
+|*containers*       | `Action<? super FileContainerItemContainer>` +
+`Closure` | Initialize container for addtional file item containers.
+|*propertyItems*    | `Action<? super PropertyItemContainer>` +
+`Closure` | Initialize container for properties.
+|===
+
+=== Container 'libs'
+
+==== Properties
+
+[cols="25%,10%,10%,55%", width="90%, options="header"]
+|===
+|Property | Type | Default value | Description
+|*items*             | `Set<LibraryItem>` | `[]`   | Set of all configured dependencies for library items.
+|*resolveTransitive* | `boolean`          | `true` | If this value is true, dependencies will be resolved transitive.
+|*targetPath*        | `String`           | `""`   | A target path for all libraries.
+|*contentType*       | `String`           | `IMMUTABLE` | This setting specifies the handling of the folder / files. +
+The following values are allowed: +
+*IMMUTABLE* - statischer content will be replaced during the update +
+*DATA* - existing files can not be replaced by new files +
+*CONFIGURATION* - configuration files will be changed during the configuration +
+*UNSPECIFIED* - not specified content
+|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*) +
+It is used for all items.
+|===
+
+=== Container 'modules'
+
+==== Properties
+
+[cols="25%,10%,10%,55%", width="90%, options="header"]
+|===
+|Property | Type | Default value | Description
+|*items*             | `Set<ModuleItem>` | `[]`   | Set of all configured dependencies for module items.
+|*resolveTransitive* | `boolean`          | `true` | If this value is true, dependencies will be resolved transitive.
+|*targetPath*        | `String`           | `""`   | A target path for all modules.
+|*contentType*       | `String`           | `IMMUTABLE` | This setting specifies the handling of the folder / files. +
+The following values are allowed: +
+*IMMUTABLE* - statischer content will be replaced during the update +
+*DATA* - existing files can not be replaced by new files +
+*CONFIGURATION* - configuration files will be changed during the configuration +
+*UNSPECIFIED* - not specified content
+|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*) +
+It is used for all items.
+|===
+
+=== Container 'dependencyMngt'
+
+==== Properties
+
+[cols="25%,10%,10%,55%", width="90%, options="header"]
+|===
+|Property | Type | Default value | Description
+|*excludes*       | `Set<DependencyConfig>`   | `[]` | Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups.
+|*classCollision* | `ClassCollisionContainer` | &nbsp; | The configuration for classpath verification.
+|===
+
+=== Container 'fileItems'
+
+==== Properties
+
+[cols="25%,10%,10%,55%", width="90%, options="header"]
+|===
+|Property | Type | Default value | Description
+|*items*             | `Set<FileItem>` | `[]`   | Set of all configured file items.
+|*targetPath*        | `String`           | `""`   | A target path for all files.
+|*contentType*       | `String`           | `IMMUTABLE` | This setting specifies the handling of the folder / files. +
+The following values are allowed: +
+*IMMUTABLE* - statischer content will be replaced during the update +
+*DATA* - existing files can not be replaced by new files +
+*CONFIGURATION* - configuration files will be changed during the configuration +
+*UNSPECIFIED* - not specified content
+|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*) +
+It is used for all items.
+|===
+
+=== Container 'containers'
+
+==== Properties
+
+[cols="25%,10%,10%,55%", width="90%, options="header"]
+|===
+|Property | Type | Default value | Description
+|*items*             | `Set<FileContainerItem>` | `[]`   | Set of all configured file container items (zip).
+|*targetPath*        | `String`           | `""`   | A target path for all files.
+|*contentType*       | `String`           | `IMMUTABLE` | This setting specifies the handling of the folder / files. +
+The following values are allowed: +
+*IMMUTABLE* - statischer content will be replaced during the update +
+*DATA* - existing files can not be replaced by new files +
+*CONFIGURATION* - configuration files will be changed during the configuration +
+*UNSPECIFIED* - not specified content
+|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*) +
+It is used for all items.
+|===
+
+=== Container 'propertyItems'
+
+==== Properties
+
+[cols="25%,10%,10%,55%", width="90%, options="header"]
+|===
+|Property | Type | Default value | Description
+|*items*             | `Set<PropertyItem>` | `[]`   | Set of all configured property items.
+|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*)  +
+It is used for all items.
+|===
+
+
 
 
 == License

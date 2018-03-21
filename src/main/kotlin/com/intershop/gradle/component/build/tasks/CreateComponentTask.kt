@@ -44,7 +44,7 @@ import com.intershop.gradle.component.descriptor.Library as LibDesr
 import com.intershop.gradle.component.descriptor.Module as ModuleDescr
 
 /**
- * CreateDescriptorTask Gradle task 'createComponent'
+ * CreateComponentTask Gradle task 'createComponent'
  *
  * The injected dependencyHandler is used for internal dependency handling.
  * This task hast currently no declared inputs and outputs and builds
@@ -52,7 +52,7 @@ import com.intershop.gradle.component.descriptor.Module as ModuleDescr
  *
  * @constructor Creates the task with a dependencyHandler
  */
-open class CreateDescriptorTask : DefaultTask() {
+open class CreateComponentTask : DefaultTask() {
 
     // Outputfile configurationFor
     private val descriptorFileProperty = this.newOutputFile()
@@ -60,7 +60,8 @@ open class CreateDescriptorTask : DefaultTask() {
     private val displayNameProperty = project.objects.property(String::class.java)
     // component description configurationFor
     private val componentDescriptionProperty = project.objects.property(String::class.java)
-
+    // component description configurationFor
+    private val defaultTargetProperty = project.objects.property(String::class.java)
 
     private val dependencyManager = DependencyManager(project)
 
@@ -69,7 +70,7 @@ open class CreateDescriptorTask : DefaultTask() {
      *
      * @property descriptorFile real file on file system with descriptor
      */
-    @Suppress("private", "unused")
+    @Suppress("unused")
     @get:OutputFile
     var descriptorFile: File
         get() = descriptorFileProperty.get().asFile
@@ -90,7 +91,7 @@ open class CreateDescriptorTask : DefaultTask() {
      *
      * @property displayName name of the component
      */
-    @Suppress("private", "unused")
+    @Suppress("unused")
     @get:Input
     var displayName: String by displayNameProperty
 
@@ -109,7 +110,7 @@ open class CreateDescriptorTask : DefaultTask() {
      *
      * @property componentDescription description of the component
      */
-    @Suppress("private", "unused")
+    @Suppress("unused")
     @get:Input
     var componentDescription: String by componentDescriptionProperty
 
@@ -121,6 +122,25 @@ open class CreateDescriptorTask : DefaultTask() {
     @Suppress( "unused")
     fun provideComponentDescription(description: Provider<String>)
             = componentDescriptionProperty.set(description)
+
+    /**
+     * This property contains the the default target path
+     * for the installation.
+     *
+     * @property defaultTarget default installation target of the component
+     */
+    @Suppress( "unused")
+    @get:Input
+    var defaultTarget: String by defaultTargetProperty
+
+    /**
+     * Set provider for default target property.
+     *
+     * @param defaultTarget set provider for property.
+     */
+    @Suppress( "unused")
+    fun provideDefaultTarget(defaultTarget: Provider<String>)
+            = defaultTargetProperty.set(defaultTarget)
 
     /**
      * Container for all modules. This contains dependencies
@@ -221,7 +241,8 @@ open class CreateDescriptorTask : DefaultTask() {
                 modulesTarget = modules?.targetPath ?: "",
                 libsTarget = libs?.targetPath ?: "",
                 containerTarget = containers?.targetPath ?: "",
-                fileTarget = files?.targetPath ?: "")
+                fileTarget = files?.targetPath ?: "",
+                target = defaultTarget)
 
         dependencyManager.addToDescriptor(componentDescr, excludes)
 
@@ -252,7 +273,7 @@ open class CreateDescriptorTask : DefaultTask() {
 
         files?.items?.forEach { item ->
             with(item) {
-                if (!file.exists() && file.isFile && file.canRead()) {
+                if (file.exists() && file.isFile && file.canRead()) {
                     val file = FileItem(name, extension, targetPath, classifier, ContentType.valueOf(contentType))
                     file.types.addAll(types)
 

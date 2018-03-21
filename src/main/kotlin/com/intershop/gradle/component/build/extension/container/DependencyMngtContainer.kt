@@ -27,7 +27,7 @@ import javax.inject.Inject
  *
  * @constructor priovides the configuration
  */
-open class DependencyConfContainer @Inject constructor(project: Project) {
+open class DependencyMngtContainer @Inject constructor(project: Project) {
 
     companion object {
         internal fun createRegexStr(input: String): String {

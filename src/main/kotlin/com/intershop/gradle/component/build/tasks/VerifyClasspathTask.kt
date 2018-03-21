@@ -34,7 +34,7 @@ import javax.inject.Inject
 /**
  * The task implementation for the check class collision task.
  */
-open class CheckClassCollisionsTask @Inject constructor(private val workerExecutor: WorkerExecutor): DefaultTask() {
+open class VerifyClasspathTask @Inject constructor(private val workerExecutor: WorkerExecutor): DefaultTask() {
 
     private val reportOutputProperty: RegularFileProperty = this.newOutputFile()
 
@@ -117,7 +117,7 @@ open class CheckClassCollisionsTask @Inject constructor(private val workerExecut
 
         val jarFileList = dependencyJarManager.collectJarFiles(excludes, collisionExcludes)
 
-        workerExecutor.submit(ClassCollisionRunner::class.java, {
+        workerExecutor.submit(VerifyClasspathRunner::class.java, {
             it.displayName = "'Check jars for class collisions.'"
             it.setParams(
                     jarFileList,

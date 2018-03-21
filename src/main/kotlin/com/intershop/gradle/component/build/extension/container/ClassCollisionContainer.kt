@@ -57,9 +57,9 @@ open class ClassCollisionContainer {
     @JvmOverloads
     fun exclude(group: String = "", module: String = "", version: String = "") {
         excludeSet.add(DependencyConfig(
-                DependencyConfContainer.createRegexStr(group),
-                DependencyConfContainer.createRegexStr(module),
-                DependencyConfContainer.createRegexStr(version)))
+                DependencyMngtContainer.createRegexStr(group),
+                DependencyMngtContainer.createRegexStr(module),
+                DependencyMngtContainer.createRegexStr(version)))
     }
 
     /**

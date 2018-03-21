@@ -35,12 +35,12 @@ import javax.inject.Inject
  *
  * @constructor provides the runner of the CheckClassCollisions task
  */
-open class ClassCollisionRunner @Inject constructor(private val jarFiles: Set<JarFileInfo>,
-                                                    private val excludedClasses: Set<String>,
-                                                    private val outputFile: File) : Runnable {
+open class VerifyClasspathRunner @Inject constructor(private val jarFiles: Set<JarFileInfo>,
+                                                     private val excludedClasses: Set<String>,
+                                                     private val outputFile: File) : Runnable {
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(ClassCollisionRunner::class.java.name)
+        val logger: Logger = LoggerFactory.getLogger(VerifyClasspathRunner::class.java.name)
     }
 
     /**

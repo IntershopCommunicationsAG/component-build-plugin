@@ -15,7 +15,7 @@
  */
 package com.intershop.gradle.component.build.extension
 
-import com.intershop.gradle.component.build.extension.container.DependencyConfContainer
+import com.intershop.gradle.component.build.extension.container.DependencyMngtContainer
 import com.intershop.gradle.component.build.extension.container.FileContainerItemContainer
 import com.intershop.gradle.component.build.extension.container.FileItemContainer
 import com.intershop.gradle.component.build.extension.container.LibraryItemContainer
@@ -41,8 +41,6 @@ import kotlin.properties.Delegates
 open class ComponentExtension @Inject constructor(project: Project) {
 
     companion object {
-        const val COMPONENT_EXTENSION_NAME = "component"
-        const val COMPONENT_GROUP_NAME = "Component Build"
 
         private const val PLUGIN_OUTPUTDIR = "componentBuild"
         const val DESCRIPTOR_FILE = "$PLUGIN_OUTPUTDIR/descriptor/file.component"
@@ -63,8 +61,8 @@ open class ComponentExtension @Inject constructor(project: Project) {
     private val moduleContainer =
             project.objects.newInstance(ModuleItemContainer::class.java, project.dependencies, this)
 
-    private val dependenciesConfContainer =
-            project.objects.newInstance(DependencyConfContainer::class.java, project)
+    private val dependencyMngtContainer =
+            project.objects.newInstance(DependencyMngtContainer::class.java, project)
 
     private val fileContainer =
             project.objects.newInstance(FileItemContainer::class.java, this)
@@ -230,10 +228,10 @@ open class ComponentExtension @Inject constructor(project: Project) {
     /**
      * The container for dependencies configurations.
      *
-     * @property dependenciesConf container of dependencies configurations
+     * @property dependencyMngt container of dependencies configurations
      */
-    val dependenciesConf: DependencyConfContainer
-        get() = dependenciesConfContainer
+    val dependencyMngt: DependencyMngtContainer
+        get() = dependencyMngtContainer
 
     /**
      * Configures dependencies container of a component.
@@ -241,8 +239,8 @@ open class ComponentExtension @Inject constructor(project: Project) {
      * @param action execute the dependencies container configuration
      */
     @Suppress("unused")
-    fun dependenciesConf(action: Action<in DependencyConfContainer>) {
-        action.execute(dependenciesConfContainer)
+    fun dependencyMngt(action: Action<in DependencyMngtContainer>) {
+        action.execute(dependencyMngtContainer)
     }
 
     /**

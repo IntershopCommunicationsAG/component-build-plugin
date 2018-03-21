@@ -44,7 +44,7 @@ import com.intershop.gradle.component.descriptor.Module as ModuleDescr
 
 /**
  * This class provides the handling of the module item and library item
- * set for the CreateDescriptorTask task.
+ * set for the CreateComponentTask task.
  *
  * @property project the current project instance
  *
@@ -305,7 +305,7 @@ class DependencyManager(val project: Project) {
                 if ( isNotExcluded(dep, excludes) ) {
                     val availableDep = resLibDeps.keys.find { it.group == dep.group && it.module == dep.module }
                     if( availableDep == null ) {
-                        val targetName = "${dep.group}_${dep.module}_$dep.version"
+                        val targetName = "${dep.group}_${dep.module}_${dep.version}"
                         if(resLibDeps.none{it.value.targetName == targetName}) {
                             val libDescr = LibDescr(dependency = DependencyDescr(dep.group, dep.module, dep.version),
                                     targetName = targetName)

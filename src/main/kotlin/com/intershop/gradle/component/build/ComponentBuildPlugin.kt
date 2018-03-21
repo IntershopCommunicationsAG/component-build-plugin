@@ -18,8 +18,8 @@ package com.intershop.gradle.component.build
 import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.FileContainerItem
 import com.intershop.gradle.component.build.extension.items.FileItem
-import com.intershop.gradle.component.build.tasks.CheckClassCollisionsTask
-import com.intershop.gradle.component.build.tasks.CreateDescriptorTask
+import com.intershop.gradle.component.build.tasks.VerifyClasspathTask
+import com.intershop.gradle.component.build.tasks.CreateComponentTask
 import com.intershop.gradle.component.build.tasks.ZipContainerTask
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
@@ -52,7 +52,11 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
     companion object {
         const val TASKDESCRIPTION = "Generate component file from configuration"
-        const val TASKNAME = "createComponent"
+        const val COMPONENT_TASKNAME = "createComponent"
+        const val VERIFYCP_TASKNAME = "verifyClasspath"
+
+        const val COMPONENT_EXTENSION_NAME = "component"
+        const val COMPONENT_GROUP_NAME = "Component Build"
     }
 
     /**
@@ -64,23 +68,26 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
         with(project) {
             pluginManager.apply(PublishingPlugin::class.java)
 
-            logger.info("Component plugin adds extension {} to {}", ComponentExtension.COMPONENT_EXTENSION_NAME, name)
+            logger.info("Component plugin adds extension {} to {}", COMPONENT_EXTENSION_NAME, name)
             val extension = extensions.findByType(ComponentExtension::class.java)
-                    ?: extensions.create(ComponentExtension.COMPONENT_EXTENSION_NAME,
-                            ComponentExtension::class.java,
-                            this)
+                    ?: extensions.create(COMPONENT_EXTENSION_NAME, ComponentExtension::class.java, this)
+
+            val defaultConfiguration = project.configurations.maybeCreate("default")
+            project.configurations.maybeCreate("component").extendsFrom(defaultConfiguration)
 
             if(modelRegistry?.state(ModelPath.nonNullValidatedPath("componentBuildConf")) == null) {
                 modelRegistry?.register(ModelRegistrations.bridgedInstance(
                         ModelReference.of("componentBuildConf", ComponentExtension::class.java), extension)
                         .descriptor("Deployment configuration").build())
             }
+
+
         }
     }
 
     /**
      * This RuleSource adds rules for publishing task output
-     * of CreateDescriptorTask Task.
+     * of CreateComponentTask Task.
      */
     @Suppress("unused")
     class ComponentBuildRule: RuleSource() {
@@ -93,7 +100,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                 if(! tasks.containsKey(taskName)) {
                     tasks.create(taskName, ZipContainerTask::class.java) {
                         with(it) {
-                            group = ComponentExtension.COMPONENT_GROUP_NAME
+                            group = COMPONENT_GROUP_NAME
                             description = "Creates zip for container configuration '${container.name}'."
 
                             inputFiles = container.source
@@ -134,15 +141,11 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
             }
 
             private fun createDescriptorTask(tasks: ModelMap<Task>,
-                                             extension: ComponentExtension,
-                                             buildDir: File): String {
-
-                val componentName = extension.displayName.replace(" ", "_").capitalize()
-                val taskName = "deploymentDescr$componentName"
-                if(! tasks.containsKey(taskName)) {
-                    tasks.create(taskName, CreateDescriptorTask::class.java) {
+                                             extension: ComponentExtension) {
+                if(! tasks.containsKey(COMPONENT_TASKNAME)) {
+                    tasks.create(COMPONENT_TASKNAME, CreateComponentTask::class.java) {
                         with(it) {
-                            group = ComponentExtension.COMPONENT_GROUP_NAME
+                            group = COMPONENT_GROUP_NAME
                             description = "Creates descriptor for component deployment '${extension.displayName}'"
 
                             displayName = extension.displayName
@@ -150,43 +153,46 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
                             libs = extension.libs
                             modules = extension.modules
-                            excludes = extension.dependenciesConf.excludes
+                            excludes = extension.dependencyMngt.excludes
                             properties = extension.propertyItems
                             containers = extension.containers
                             files = extension.fileItems
 
-                            descriptorFile = File(buildDir, ComponentExtension.DESCRIPTOR_FILE)
+                            defaultTarget = extension.targetPath
 
+                            descriptorFile = extension.decriptorOutputFile
+
+                            project.artifacts.add("component", it.descriptorFile) {
+                                it.type = "component"
+                                it.extension
+                                it.name
+                            }
                         }
                     }
                 }
-                return taskName
             }
 
             private fun createVerifyClassCollisionTask(tasks: ModelMap<Task>,
                                                        extension: ComponentExtension,
-                                                       buildDir: File) : String {
-                val componentName = extension.displayName.replace(" ", "_").capitalize()
-                val taskName = "verifyClassCollision$componentName"
-                if(! tasks.containsKey(taskName)) {
-                    tasks.create(taskName, CheckClassCollisionsTask::class.java) {
+                                                       buildDir: File) {
+                if(! tasks.containsKey(VERIFYCP_TASKNAME)) {
+                    tasks.create(VERIFYCP_TASKNAME, VerifyClasspathTask::class.java) {
                         with(it) {
-                            group = ComponentExtension.COMPONENT_GROUP_NAME
+                            group = COMPONENT_GROUP_NAME
                             description = "Check jars for class collisions of '${extension.displayName}'"
 
-                            enabled = extension.dependenciesConf.classCollision.enabled
+                            enabled = extension.dependencyMngt.classCollision.enabled
 
                             libSet = extension.libs.items
                             moduleSet = extension.modules.items
-                            excludes = extension.dependenciesConf.excludes
-                            excludedClasses = extension.dependenciesConf.classCollision.excludedClasses
-                            collisionExcludes = extension.dependenciesConf.classCollision.excludes
+                            excludes = extension.dependencyMngt.excludes
+                            excludedClasses = extension.dependencyMngt.classCollision.excludedClasses
+                            collisionExcludes = extension.dependencyMngt.classCollision.excludes
 
                             reportOutput = File(buildDir, ComponentExtension.CLASSCOLLISION_REPORT)
                         }
                     }
                 }
-                return taskName
             }
 
             private fun configureMvnPublishing(mvnPublication: MavenPublication,
@@ -198,33 +204,61 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             mvnArtifact.extension = task.extension
 
                             val classifier = StringBuilder()
-                            if (task.artifactAppendix.isNotBlank()) {
+                            classifier.append( task.artifactBaseName )
+
+                            if(task.artifactAppendix.isNotBlank()) {
+                                if(classifier.isNotBlank()) {
+                                    classifier.append("_")
+                                }
                                 classifier.append(task.artifactAppendix)
                             }
-                            if (classifier.isNotBlank() && task.artifactClassifier.isNotBlank()) {
-                                classifier.append("_")
-                            }
-                            if (task.artifactClassifier.isNotBlank()) {
+                            if(task.artifactClassifier.isNotBlank()) {
+                                if(classifier.isNotBlank()) {
+                                    classifier.append("_")
+                                }
                                 classifier.append(task.artifactClassifier)
                             }
 
-                            if (classifier.isNotBlank()) {
+                            if(classifier.isNotBlank()) {
                                 mvnArtifact.classifier = classifier.toString()
+                            }
+
+                            task.project.artifacts.add("component", task) {
+                                it.classifier = mvnArtifact.classifier
+                                it.name = task.project.name
+                                it.extension = mvnArtifact.extension
+
+                                it.builtBy(task)
                             }
                         }
                     }
 
-                    componentBuildConf.fileItems.items.forEach { item ->
-                        this.artifact(item.file) { mvnArtifact ->
-                            mvnArtifact.extension = item.extension
-                            mvnArtifact.classifier = createClassifierForFile(item)
-                        }
-                    }
+                    tasks.withType(CreateComponentTask::class.java).forEach { task ->
 
-                    tasks.withType(CreateDescriptorTask::class.java).forEach {
-                        this.artifact(it.outputs.files.singleFile) {
-                            it.builtBy(it)
-                            it.classifier = "component"
+                        componentBuildConf.fileItems.items.forEach { item ->
+                            this.artifact(item.file) { mvnArtifact ->
+                                mvnArtifact.extension = item.extension
+                                mvnArtifact.classifier = createClassifierForFile(item)
+
+                                task.project.artifacts.add("component", item.file) {
+                                    it.classifier = mvnArtifact.classifier
+                                    it.name = task.project.name
+                                    it.extension = item.extension
+                                }
+                            }
+                        }
+
+                        this.artifact(task.outputs.files.singleFile) { mvnArtifact ->
+                            mvnArtifact.builtBy(task)
+                            mvnArtifact.classifier = "component"
+
+                            task.project.artifacts.add("component", task.descriptorFile) {
+                                it.classifier = mvnArtifact.classifier
+                                it.name = task.project.name
+                                it.extension = task.descriptorFile.extension
+
+                                it.builtBy(task)
+                            }
                         }
                     }
                 }
@@ -234,6 +268,10 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                                                tasks: ModelMap<Task>,
                                                componentBuildConf: ComponentExtension) {
                 with(ivyPublication) {
+                    configurations {
+                        it.maybeCreate("default")
+                        it.maybeCreate("component").extend("default")
+                    }
                     tasks.withType(ZipContainerTask::class.java).forEach { task ->
                         this.artifact(task) { ivyArtifact ->
                             ivyArtifact.name = task.artifactBaseName
@@ -242,26 +280,99 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             if(task.artifactClassifier.isNotBlank()) {
                                 ivyArtifact.classifier = task.artifactClassifier
                             }
-                        }
-                    }
 
-                    componentBuildConf.fileItems.items.forEach { item ->
-                        this.artifact(item.file) { ivyArtifact ->
-                            ivyArtifact.name = item.name
-                            ivyArtifact.type = item.extension
+                            ivyArtifact.conf = "component"
 
-                            if(item.classifier.isNotBlank()) {
-                                ivyArtifact.classifier = item.classifier
+                            task.project.artifacts.add("component", task) {
+                                if(task.artifactClassifier.isNotBlank()) {
+                                    it.classifier = ivyArtifact.classifier
+                                }
+                                it.name = ivyArtifact.name
+                                it.extension = ivyArtifact.extension
+                                it.type = ivyArtifact.type
+
+                                it.builtBy(task)
                             }
                         }
                     }
 
-                    tasks.withType(CreateDescriptorTask::class.java).forEach { task ->
-                        this.artifact(task.outputs.files.singleFile, {
-                            it.builtBy(task)
-                            it.name = task.project.name
-                            it.type = "component"
+                    tasks.withType(CreateComponentTask::class.java).forEach { task ->
+
+                        componentBuildConf.fileItems.items.forEach { item ->
+                            this.artifact(item.file) { ivyArtifact ->
+                                ivyArtifact.name = item.name
+                                ivyArtifact.type = item.extension
+
+                                if(item.classifier.isNotBlank()) {
+                                    ivyArtifact.classifier = item.classifier
+                                }
+                                ivyArtifact.conf = "component"
+
+                                task.project.artifacts.add("component", item.file) {
+                                    if(item.classifier.isNotBlank()) {
+                                        it.classifier = ivyArtifact.classifier
+                                    }
+
+                                    it.name = ivyArtifact.name
+                                    it.type = ivyArtifact.type
+                                    it.extension = ivyArtifact.extension
+                                }
+                            }
+                        }
+
+                        this.artifact(task.outputs.files.singleFile, { ivyArtifact ->
+                            ivyArtifact.builtBy(task)
+                            ivyArtifact.name = task.project.name
+                            ivyArtifact.type = "component"
+
+                            ivyArtifact.conf = "component"
+
+                            task.project.artifacts.add("component", task.descriptorFile) {
+                                it.name = task.project.name
+                                it.type = ivyArtifact.type
+                                it.extension = ivyArtifact.extension
+
+                                it.builtBy(task)
+                            }
                         })
+                    }
+                }
+            }
+
+            private fun configureProjectArtifactsOnly(tasks: ModelMap<Task>, componentBuildConf: ComponentExtension) {
+                tasks.withType(ZipContainerTask::class.java).forEach { task ->
+                    task.project.artifacts.add("component", task) {
+                        if(task.artifactClassifier.isNotBlank()) {
+                            it.classifier = task.artifactClassifier
+                        }
+
+                        it.name = task.artifactBaseName
+                        it.extension = task.extension
+                        it.type = task.artifactAppendix
+
+                        it.builtBy(task)
+                    }
+                }
+
+                tasks.withType(CreateComponentTask::class.java).forEach { task ->
+                    componentBuildConf.fileItems.items.forEach { item ->
+                        task.project.artifacts.add("component", item.file) {
+                            if(item.classifier.isNotBlank()) {
+                                it.classifier = item.classifier
+                            }
+
+                            it.name = item.name
+                            it.type = item.extension
+                            it.extension = item.extension
+                        }
+                    }
+
+                    task.project.artifacts.add("component", task.descriptorFile) {
+                        it.name = task.descriptorFile.nameWithoutExtension
+                        it.type = task.descriptorFile.extension
+                        it.extension = task.descriptorFile.extension
+
+                        it.builtBy(task)
                     }
                 }
             }
@@ -273,10 +384,10 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
          */
         @Suppress("unused")
         @Defaults
-        fun configurePublishingPublications(tasks: ModelMap<Task>,
-                                            publishing: PublishingExtension,
-                                            componentBuildConf: ComponentExtension,
-                                            @Path("buildDir") buildDir: File) {
+        fun configureComponentBuildPublishing(tasks: ModelMap<Task>,
+                                              publishing: PublishingExtension,
+                                              componentBuildConf: ComponentExtension,
+                                              @Path("buildDir") buildDir: File) {
 
             val publications = publishing.publications
 
@@ -285,15 +396,18 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                 createContainerTask(tasks, container)
             }
 
-            val taskCreateDescr = createDescriptorTask(tasks, componentBuildConf, buildDir)
+            createDescriptorTask(tasks, componentBuildConf)
 
-            val taskVerifyClassCollion = createVerifyClassCollisionTask(tasks, componentBuildConf, buildDir)
+            createVerifyClassCollisionTask(tasks, componentBuildConf, buildDir)
 
-            tasks.get(taskCreateDescr)?.dependsOn(taskVerifyClassCollion)
+            tasks.get(COMPONENT_TASKNAME)?.dependsOn(VERIFYCP_TASKNAME)
+
+            var configuredPublishing = false
 
             try {
                 publications.maybeCreate(componentBuildConf.mavenPublicationName, MavenPublication::class.java).apply {
                     configureMvnPublishing(this, tasks, componentBuildConf )
+                    configuredPublishing = true
                 }
             } catch(ex: InvalidUserDataException) {
                 logger.debug("Maven Publishing is not applied for component build plugin.")
@@ -302,9 +416,15 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
             try {
                 publications.maybeCreate(componentBuildConf.ivyPublicationName, IvyPublication::class.java).apply {
                     configureIvyPublishing(this, tasks, componentBuildConf)
+                    configuredPublishing = true
                 }
             } catch(ex: InvalidUserDataException) {
                 logger.debug("Ivy Publishing is not applied for component build plugin.")
+            }
+
+            if(! configuredPublishing) {
+                // configure only project artifacts
+                configureProjectArtifactsOnly(tasks, componentBuildConf)
             }
         }
     }
