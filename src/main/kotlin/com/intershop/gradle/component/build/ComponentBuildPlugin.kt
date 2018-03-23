@@ -18,8 +18,8 @@ package com.intershop.gradle.component.build
 import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.FileContainerItem
 import com.intershop.gradle.component.build.extension.items.FileItem
-import com.intershop.gradle.component.build.tasks.VerifyClasspathTask
 import com.intershop.gradle.component.build.tasks.CreateComponentTask
+import com.intershop.gradle.component.build.tasks.VerifyClasspathTask
 import com.intershop.gradle.component.build.tasks.ZipContainerTask
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Plugin
@@ -181,13 +181,13 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             group = COMPONENT_GROUP_NAME
                             description = "Check jars for class collisions of '${extension.displayName}'"
 
-                            enabled = extension.dependencyMngt.classCollision.enabled
+                            enabled = extension.dependencyMngt.classpathVerification.enabled
 
                             libSet = extension.libs.items
                             moduleSet = extension.modules.items
                             excludes = extension.dependencyMngt.excludes
-                            excludedClasses = extension.dependencyMngt.classCollision.excludedClasses
-                            collisionExcludes = extension.dependencyMngt.classCollision.excludes
+                            excludedClasses = extension.dependencyMngt.classpathVerification.excludedClasses
+                            collisionExcludes = extension.dependencyMngt.classpathVerification.excludes
 
                             reportOutput = File(buildDir, ComponentExtension.CLASSCOLLISION_REPORT)
                         }

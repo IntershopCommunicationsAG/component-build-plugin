@@ -21,6 +21,7 @@ import com.intershop.gradle.component.build.extension.items.LibraryItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.tasks.Internal
 import javax.inject.Inject
 
 /**
@@ -32,8 +33,9 @@ import javax.inject.Inject
  * @constructor provides an empty preconfigured library container
  */
 open class LibraryItemContainer
-        @Inject constructor(private val dpendencyHandler: DependencyHandler, private val parent: ComponentExtension) :
-        AContainer("Library Container") {
+        @Inject constructor(private val dpendencyHandler: DependencyHandler,
+                            @get:Internal override val parent: ComponentExtension) :
+        AContainer("Library Container", parent) {
 
     // backing properties
     private val itemSet: MutableSet<LibraryItem> = mutableSetOf()
@@ -113,6 +115,9 @@ open class LibraryItemContainer
         val depConf = getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the library container.")
         val item = LibraryItem(depConf)
+
+        addTypes(item)
+
         item.targetName = "${depConf.group}_${depConf.module}_${depConf.version}"
         item.resolveTransitive = resolveTransitive
 

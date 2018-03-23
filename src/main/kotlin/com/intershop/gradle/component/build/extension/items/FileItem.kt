@@ -81,5 +81,5 @@ class FileItem(@get:InputFile val file: File) : AItem(), IItem, IOSSpecific {
      * @property classifier the set of OS specific strings
      */
     @get:Input
-    override val classifier: String = ""
+    override var classifier: String = ""
 }

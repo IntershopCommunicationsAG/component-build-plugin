@@ -41,8 +41,8 @@ open class DependencyMngtContainer @Inject constructor(project: Project) {
 
     private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
 
-    private val classCollisionContainer =
-            project.objects.newInstance(ClassCollisionContainer::class.java)
+    private val classpathVerificationContainer =
+            project.objects.newInstance(ClasspathVerificationContainer::class.java)
 
     /**
      * This set provides exclude configuration for all
@@ -68,16 +68,21 @@ open class DependencyMngtContainer @Inject constructor(project: Project) {
         excludeSet.add(DependencyConfig(createRegexStr(group), createRegexStr(module), createRegexStr(version)))
     }
 
-    val classCollision: ClassCollisionContainer
-        get() = classCollisionContainer
+    /**
+     * Property (read only) of the classpath verification configuration.
+     *
+     * @property classpathVerification configuration container.
+     */
+    val classpathVerification: ClasspathVerificationContainer
+        get() = classpathVerificationContainer
 
     /**
-     * Configures lib container of a component.
+     * Configures classpath verification container of a component.
      *
-     * @param action execute the lib container configuration
+     * @param action execute the classpath verification configuration
      */
     @Suppress("unused")
-    fun classCollision(action: Action<in ClassCollisionContainer>) {
-        action.execute(classCollisionContainer)
+    fun classpathVerification(action: Action<in ClasspathVerificationContainer>) {
+        action.execute(classpathVerificationContainer)
     }
 }

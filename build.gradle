@@ -94,7 +94,7 @@ detekt {
 
 task copyAsciiDoc {
     def outputDir = file("$buildDir/tmp/asciidoctorSrc")
-    def inputFiles = fileTree(dir: rootDir, include: '**/*.asciidoc')
+    def inputFiles = fileTree(dir: rootDir, includes: ['**/*.asciidoc','docinfo.html'], exclude: 'build/**')
 
     inputs.files inputFiles
     outputs.dir outputDir
@@ -105,6 +105,8 @@ task copyAsciiDoc {
         copy {
             from inputFiles
             into outputDir
+
+            includeEmptyDirs = false
         }
     }
 }
@@ -124,6 +126,7 @@ asciidoctor {
             ruby    : 'erubis'
     attributes  'latestRevision'     : project.version,
             'toc':'left',
+            'docinfo': 'shared',
             'toclevels':'2',
             'source-highlighter' : 'coderay',
             'icons': 'font',

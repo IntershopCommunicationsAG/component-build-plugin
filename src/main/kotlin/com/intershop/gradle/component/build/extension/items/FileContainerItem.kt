@@ -131,5 +131,5 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
      * @property classifier the set of OS specific strings
      */
     @get:Input
-    override val classifier: String = ""
+    override var classifier: String = ""
 }

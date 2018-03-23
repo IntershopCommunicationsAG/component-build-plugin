@@ -19,6 +19,7 @@ package com.intershop.gradle.component.build.extension.container
 import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.AItem
 import com.intershop.gradle.component.build.extension.items.PropertyItem
+import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Nested
 import javax.inject.Inject
@@ -81,6 +82,37 @@ open class PropertyItemContainer @Inject constructor(private val parent: Compone
             return add(key,value, *parent.types.toTypedArray())
         }
         return add(key,value, *this.types.toTypedArray())
+    }
+
+    /**
+     * Add a property with a special key and
+     * configures this item.
+     *
+     * @param key Property key of this item
+     * @param action action to configure all parameters of property item.
+     */
+    @Suppress("unused")
+    @Throws(InvalidUserDataException::class)
+    fun add(key: String, action: Action<in PropertyItem>) {
+        val item = PropertyItem(key)
+
+        addTypes(item)
+
+        action.execute(item)
+
+        if(itemSet.contains(item)) {
+            throw InvalidUserDataException("Property $key is already part of the current configuration!")
+        } else {
+            itemSet.add(item)
+        }
+    }
+
+    private fun addTypes(item: AItem) {
+        if(types.isEmpty() && parent.types.isNotEmpty()) {
+            item.addTypes(parent.types)
+        } else {
+            item.addTypes(this.types)
+        }
     }
 
 }

@@ -21,6 +21,7 @@ import com.intershop.gradle.component.build.extension.items.ModuleItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.dsl.DependencyHandler
+import org.gradle.api.tasks.Internal
 import javax.inject.Inject
 
 /**
@@ -32,8 +33,9 @@ import javax.inject.Inject
  * @constructor provides an empty preconfigured module container
  */
 open class ModuleItemContainer
-        @Inject constructor(private val dpendencyHandler: DependencyHandler, private val parent: ComponentExtension) :
-        AContainer( "Module Container") {
+        @Inject constructor(private val dpendencyHandler: DependencyHandler,
+                            @get:Internal override val parent: ComponentExtension) :
+        AContainer( "Module Container", parent) {
 
     // backing properties
     private val itemSet: MutableSet<ModuleItem> = mutableSetOf()
@@ -115,6 +117,9 @@ open class ModuleItemContainer
         val depConf = Utils.getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the module container.")
         val item = ModuleItem(depConf)
+
+        addTypes(item)
+        
         item.targetPath = depConf.module
         item.resolveTransitive = resolveTransitive
 

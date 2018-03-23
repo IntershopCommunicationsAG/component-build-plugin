@@ -88,7 +88,6 @@ class DependencyManagerSpec extends Specification {
         then:
         descr.libs.size() == 3
         descr.modules.size() == 2
-
     }
 
     def createRepo(File repoDir) {

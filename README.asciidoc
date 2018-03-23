@@ -39,6 +39,7 @@ component {
 [cols="25%,30%,45%", width="95%, options="header"]
 |===
 |Task name                   | Type                 | Description
+
 |zipContainer<container name> | ZipContainerTask     | This task creates a zip container from configured sources.
 |verifyClasspath              | VerifyClasspathTask  | For all configured jar files the classpath will be verified for duplicated classes by this task.
 |createComponent              | CreateComponentTask  | The main task creates the descriptor file.
@@ -46,13 +47,14 @@ component {
 
 The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 
-== Project Extension "component"
+== Project Extension 'component'
 
-=== Properties of "component"
+=== Properties of 'component'
 
 [cols="25%,10%,10%,55%", width="95%, options="header"]
 |===
 |Property | Type | Default value | Description
+
 |*ivyPublicationName*   | `String` | `ivyIntershop` | This configuration name is used for ivy publication.
 |*mavenPublicationName* | `String` | `mvnIntershop` | This configuration name is used for maven publication.
 |*displayName*          | `String` | `*project.name*` | The display name is visible for the installation client.
@@ -71,13 +73,14 @@ file.component` | The configuration of the output file of createComponent.
 |*propertyItems*     | PropertyItemContainer      | &nbsp; | Properties can be configured in this container. (*read only*)
 |===
 
-=== Methods "component"
+=== Methods of 'component'
 
 [cols="18%,45%,36%"*, width="95%", options="header"]
 |===
-|Method     | Values | Description
-|*addType*  | `String` | Add a deployment or environment type to the list of types.
-|*addTypes* | `Collection<String>` | Add a collection of deployment or environment types to the list of types.
+|Method     | Parameters | Description
+
+|*addType*  | `String` | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
+|*addTypes* | `Collection<String>` | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
 |*libs*     | `Action<? super LibraryItemContainer>` +
 `Closure` | Initialize container for library configuration.
 |*modules*          | `Action<? super ModuleItemContainer>` +
@@ -92,16 +95,14 @@ file.component` | The configuration of the output file of createComponent.
 `Closure` | Initialize container for properties.
 |===
 
-=== Container 'libs'
+=== Configuration for libs, modules, fileitems and file container
 
-==== Properties
+==== Properties of containers and items
 
-[cols="25%,10%,10%,55%", width="90%, options="header"]
+[cols="25%,10%,10%,55%", width="95%, options="header"]
 |===
 |Property | Type | Default value | Description
-|*items*             | `Set<LibraryItem>` | `[]`   | Set of all configured dependencies for library items.
-|*resolveTransitive* | `boolean`          | `true` | If this value is true, dependencies will be resolved transitive.
-|*targetPath*        | `String`           | `""`   | A target path for all libraries.
+
 |*contentType*       | `String`           | `IMMUTABLE` | This setting specifies the handling of the folder / files. +
 The following values are allowed: +
 *IMMUTABLE* - statischer content will be replaced during the update +
@@ -110,91 +111,281 @@ The following values are allowed: +
 *UNSPECIFIED* - not specified content
 |*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*) +
 It is used for all items.
+|===
+
+==== Methods of containers and items
+
+[cols="10%,38%,52%"*, width="95%", options="header"]
+|===
+|Method     | Parameters | Description
+
+|*setTypes* | `Collection<String>` | Set a collection of deployment or environment types to the list of types.
+|*addType*  | `String` | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
+|*addTypes* | `Collection<String>` | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
+|===
+
+=== Container 'libs'
+
+This configuration contains the library configuration of a components. A library is a Maven dependency that includes one jar file.
+
+==== Properties of 'libs'
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
+|===
+|Property | Type | Default value | Description
+
+|*items*             | `Set<LibraryItem>` | `[]`   | Set of all configured dependencies for library items.
+|*resolveTransitive* | `boolean`          | `true` | If this value is true, dependencies will be resolved transitive.
+|*targetPath*        | `String`           | `""`   | A target path for all libraries.
+|===
+
+==== Methods of 'libs'
+
+[cols="10%,38%,52%"*, width="95%", options="header"]
+|===
+|Method     | Parameters | Description
+
+|*add* | `Object`, `String...` | Creates an new instance of a library item with the dependency from the object and a list of types. It adds this item to the list and returns the instance for further configuration.
+|*add* | `Object` | Creates an new instance of a library item with the dependency from the object, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
+|*add* | `Collection<Object>` | Creates new instances of library items from the object list with a types list from the container. All items a added to the list of items.
+|*add* | `Object`, `Action<? super LibraryItem>` | Creates an new instance of a library item with the dependency from the object and configures this instance. The item is added to the list of items.
+|*add* | `Object`, `Closure` | Creates an new instance of a library item with the dependency from the object and configures this instance. The item is added to the list of items.
+|===
+
+==== Configuration of LibraryItem
+
+===== Properties
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
+|===
+|Property | Type | Default value | Description
+
+|*dependency*        | `DependencyConfig` | &nbsp; | The dependency configuration of this library.
+|*resolveTransitive* | `boolean`          | `true` | If this value is true, the dependency will be resolved transitive.
+|*targetName*        | `String`           | `""`   | The target name of this library artifact. The default configuration is `$group_$name_$version`.
 |===
 
 === Container 'modules'
 
-==== Properties
+This configuration contains the module configuration of a components. A module is an Ivy dependency that includes different files. In future releases this will replaced and an own
+descriptor will be used.
 
-[cols="25%,10%,10%,55%", width="90%, options="header"]
+==== Properties of 'modules'
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
 |===
 |Property | Type | Default value | Description
+
 |*items*             | `Set<ModuleItem>` | `[]`   | Set of all configured dependencies for module items.
 |*resolveTransitive* | `boolean`          | `true` | If this value is true, dependencies will be resolved transitive.
 |*targetPath*        | `String`           | `""`   | A target path for all modules.
-|*contentType*       | `String`           | `IMMUTABLE` | This setting specifies the handling of the folder / files. +
-The following values are allowed: +
-*IMMUTABLE* - statischer content will be replaced during the update +
-*DATA* - existing files can not be replaced by new files +
-*CONFIGURATION* - configuration files will be changed during the configuration +
-*UNSPECIFIED* - not specified content
-|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*) +
-It is used for all items.
+|===
+
+==== Methods of 'modules'
+
+[cols="10%,38%,52%"*, width="95%", options="header"]
+|===
+|Method     | Parameters | Description
+
+|*add* | `Object`, `String...` | Creates an new instance of a module item with the dependency from the object and a list of types. It adds this item to the list and returns the instance for further configuration.
+|*add* | `Object` | Creates an new instance of a library item with the dependency from the object, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
+|*add* | `Collection<Object>` | Creates new instances of library items from the object list with a types list from the container. All items a added to the list of items.
+|*add* | `Object`, `Action<? super ModuleItem>` | Creates an new instance of a module item with the dependency from the object and configures this instance. The item is added to the list of items.
+|*add* | `Object`, `Closure` | Creates an new instance of a library item with the dependency from the object and configures this instance. The item is added to the list of items.
+|===
+
+==== Configuration of ModuleItem
+
+===== Properties
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
+|===
+|Property | Type | Default value | Description
+
+|*dependency*        | `DependencyConfig` | &nbsp; | The dependency configuration of this library.
+|*resolveTransitive* | `boolean`          | `true` | If this value is true, the dependency will be resolved transitive.
+|*targetPath*        | `String`           | `""`   | The target path of this module artifact.
+|*targetIncluded*    | `boolean`          | `false` | If the configured target path is part of the component packages, it is necessary to set this property to true.
 |===
 
 === Container 'dependencyMngt'
 
-==== Properties
+This configuration contains all dependency related configuration.
 
-[cols="25%,10%,10%,55%", width="90%, options="header"]
+==== Properties of 'dependencyMngt'
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
 |===
 |Property | Type | Default value | Description
+
 |*excludes*       | `Set<DependencyConfig>`   | `[]` | Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups.
-|*classCollision* | `ClassCollisionContainer` | &nbsp; | The configuration for classpath verification.
+|*classpathVerification* | `ClasspathVerificationContainer` | &nbsp; | The configuration for classpath verification.
+|===
+
+==== Methods of 'dependencyMngt'
+
+[cols="10%,38%,52%"*, width="95%", options="header"]
+|===
+|Method     | Parameters | Description
+
+|*exclude* | `String`, `String`, `String` | With this method it is possible to add an pattern with a group or organization, a name and a version.
+It is possible to configure only a group and a name pattern or only a group pattern.
+|*classpathVerification* | `Action<? super ClasspathVerificationContainer>` +
+`Closure` | Initialize container for classpath verification (check for class collisions).
+|===
+
+==== Configuration of 'classpathVerification'
+
+===== Properties
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
+|===
+|Property | Type | Default value | Description
+
+|*enabled*  | `boolean` | `true` | For disabling classpath verification set this property to false.
+|*excludes* | `Set<DependencyConfig>` | `[]` | Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups from class path verification.
+|*excludedClasses* | `Set<String>` | `[]` | Set of patterns to exclude special classes from verification.
+|===
+
+===== Methods
+
+[cols="10%,38%,52%"*, width="95%", options="header"]
+|===
+|Method     | Parameters | Description
+
+|*exclude* | `String`, `String`, `String` | With this method it is possible to add an pattern with a group or organization, a name and a version.
+It is possible to configure only a group and a name pattern or only a group pattern.
+|*excludeClass* | `String` | Adds a pattern for classes, to remove these classes from verification.
 |===
 
 === Container 'fileItems'
 
-==== Properties
+This is the configuration of single files.
+
+==== Properties of 'fileItems'
 
 [cols="25%,10%,10%,55%", width="90%, options="header"]
 |===
 |Property | Type | Default value | Description
+
 |*items*             | `Set<FileItem>` | `[]`   | Set of all configured file items.
 |*targetPath*        | `String`           | `""`   | A target path for all files.
-|*contentType*       | `String`           | `IMMUTABLE` | This setting specifies the handling of the folder / files. +
-The following values are allowed: +
-*IMMUTABLE* - statischer content will be replaced during the update +
-*DATA* - existing files can not be replaced by new files +
-*CONFIGURATION* - configuration files will be changed during the configuration +
-*UNSPECIFIED* - not specified content
-|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*) +
-It is used for all items.
+|===
+
+==== Methods of 'fileItems'
+
+[cols="10%,38%,52%"*, width="95%", options="header"]
+|===
+|Method     | Parameters | Description
+
+|*add* | `File`, `String...` | Creates an new instance of a file item with the real file and a list of types. It adds this item to the list and returns the instance for further configuration.
+|*add* | `File` | Creates an new instance of a file item with the real file, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
+|*add* | `Collection<File>` | Creates new instances of file items from the file list with a types list from the container. All items a added to the list of items.
+|*add* | `File`, `Action<? super FileItem>` | Creates an new instance of a file item from the real file and configures this instance. The item is added to the list of items.
+|*add* | `File`, `Closure` | Creates an new instance of a file item from the real file and configures this instance. The item is added to the list of items.
+|===
+
+==== Configuration of FileItem
+
+===== Properties
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
+|===
+|Property | Type | Default value | Description
+
+|*name*        | `String` | file name  | The default value is the name without the extension of the configured file. If this property value is changed, the file name can be changed for publishing and deployment.
+|*extension*  | `String` | file extension | The default value is the extension of the configured file. If this property value is changed, the file extension can be changed for publishing and deployment.
+|*targetPath* | `String`  | `""`   | The target path without the file name of this file artifact.
+|*classifier* | `String` | "" | This property can be used if this configuration is for a special operating system.
 |===
 
 === Container 'containers'
 
-==== Properties
+Sometimes it is necessary to configure files of a component together in a package. This configuration contains this kind of configuration.
+
+==== Properties of 'containers'
 
 [cols="25%,10%,10%,55%", width="90%, options="header"]
 |===
 |Property | Type | Default value | Description
+
 |*items*             | `Set<FileContainerItem>` | `[]`   | Set of all configured file container items (zip).
 |*targetPath*        | `String`           | `""`   | A target path for all files.
-|*contentType*       | `String`           | `IMMUTABLE` | This setting specifies the handling of the folder / files. +
-The following values are allowed: +
-*IMMUTABLE* - statischer content will be replaced during the update +
-*DATA* - existing files can not be replaced by new files +
-*CONFIGURATION* - configuration files will be changed during the configuration +
-*UNSPECIFIED* - not specified content
-|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*) +
-It is used for all items.
+|===
+
+==== Methods of 'containers'
+
+[cols="10%,38%,52%"*, width="95%", options="header"]
+|===
+|Method     | Parameters | Description
+
+|*add* | `String`, `String...` | Creates an new instance of a file container item with a name and a list of types. It adds this item to the list and returns the instance for further configuration.
+|*add* | `String` | Creates an new instance of a file container item with a name, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
+|*add* | `String`, `Action<? super FileContainerItem>` | Creates an new instance of a file container item with a name and configures this instance. The item is added to the list of items.
+|*add* | `String`, `Closure` | Creates an new instance of a file container item with a name and configures this instance. The item is added to the list of items.
+|===
+
+==== Configuration of FileContainerItem
+
+===== Properties
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
+|===
+|Property | Type | Default value | Description
+
+|*containerType*        | `String` | ""  |
+|*baseName*  | `String` | `projet.name` |
+|*targetPath* | `String`  | `""`   | The target path without the file name of this file artifact.
+|*targetIncluded* | `boolean` | `false` | If the configured target path is part of the package, it is necessary to set this property to true.
+|*source* | FileCollection | [] | The files to be packed. (read only)
+|*classifier* | `String` | "" | This property can be used if this configuration is for a special operating system.
+|===
+
+===== Methods
+
+[cols="10%,38%,52%"*, width="95%", options="header"]
+|===
+|Method     | Parameters | Description
+
+|*source* | `Object...` | Specifies the source  files for packaging. The given paths are evaluated as per Project.files(java.lang.Object[]).
 |===
 
 === Container 'propertyItems'
 
-==== Properties
+==== Properties of 'propertyItems'
 
 [cols="25%,10%,10%,55%", width="90%, options="header"]
 |===
 |Property | Type | Default value | Description
+
 |*items*             | `Set<PropertyItem>` | `[]`   | Set of all configured property items.
 |*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*)  +
 It is used for all items.
 |===
 
+==== Methods of 'propertyItems'
 
+[cols="10%,38%,52%"*, width="95%", options="header"]
+|===
+|Method     | Parameters | Description
 
+|*add* | `String`, `String`, `String...` | Creates an new instance of a property configuration item with a property key, a value and a list of types. It adds this item to the list and returns the instance for further configuration.
+|*add* | `String`, `String` | Creates an new instance of a property configuration item with a property key and a value. Types of the container are used as a default configuration.
+|*add* | `String`, `Action<? super PropertyItem>` | Creates an new instance of a property configuration item with a property key and configures this instance. The item is added to the list of items.
+|*add* | `String`, `Closure` | Creates an new instance of a property configuration item with a property key and configures this instance. The item is added to the list of items.
+|===
+
+==== Configuration of FileContainerItem
+
+===== Properties
+
+[cols="25%,10%,10%,55%", width="95%, options="header"]
+|===
+|Property | Type | Default value | Description
+
+|*value* | `String` | "" | The property value of this item.
+|*classifier* | `String` | "" | This property can be used if this configuration is for a special operating system.
+|===
 
 == License
 

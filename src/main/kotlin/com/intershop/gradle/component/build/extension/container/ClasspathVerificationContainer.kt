@@ -22,7 +22,7 @@ import com.intershop.gradle.component.build.utils.DependencyConfig
  *
  * @constructor provides the configuration container.
  */
-open class ClassCollisionContainer {
+open class ClasspathVerificationContainer {
 
     private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
 

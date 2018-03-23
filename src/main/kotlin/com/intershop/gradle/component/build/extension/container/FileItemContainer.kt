@@ -19,6 +19,7 @@ import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.FileItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import java.io.File
 import javax.inject.Inject
@@ -30,8 +31,8 @@ import javax.inject.Inject
  * @property parent the parent of this container.
  * @constructor provides an empty preconfigured file item container
  */
-open class FileItemContainer @Inject constructor(private val parent: ComponentExtension) :
-        AContainer("File Item Container") {
+open class FileItemContainer @Inject constructor(@get: Internal override val parent: ComponentExtension) :
+        AContainer("File Item Container", parent) {
 
     private val itemSet: MutableSet<FileItem> = mutableSetOf()
 
@@ -92,6 +93,8 @@ open class FileItemContainer @Inject constructor(private val parent: ComponentEx
     @Suppress("unused")
     fun add(file: File, action: Action<in FileItem>) {
         val item = FileItem(file)
+
+        addTypes(item)
 
         action.execute(item)
 

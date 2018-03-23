@@ -16,6 +16,7 @@
 
 package com.intershop.gradle.component.build.extension.container
 
+import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.Utils
 import com.intershop.gradle.component.build.extension.items.AItem
 import org.gradle.api.InvalidUserDataException
@@ -32,7 +33,8 @@ import kotlin.properties.Delegates
  * @property description a short description of this container for log messages.
  * @constructor provides an empty container
  */
-abstract class AContainer @Inject constructor(@get:Internal protected val description: String) : AItem() {
+abstract class AContainer @Inject constructor(@get:Internal protected val description: String,
+                                              @get:Internal protected open val parent: ComponentExtension) : AItem() {
 
     companion object {
         private val logger = LoggerFactory.getLogger(AContainer::class.java.simpleName)
@@ -59,5 +61,13 @@ abstract class AContainer @Inject constructor(@get:Internal protected val descri
             logger.warn("Target path of container '$description' is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
         }
         invalidChars.isEmpty() && ! newValue.startsWith("/")
+    }
+
+    protected fun addTypes(item: AItem) {
+        if(types.isEmpty() && parent.types.isNotEmpty()) {
+            item.addTypes(parent.types)
+        } else {
+            item.addTypes(this.types)
+        }
     }
 }

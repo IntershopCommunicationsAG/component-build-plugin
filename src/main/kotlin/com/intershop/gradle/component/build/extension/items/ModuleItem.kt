@@ -18,7 +18,6 @@ package com.intershop.gradle.component.build.extension.items
 import com.intershop.gradle.component.build.extension.Utils
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.InvalidUserDataException
-import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.internal.impldep.org.bouncycastle.asn1.x500.style.RFC4519Style.name
 import org.slf4j.LoggerFactory
@@ -70,22 +69,4 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
      * @property targetIncluded if true, the target path is included in the module fileContainers.
      */
     override var targetIncluded:Boolean = false
-
-    /**
-     * This property contains the content type of the item.
-     * The following values are allowed:
-     *  - IMMUTABLE/STATIC
-     *  - DATA
-     *  - CONFIGURATION
-     *  - UNSPECIFIED
-     */
-    @get:Input
-    override var contentType by Delegates.vetoable(ContentType.IMMUTABLE.name) { _, _, newValue ->
-        try {
-            ContentType.values().map { it.name }.contains(newValue)
-        } catch (ex: IllegalArgumentException) {
-            throw InvalidUserDataException("Content type must be 'IMMUTABLE', 'DATA', " +
-                    "'CONFIGURATION', but it is $newValue", ex)
-        }
-    }
 }

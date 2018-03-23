@@ -32,8 +32,9 @@ import javax.inject.Inject
  * @constructor provides an empty preconfigured file item container
  */
 open class FileContainerItemContainer
-        @Inject constructor(@get:Internal val project: Project,@get:Internal private val parent: ComponentExtension) :
-        AContainer("File Container Container") {
+        @Inject constructor(@get:Internal val project: Project,
+                            @get:Internal override val parent: ComponentExtension) :
+        AContainer("File Container Container", parent) {
 
     private val itemSet: MutableSet<FileContainerItem> = mutableSetOf()
 
@@ -90,10 +91,14 @@ open class FileContainerItemContainer
     @Suppress("unused")
     fun add(name: String, action: Action<in FileContainerItem>) {
         val item = FileContainerItem(project, name)
+        addTypes(item)
 
         action.execute(item)
 
-        if(itemSet.find { it.name == item.name } != null) {
+        if(itemSet.find { it.name == item.name} != null ||
+           itemSet.find { it.baseName == item.baseName &&
+                          it.containerType == item.containerType &&
+                          it.classifier == item.classifier} != null) {
             throw InvalidUserDataException("File container $name is already part of the current configuration!")
         } else {
             itemSet.add(item)

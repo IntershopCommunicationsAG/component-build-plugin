@@ -41,5 +41,5 @@ class PropertyItem(@get:Input val key: String): AItem(), IItem, IOSSpecific {
      * @property classifier the set of OS specific strings
      */
     @get:Input
-    override val classifier: String = ""
+    override var classifier: String = ""
 }
