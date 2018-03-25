@@ -36,7 +36,7 @@ component {
 
 == Tasks
 
-[cols="25%,30%,45%", width="95%, options="header"]
+[cols="25%,30%,45%", width="100%, options="header"]
 |===
 |Task name                   | Type                 | Description
 
@@ -51,16 +51,16 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 
 === Properties of 'component'
 
-[cols="25%,75%", options="header"]
+[cols="25%,75%", width="100%, options="header"]
 |===
 |Property | Description
 
 |<<ivyPublicationName,ivyPublicationName>>     | This property value is used for the name of the used ivy publication.
+
 |<<mavenPublicationName,mavenPublicationName>> | This property value is used for the name of the used maven publication.
+
 |<<displayName,displayName>>                   | The display name is visible for the installation client.
 |===
-
-
 
 [[ivyPublicationName]]
 [source,java]
