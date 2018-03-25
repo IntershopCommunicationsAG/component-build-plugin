@@ -51,13 +51,47 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 
 === Properties of 'component'
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="25%,75%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*ivyPublicationName*   | `String` | `ivyIntershop` | This configuration name is used for ivy publication.
-|*mavenPublicationName* | `String` | `mvnIntershop` | This configuration name is used for maven publication.
-|*displayName*          | `String` | `*project.name*` | The display name is visible for the installation client.
+|<<ivyPublicationName,ivyPublicationName>>     | This property value is used for the name of the used ivy publication.
+|<<mavenPublicationName,mavenPublicationName>> | This property value is used for the name of the used maven publication.
+|<<displayName,displayName>>                   | The display name is visible for the installation client.
+|===
+
+
+
+[[ivyPublicationName]]
+[source,java]
+----
+String ivyPublicationName
+----
+:::
+This property value is used for the name of the used ivy publication.
+
+Default:: `ivyIntershop`
+
+[[mavenPublicationName]]
+
+```java
+String mavenPublicationName
+```
+:::
+This property value is used for the name of the used maven publication.
+
+Default:: `mvnIntershop`
+
+[[displayName]]
+[source,java]
+----
+String displayName
+----
+:::
+The display name is visible for the installation client.
+
+Default:: `*project.name*`
+
 |*componentDescription* | `String` | `""` | This is a more detailed description of this component.
 |*targetPath*           | `String` | `""` | The default target path of the configured component.
 |*decriptorOutputFile*  | `File`   | `*project.buildDir*/ +
@@ -72,6 +106,7 @@ file.component` | The configuration of the output file of createComponent.
 |*containers*        | FileContainerItemContainer | &nbsp; | File containers can be configured in this configuration. (*read only*)
 |*propertyItems*     | PropertyItemContainer      | &nbsp; | Properties can be configured in this container. (*read only*)
 |===
+
 
 === Methods of 'component'
 
