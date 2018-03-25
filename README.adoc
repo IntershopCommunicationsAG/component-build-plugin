@@ -1,5 +1,6 @@
 = Build Plugin for Components to Install Anywhere
 :source-highlighter: prettify
+:valign: middle
 :blank: pass:[ +]
 :latestRevision: 1.0.0
 :icons: font
