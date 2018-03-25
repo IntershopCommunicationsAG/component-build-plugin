@@ -184,57 +184,157 @@ Properties can be configured in this container (*read only*). See <<PropertyItem
 
 ***
 
-
 === Methods of 'component'
 
-[cols="18%,45%,36%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method     | Description
 
-|*addType*  | `String` | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
-|*addTypes* | `Collection<String>` | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
-|*libs*     | `Action<? super LibraryItemContainer>` +
-`Closure` | Initialize container for library configuration.
-|*modules*          | `Action<? super ModuleItemContainer>` +
-`Closure` | Initialize container for modul configuration.
-|*dependencyMngt*   | `Action<? super DependencyMngtContainer>` +
-`Closure` | Initialize container for dependency management container. This includes also the configuration for the class collision verification.
-|*fileItems*        | `Action<? super FileItemContainer>` +
-`Closure` | Initialize container for single files.
-|*containers*       | `Action<? super FileContainerItemContainer>` +
-`Closure` | Initialize container for addtional file item containers.
-|*propertyItems*    | `Action<? super PropertyItemContainer>` +
-`Closure` | Initialize container for properties.
+|<<addType,addType>>(type) | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
+|<<addTypes,addTypes>>(types) | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
+|<<mlibs,libs>>(Action<? super LibraryItemContainer> action) | Initialize container for library configuration.
+|<<mmodules,modules>>(Action<? super ModuleItemContainer> action) | Initialize container for modul configuration.
+|<<mdependencyMngt,dependencyMngt>>(Action<? super DependencyMngtContainer> action) | Initialize container for dependency management container. This includes also the configuration for the class collision verification.
+|<<mfileItems,fileItems>>(Action<? super FileItemContainer> action) | Initialize container for single files.
+|<<mcontainers,containers>>(Action<? super FileContainerItemContainer> action) | Initialize container for additional file item containers.
+|<<mpropertyItems,propertyItems>>(Action<? super PropertyItemContainer> action) | Initialize container for properties.
 |===
+
+[[addType]]
+[source,groovy]
+boolean addType(String type)
+
+:::
+Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
+
+***
+[[addTypes]]
+[source,groovy]
+boolean addTypes(Collection<String> types)
+
+:::
+Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
+
+***
+[[mlibs]]
+[source,groovy]
+libs(Action<? super LibraryItemContainer> action)
+
+:::
+Initialize container for library configuration. Instead of an action it is also possible to use a closure.
+
+***
+[[mmodules]]
+[source,groovy]
+modules(Action<? super ModuleItemContainer> action)
+
+:::
+Initialize container for modul configuration. Instead of an action it is also possible to use a closure.
+
+***
+[[mdependencyMngt]]
+[source,groovy]
+dependencyMngt(Action<? super DependencyMngtContainer> action)
+
+:::
+Initialize container for dependency management container. This includes also the configuration for the class collision verification. Instead of an action it is also possible to use a closure.
+
+***
+[[mfileItems]]
+[source,groovy]
+fileItems(Action<? super FileItemContainer> action)
+
+:::
+Initialize container for single files. Instead of an action it is also possible to use a closure.
+
+***
+[[mcontainers]]
+[source,groovy]
+containers(Action<? super FileContainerItemContainer> action)
+
+:::
+Initialize container for additional file item containers. Instead of an action it is also possible to use a closure.
+
+***
+[[mpropertyItems]]
+[source,groovy]
+propertyItems(Action<? super PropertyItemContainer> action)
+
+:::
+Initialize container for properties. Instead of an action it is also possible to use a closure.
+
+***
 
 === Configuration for libs, modules, fileitems and file container
 
 ==== Properties of containers and items
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*contentType*       | `String`           | `IMMUTABLE` | This setting specifies the handling of the folder / files. +
-The following values are allowed: +
-*IMMUTABLE* - statischer content will be replaced during the update +
-*DATA* - existing files can not be replaced by new files +
-*CONFIGURATION* - configuration files will be changed during the configuration +
-*UNSPECIFIED* - not specified content
-|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*) +
-It is used for all items.
+|<<contentType,contentType>> | This setting specifies the handling of the folder / files.
+|<<types,types>>   | This is a list of deployment and environement types of the component (*read only*). It is used for all items.
 |===
+
+[[contentType]]
+[source,groovy]
+String contentType
+
+:::
+This setting specifies the handling of the folder / files. +
+The following values are allowed: +
+  *IMMUTABLE* - statischer content will be replaced during the update +
+  *DATA* - existing files can not be replaced by new files +
+  *CONFIGURATION* - configuration files will be changed during the configuration +
+  *UNSPECIFIED* - not specified content
+Default:: `IMMUTABLE`
+
+***
+[[types]]
+[source,groovy]
+Set<String> types
+
+:::
+This is a list of deployment and environement types of the component (*read only*). It is used for all items.
+Default:: `[]`
+***
 
 ==== Methods of containers and items
 
-[cols="10%,38%,52%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method | Description
 
-|*setTypes* | `Collection<String>` | Set a collection of deployment or environment types to the list of types.
-|*addType*  | `String` | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
-|*addTypes* | `Collection<String>` | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
+|<<setTypes,setTypes>>(types) | Set a collection of deployment or environment types to the list of types.
+|<<addType,addType>>(type) | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
+|<<addTypes,addTypes>>(types) | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
 |===
+
+[[setTypes]]
+[source,groovy]
+void setTypes(Collection<String> types)
+
+:::
+Set a collection of deployment or environment types to the list of types.
+
+***
+[[addType]]
+[source,groovy]
+boolean addType(String type)
+
+:::
+Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
+
+***
+[[addTypes]]
+[source,groovy]
+boolean addTypes(Collection<String> types)
+
+:::
+Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
+
+***
 
 === Container 'libs'
 
@@ -242,14 +342,42 @@ This configuration contains the library configuration of a components. A library
 
 ==== Properties of 'libs'
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*items*             | `Set<LibraryItem>` | `[]`   | Set of all configured dependencies for library items.
-|*resolveTransitive* | `boolean`          | `true` | If this value is true, dependencies will be resolved transitive.
-|*targetPath*        | `String`           | `""`   | A target path for all libraries.
+|<<libsitems,items>> | Set of all configured dependencies for library items.
+|<<libsresolveTransitive,resolveTransitive>> | If this value is true, dependencies will be resolved transitive.
+|<<libstargetPath,targetPath>> | A target path for all libraries.
 |===
+
+[[libsitems]]
+[source,groovy]
+Set<LibraryItem> items
+
+:::
+Set of all configured dependencies for library items. See <<LibraryItem,LibraryItem>>.
+Default:: `[]`
+
+***
+[[libsresolveTransitive]]
+[source,groovy]
+boolean resolveTransitive
+
+:::
+If this value is true, dependencies will be resolved transitive.
+Default:: `true`
+
+***
+[[libstargetPath]]
+[source,groovy]
+String targetPath
+
+:::
+A target path for all libraries.
+Default:: `""`
+
+***
 
 ==== Methods of 'libs'
 
