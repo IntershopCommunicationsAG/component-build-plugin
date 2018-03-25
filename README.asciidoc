@@ -1,5 +1,5 @@
 = Build Plugin for Components to Install Anywhere
-:source-highlighter: pygments
+:source-highlighter: prettify
 :latestRevision: 1.0.0
 :icons: font
 :toc:
@@ -62,36 +62,30 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 | <<componentDescription,componentDescription>> | This is a more detailed description of this component.
 |===
 
-[[ivyPublicationName]]
-[source,groovy]
+[[ivyPublicationName]][source,java]
 String ivyPublicationName
 
 :::
 This property value is used for the name of the used ivy publication.
 Default:: `ivyIntershop`
 
-:source-highlighter: prettify
-
-[[mavenPublicationName]]
-[source,groovy]
+[[mavenPublicationName]][source,java]
 String mavenPublicationName
 
 :::
 This property value is used for the name of the used maven publication.
 Default:: `mvnIntershop`
 
-[[displayName]]
-```java
+[[displayName]][source,groovy]
 String displayName
-```
+
 :::
 The display name is visible for the installation client.
 Default:: `*project.name*`
 
-[[componentDescription]]
-```java
+[[componentDescription]][source,groovy]
 String componentDescription
-```
+
 :::
 This is a more detailed description of this component.
 Default:: `""`
