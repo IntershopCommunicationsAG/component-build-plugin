@@ -135,14 +135,54 @@ Set<String> types
 This is a list of deployment and environement types of the component. (*read only*)
 Default:: `[]`
 
+{blank}
+[[libs]]
+[source,groovy]
+LibraryItemContainer libs
 
-|*libs*              | LibraryItemContainer       | &nbsp; | This is the data container for all libraries. (*read only*)
-|*modules*           | ModuleItemContainer        | &nbsp; | This configuration contains all libraries. (*read only*)
-|*dependencyMngt*    | DependencyMngtContainer    | &nbsp; | This container holds all dependency related configuration parameters. (*read only*)
-|*fileItems*         | FileItemContainer          | &nbsp; | This is the configuration of all single files. (*read only*)
-|*containers*        | FileContainerItemContainer | &nbsp; | File containers can be configured in this configuration. (*read only*)
-|*propertyItems*     | PropertyItemContainer      | &nbsp; | Properties can be configured in this container. (*read only*)
-|===
+:::
+This is the data container for all libraries. (*read only*)
+
+{blank}
+[[modules]]
+[source,groovy]
+ModuleItemContainer modules
+
+:::
+This configuration contains all libraries. (*read only*)
+
+{blank}
+[[dependencyMngt]]
+[source,groovy]
+DependencyMngtContainer dependencyMngt
+
+:::
+This container holds all dependency related configuration parameters. (*read only*)
+
+{blank}
+[[fileItems]]
+[source,groovy]
+FileItemContainer fileItems
+
+:::
+This is the configuration of all single files. (*read only*)
+
+{blank}
+[[containers]]
+[source,groovy]
+FileContainerItemContainer containers
+
+:::
+File containers can be configured in this configuration. (*read only*)
+
+{blank}
+[[propertyItems]]
+[source,groovy]
+PropertyItemContainer propertyItems
+
+:::
+Properties can be configured in this container. (*read only*)
+
 
 
 === Methods of 'component'
