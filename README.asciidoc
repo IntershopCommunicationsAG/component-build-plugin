@@ -70,10 +70,12 @@ String ivyPublicationName
 This property value is used for the name of the used ivy publication.
 Default:: `ivyIntershop`
 
+:source-highlighter: prettify
+
 [[mavenPublicationName]]
-```java
+[source,groovy]
 String mavenPublicationName
-```
+
 :::
 This property value is used for the name of the used maven publication.
 Default:: `mvnIntershop`
