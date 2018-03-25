@@ -40,7 +40,7 @@ component {
 |===
 |Task name                   | Type                 | Description
 
-|zipContainer<container name> | ZipContainerTask     | This task creates a zip container from configured sources.
+|zipContainer<name> | ZipContainerTask     | These tasks create zip container from configured sources.
 |verifyClasspath              | VerifyClasspathTask  | For all configured jar files the classpath will be verified for duplicated classes by this task.
 |createComponent              | CreateComponentTask  | The main task creates the descriptor file.
 |===
@@ -51,45 +51,37 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 
 === Properties of 'component'
 
-[cols="25%,75%", width="100%, options="header"]
+[cols="24%,74%", width="100%, options="header"]
 |===
 |Property | Description
 
-|<<ivyPublicationName,ivyPublicationName>>     | This property value is used for the name of the used ivy publication.
-
-|<<mavenPublicationName,mavenPublicationName>> | This property value is used for the name of the used maven publication.
-
-|<<displayName,displayName>>                   | The display name is visible for the installation client.
+| <<ivyPublicationName,ivyPublicationName>>     | This property value is used for the name of the used ivy publication.
+| <<mavenPublicationName,mavenPublicationName>> | This property value is used for the name of the used maven publication.
+| <<displayName,displayName>>                   | The display name is visible for the installation client.
 |===
 
 [[ivyPublicationName]]
-[source,java]
-----
+```java
 String ivyPublicationName
-----
+```
 :::
 This property value is used for the name of the used ivy publication.
-
 Default:: `ivyIntershop`
 
 [[mavenPublicationName]]
-
 ```java
 String mavenPublicationName
 ```
 :::
 This property value is used for the name of the used maven publication.
-
 Default:: `mvnIntershop`
 
 [[displayName]]
-[source,java]
-----
+```java
 String displayName
-----
+```
 :::
 The display name is visible for the installation client.
-
 Default:: `*project.name*`
 
 |*componentDescription* | `String` | `""` | This is a more detailed description of this component.
