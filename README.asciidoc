@@ -53,7 +53,7 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 
 === Properties of 'component'
 
-[width="100%", cols="25%,75%" options="header"]
+[width="100%", cols="1,3" options="header"]
 |===
 |Property | Description
 
