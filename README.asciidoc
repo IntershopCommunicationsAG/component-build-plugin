@@ -63,7 +63,13 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 | <<componentDescription,componentDescription>> | This is a more detailed description of this component.
 | <<targetPath,targetPath>>                     | The default target path of the configured component.
 | <<decriptorOutputFile,decriptorOutputFile>>   | The configuration of the output file of createComponent.
-| <<types,types>>                               |  This is a list of deployment and environement types of the component. (*read only*)
+| <<types,types>>                               | This is a list of deployment and environement types of the component. (*read only*)
+| <<libs,libs>>                                 | This is the data container for all libraries. (*read only*)
+| <<modules,modules>>                           | This configuration contains all libraries. (*read only*)
+| <<dependencyMngt,dependencyMngt>>             | This container holds all dependency related configuration parameters. (*read only*)
+| <<fileItems,fileItems>>                       | This is the configuration of all single files. (*read only*)
+| <<containers,containers>>                     | File containers can be configured in this configuration. (*read only*)
+| <<propertyItems,propertyItems>>               | Properties can be configured in this container. (*read only*)
 |===
 
 {blank}
