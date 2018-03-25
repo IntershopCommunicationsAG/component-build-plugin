@@ -140,8 +140,7 @@ Default:: `[]`
 LibraryItemContainer libs
 
 :::
-This is the data container for all libraries. (*read only*) +
-For more information see <<LibraryItemContainer, `LibraryItemContainer`>>.
+This is the data container for all libraries (*read only*). See <<LibraryItemContainer, `LibraryItemContainer`>>.
 
 ***
 [[modules]]
@@ -149,8 +148,7 @@ For more information see <<LibraryItemContainer, `LibraryItemContainer`>>.
 ModuleItemContainer modules
 
 :::
-This configuration contains all libraries. (*read only*) +
-For more information see <<ModuleItemContainer, `ModuleItemContainer`>>.
+This configuration contains all libraries (*read only*). See <<ModuleItemContainer, `ModuleItemContainer`>>.
 
 ***
 [[dependencyMngt]]
@@ -158,8 +156,7 @@ For more information see <<ModuleItemContainer, `ModuleItemContainer`>>.
 DependencyMngtContainer dependencyMngt
 
 :::
-This container holds all dependency related configuration parameters. (*read only*) +
-For more information see <<DependencyMngtContainer, `DependencyMngtContainer`>>.
+This container holds all dependency related configuration parameters (*read only*). See <<DependencyMngtContainer, `DependencyMngtContainer`>>.
 
 ***
 [[fileItems]]
@@ -167,8 +164,7 @@ For more information see <<DependencyMngtContainer, `DependencyMngtContainer`>>.
 FileItemContainer fileItems
 
 :::
-This is the configuration of all single files. (*read only*) +
-For more information see <<FileItemContainer, `FileItemContainer`>>.
+This is the configuration of all single files (*read only*). See <<FileItemContainer, `FileItemContainer`>>.
 
 ***
 [[containers]]
@@ -176,8 +172,7 @@ For more information see <<FileItemContainer, `FileItemContainer`>>.
 FileContainerItemContainer containers
 
 :::
-File containers can be configured in this configuration. (*read only*) +
-For more information see <<FileContainerItemContainer, `FileContainerItemContainer`>>.
+File containers can be configured in this configuration (*read only*). See <<FileContainerItemContainer, `FileContainerItemContainer`>>.
 
 ***
 [[propertyItems]]
@@ -185,8 +180,7 @@ For more information see <<FileContainerItemContainer, `FileContainerItemContain
 PropertyItemContainer propertyItems
 
 :::
-Properties can be configured in this container. (*read only*) +
-For more information see <<PropertyItemContainer, `PropertyItemContainer`>>.
+Properties can be configured in this container (*read only*). See <<PropertyItemContainer, `PropertyItemContainer`>>.
 
 ***
 
