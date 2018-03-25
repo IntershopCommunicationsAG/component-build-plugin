@@ -62,28 +62,35 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 | <<componentDescription,componentDescription>> | This is a more detailed description of this component.
 |===
 
-[[ivyPublicationName]][source,java]
+[[ivyPublicationName]]
+[source,java]
 String ivyPublicationName
 
 :::
 This property value is used for the name of the used ivy publication.
 Default:: `ivyIntershop`
 
-[[mavenPublicationName]][source,java]
+
+[[mavenPublicationName]]
+[source,java]
 String mavenPublicationName
 
 :::
 This property value is used for the name of the used maven publication.
 Default:: `mvnIntershop`
 
-[[displayName]][source,groovy]
+
+[[displayName]]
+[source,groovy]
 String displayName
 
 :::
 The display name is visible for the installation client.
 Default:: `*project.name*`
 
-[[componentDescription]][source,groovy]
+
+[[componentDescription]]
+[source,groovy]
 String componentDescription
 
 :::
