@@ -1,4 +1,5 @@
 = Build Plugin for Components to Install Anywhere
+:source-highlighter: pygments
 :latestRevision: 1.0.0
 :icons: font
 :toc:
@@ -62,9 +63,9 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 |===
 
 [[ivyPublicationName]]
-```java
+[source,groovy]
 String ivyPublicationName
-```
+
 :::
 This property value is used for the name of the used ivy publication.
 Default:: `ivyIntershop`
