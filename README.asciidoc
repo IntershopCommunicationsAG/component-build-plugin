@@ -1,5 +1,6 @@
 = Build Plugin for Components to Install Anywhere
 :source-highlighter: prettify
+:blank: pass:[ +]
 :latestRevision: 1.0.0
 :icons: font
 :toc:
@@ -52,7 +53,7 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 
 === Properties of 'component'
 
-[cols="24%,74%", width="100%, options="header"]
+[cols="30%,70%", width="100%, options="header"]
 |===
 |Property | Description
 
@@ -60,26 +61,28 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 | <<mavenPublicationName,mavenPublicationName>> | This property value is used for the name of the used maven publication.
 | <<displayName,displayName>>                   | The display name is visible for the installation client.
 | <<componentDescription,componentDescription>> | This is a more detailed description of this component.
+| <<targetPath,targetPath>>                     | The default target path of the configured component.
 |===
 
+{blank}
 [[ivyPublicationName]]
-[source,java]
+[source,groovy]
 String ivyPublicationName
 
 :::
 This property value is used for the name of the used ivy publication.
 Default:: `ivyIntershop`
 
-
+{blank}
 [[mavenPublicationName]]
-[source,java]
+[source,groovy]
 String mavenPublicationName
 
 :::
 This property value is used for the name of the used maven publication.
 Default:: `mvnIntershop`
 
-
+{blank}
 [[displayName]]
 [source,groovy]
 String displayName
@@ -88,7 +91,7 @@ String displayName
 The display name is visible for the installation client.
 Default:: `*project.name*`
 
-
+{blank}
 [[componentDescription]]
 [source,groovy]
 String componentDescription
@@ -97,8 +100,18 @@ String componentDescription
 This is a more detailed description of this component.
 Default:: `""`
 
+{blank}
+[[targetPath]]
+[source,groovy]
+String targetPath
 
-|*targetPath*           | `String` | `""` | The default target path of the configured component.
+:::
+The default target path of the configured component.
+Default:: `""`
+
+
+
+|*targetPath*           | `String` | `""` |
 |*decriptorOutputFile*  | `File`   | `*project.buildDir*/ +
 componentBuild/ +
 descriptor/ +
