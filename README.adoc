@@ -1,6 +1,5 @@
 = Build Plugin for Components to Install Anywhere
 :source-highlighter: prettify
-:valign: middle
 :blank: pass:[ +]
 :latestRevision: 1.0.0
 :icons: font
@@ -73,7 +72,6 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 | <<propertyItems,propertyItems>>               | Properties can be configured in this container. (*read only*)
 |===
 
-{blank}
 [[ivyPublicationName]]
 [source,groovy]
 String ivyPublicationName
@@ -82,7 +80,7 @@ String ivyPublicationName
 This property value is used for the name of the used ivy publication.
 Default:: `ivyIntershop`
 
-{blank}
+***
 [[mavenPublicationName]]
 [source,groovy]
 String mavenPublicationName
@@ -91,7 +89,7 @@ String mavenPublicationName
 This property value is used for the name of the used maven publication.
 Default:: `mvnIntershop`
 
-{blank}
+***
 [[displayName]]
 [source,groovy]
 String displayName
@@ -100,7 +98,7 @@ String displayName
 The display name is visible for the installation client.
 Default:: `*project.name*`
 
-{blank}
+***
 [[componentDescription]]
 [source,groovy]
 String componentDescription
@@ -109,7 +107,7 @@ String componentDescription
 This is a more detailed description of this component.
 Default:: `""`
 
-{blank}
+***
 [[targetPath]]
 [source,groovy]
 String targetPath
@@ -118,7 +116,7 @@ String targetPath
 The default target path of the configured component.
 Default:: `""`
 
-{blank}
+***
 [[decriptorOutputFile]]
 [source,groovy]
 File decriptorOutputFile
@@ -127,7 +125,7 @@ File decriptorOutputFile
 The configuration of the output file of createComponent.
 Default:: `*project.buildDir*/componentBuild/descriptor/file.component`
 
-{blank}
+***
 [[types]]
 [source,groovy]
 Set<String> types
@@ -136,54 +134,61 @@ Set<String> types
 This is a list of deployment and environement types of the component. (*read only*)
 Default:: `[]`
 
-{blank}
+***
 [[libs]]
 [source,groovy]
 LibraryItemContainer libs
 
 :::
-This is the data container for all libraries. (*read only*)
+This is the data container for all libraries. (*read only*) +
+For more information see <<LibraryItemContainer, `LibraryItemContainer`>>.
 
-{blank}
+***
 [[modules]]
 [source,groovy]
 ModuleItemContainer modules
 
 :::
-This configuration contains all libraries. (*read only*)
+This configuration contains all libraries. (*read only*) +
+For more information see <<ModuleItemContainer, `ModuleItemContainer`>>.
 
-{blank}
+***
 [[dependencyMngt]]
 [source,groovy]
 DependencyMngtContainer dependencyMngt
 
 :::
-This container holds all dependency related configuration parameters. (*read only*)
+This container holds all dependency related configuration parameters. (*read only*) +
+For more information see <<DependencyMngtContainer, `DependencyMngtContainer`>>.
 
-{blank}
+***
 [[fileItems]]
 [source,groovy]
 FileItemContainer fileItems
 
 :::
-This is the configuration of all single files. (*read only*)
+This is the configuration of all single files. (*read only*) +
+For more information see <<FileItemContainer, `FileItemContainer`>>.
 
-{blank}
+***
 [[containers]]
 [source,groovy]
 FileContainerItemContainer containers
 
 :::
-File containers can be configured in this configuration. (*read only*)
+File containers can be configured in this configuration. (*read only*) +
+For more information see <<FileContainerItemContainer, `FileContainerItemContainer`>>.
 
-{blank}
+***
 [[propertyItems]]
 [source,groovy]
 PropertyItemContainer propertyItems
 
 :::
-Properties can be configured in this container. (*read only*)
+Properties can be configured in this container. (*read only*) +
+For more information see <<PropertyItemContainer, `PropertyItemContainer`>>.
 
+***
 
 
 === Methods of 'component'
