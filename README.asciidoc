@@ -53,7 +53,7 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 
 === Properties of 'component'
 
-[cols="30%,70%", width="100%, options="header"]
+[cols="50%,50%", width="100%, options="header"]
 |===
 |Property | Description
 
@@ -62,6 +62,7 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 | <<displayName,displayName>>                   | The display name is visible for the installation client.
 | <<componentDescription,componentDescription>> | This is a more detailed description of this component.
 | <<targetPath,targetPath>>                     | The default target path of the configured component.
+| <<decriptorOutputFile,decriptorOutputFile>>   | The configuration of the output file of createComponent.
 |===
 
 {blank}
@@ -109,13 +110,16 @@ String targetPath
 The default target path of the configured component.
 Default:: `""`
 
+{blank}
+[[decriptorOutputFile]]
+File decriptorOutputFile
+
+:::
+The configuration of the output file of createComponent.
+Default:: `*project.buildDir*/componentBuild/descriptor/file.component`
 
 
-|*targetPath*           | `String` | `""` |
-|*decriptorOutputFile*  | `File`   | `*project.buildDir*/ +
-componentBuild/ +
-descriptor/ +
-file.component` | The configuration of the output file of createComponent.
+
 |*types* | Set<String> | [] | This is a list of deployment and environement types of the component. (*read only*)
 |*libs*              | LibraryItemContainer       | &nbsp; | This is the data container for all libraries. (*read only*)
 |*modules*           | ModuleItemContainer        | &nbsp; | This configuration contains all libraries. (*read only*)
