@@ -82,4 +82,11 @@ class FileItem(@get:InputFile val file: File) : AItem(), IItem, IOSSpecific {
      */
     @get:Input
     override var classifier: String = ""
+
+    /**
+     * If an item should not be part of an update installation, this property is set to true.
+     *
+     * @property excludedFromUpdate If this value is true, the item will be not part of an update installation.
+     */
+    var excludedFromUpdate: Boolean = false
 }

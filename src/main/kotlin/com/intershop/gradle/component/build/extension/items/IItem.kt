@@ -29,5 +29,4 @@ interface IItem {
      * Content type of this file.
      */
     var contentType: String
-
 }

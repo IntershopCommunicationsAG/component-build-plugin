@@ -37,6 +37,8 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
         private val logger = LoggerFactory.getLogger(ModuleItem::class.java.simpleName)
     }
 
+    private val excludesFromUpdateSet: MutableSet<String> = mutableSetOf()
+
     /**
      * The default target path of the component.
      * This is sub path in the component.
@@ -69,4 +71,49 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
      * @property targetIncluded if true, the target path is included in the module fileContainers.
      */
     override var targetIncluded:Boolean = false
+
+    /**
+     * This patterns are used for the update.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     *
+     * @property excludesFromUpdate Set of Ant based file patterns
+     */
+    override val excludesFromUpdate: Set<String>
+        get() = excludesFromUpdateSet
+
+    /**
+     * Adds a pattern to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     * If the pattern is part of the list, the method
+     * returns false.
+     *
+     * @param pattern Ant based file pattern
+     */
+    @Suppress("unused")
+    fun addUpdateExcludePattern(pattern: String): Boolean {
+        return excludesFromUpdateSet.add(pattern)
+    }
+
+    /**
+     * Adds a set of patterns to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     * If one of the patterns is part of the list, the method
+     * returns false.
+     *
+     * @param patterns Ant based file pattern
+     */
+    @Suppress("unused")
+    fun addUpdateExcludePattern(patterns: Set<String>): Boolean {
+        return excludesFromUpdateSet.addAll(patterns)
+    }
+
+    /**
+     * If an item should not be part of an update installation, this property is set to true.
+     *
+     * @property excludedFromUpdate If this value is true, the item will be not part of an update installation.
+     */
+    var excludedFromUpdate: Boolean = false
 }

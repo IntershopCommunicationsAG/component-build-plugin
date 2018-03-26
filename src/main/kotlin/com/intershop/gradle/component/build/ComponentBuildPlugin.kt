@@ -80,8 +80,6 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                         ModelReference.of("componentBuildConf", ComponentExtension::class.java), extension)
                         .descriptor("Deployment configuration").build())
             }
-
-
         }
     }
 
@@ -105,8 +103,8 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
                             inputFiles = container.source
 
-                            if(container.containerType.isNotBlank()) {
-                                artifactAppendix = container.containerType
+                            if(container.itemType.isNotBlank()) {
+                                artifactAppendix = container.itemType
                             }
 
                             if(container.baseName.isNotBlank()) {
@@ -150,6 +148,8 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
                             displayName = extension.displayName
                             componentDescription = extension.componentDescription
+
+                            provideUpdateExcludePattern(extension.excludesFromUpdateProvider)
 
                             libs = extension.libs
                             modules = extension.modules

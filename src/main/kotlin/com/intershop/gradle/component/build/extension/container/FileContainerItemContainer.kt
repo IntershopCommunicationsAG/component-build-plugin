@@ -56,15 +56,10 @@ open class FileContainerItemContainer
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(name: String, vararg types: String): FileContainerItem {
-        val item = FileContainerItem(project, name)
+
+        val item = getPreconfigureItem(project, name)
         item.setTypes(types.asList())
-
-        if(itemSet.find { it.name == item.name } != null) {
-            throw InvalidUserDataException("File container $name is already part of the current configuration!")
-        } else {
-            itemSet.add(item)
-        }
-
+        addItemToList(item)
         return item
     }
 
@@ -90,18 +85,43 @@ open class FileContainerItemContainer
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(name: String, action: Action<in FileContainerItem>) {
+
+        val item = getPreconfigureItem(project, name)
+        action.execute(item)
+        addItemToList(item)
+    }
+
+    /*
+     * Creates a preconfigured file container item. Configuration is
+     * taken from container configuration.
+     */
+    private fun getPreconfigureItem(project: Project, name: String) : FileContainerItem {
         val item = FileContainerItem(project, name)
+        item.excludedFromUpdate = excludedFromUpdate
+
+        return item
+    }
+
+    /*
+     * Add item to list if the name or the special configuration does not exists in the list.
+     */
+    private fun addItemToList(item: FileContainerItem) {
         addTypes(item)
 
-        action.execute(item)
-
         if(itemSet.find { it.name == item.name} != null ||
-           itemSet.find { it.baseName == item.baseName &&
-                          it.containerType == item.containerType &&
-                          it.classifier == item.classifier} != null) {
-            throw InvalidUserDataException("File container $name is already part of the current configuration!")
+                itemSet.find { it.baseName == item.baseName &&
+                        it.itemType == item.itemType &&
+                        it.classifier == item.classifier} != null) {
+            throw InvalidUserDataException("File container ${item.name} is already part of the current configuration!")
         } else {
             itemSet.add(item)
         }
     }
+
+    /**
+     * If an item should not be part of an update installation, this property is set to true.
+     *
+     * @property excludedFromUpdate If this value is true, the item will be not part of an update installation.
+     */
+    var excludedFromUpdate: Boolean = false
 }

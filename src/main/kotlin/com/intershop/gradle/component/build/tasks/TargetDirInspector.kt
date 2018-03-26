@@ -73,7 +73,7 @@ class TargetDirInspector(val component: Component) {
         if(errorMsg.isBlank()) {
             component.fileContainers.any {
                 errorMsg = addTarget("$containerTarget${it.targetPath}/", it.classifier,
-                        it.types, "Container ${it.name} (${it.containerType})")
+                        it.types, "Container ${it.name} (${it.itemType})")
                 ! errorMsg.isBlank()
             }
         }

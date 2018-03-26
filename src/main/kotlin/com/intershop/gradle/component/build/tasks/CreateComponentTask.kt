@@ -34,11 +34,13 @@ import org.gradle.api.DefaultTask
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.file.RegularFile
 import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 import java.io.File
 import com.intershop.gradle.component.descriptor.Library as LibDesr
 import com.intershop.gradle.component.descriptor.Module as ModuleDescr
@@ -63,6 +65,9 @@ open class CreateComponentTask : DefaultTask() {
     // component description configurationFor
     private val defaultTargetProperty = project.objects.property(String::class.java)
 
+    // set of central deployment exclude patterns
+    private val excludesFromUpdateSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
+
     private val dependencyManager = DependencyManager(project)
 
     /**
@@ -75,6 +80,18 @@ open class CreateComponentTask : DefaultTask() {
     var descriptorFile: File
         get() = descriptorFileProperty.get().asFile
         set(value) = descriptorFileProperty.set(value)
+
+    /**
+     * Projects will be handled incremental without considering build
+     * configuration of the project. the parameter '--recreate' will enable an
+     * automatic recreation if project dependencies are available.
+     *
+     * @property recreate holds the property for the parameter
+     */
+    @set:Option(option = "recreate",
+            description = "Runs 'Component Build' tasks without considering incrementall configuration.")
+    @get:Internal
+    var recreate: Boolean = false
 
     /**
      * Set provider for descriptor file property.
@@ -143,6 +160,53 @@ open class CreateComponentTask : DefaultTask() {
             = defaultTargetProperty.set(defaultTarget)
 
     /**
+     * This patterns are used for the update.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     *
+     * @property excludesFromUpdate Set of Ant based file patterns
+     */
+    @Suppress( "unused")
+    @get:Input
+    val excludesFromUpdate: Set<String>
+        get() = excludesFromUpdateSetProperty.get()
+
+    /**
+     * Adds a pattern to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     *
+     * @param pattern Ant based file pattern
+     */
+    @Suppress("unused")
+    fun addUpdateExcludePattern(pattern: String) {
+        excludesFromUpdateSetProperty.add(pattern)
+    }
+
+    /**
+     * Adds a set of patterns to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     *
+     * @param patterns  set of Ant based file pattern
+     */
+    @Suppress("unused")
+    fun addUpdateExcludePatterns(patterns: Set<String>) {
+        patterns.forEach {
+            excludesFromUpdateSetProperty.add(it)
+        }
+    }
+
+    /**
+     * Set provider for default property to set excludes from update.
+     *
+     * @param pattern set provider for property.
+     */
+    @Suppress( "unused")
+    fun provideUpdateExcludePattern(pattern: Provider<Set<String>>)
+            = excludesFromUpdateSetProperty.set(pattern)
+
+    /**
      * Container for all modules. This contains dependencies
      * that must be resolved. Depending on the final version
      * of this dependency, the descriptor must be new generated.
@@ -206,24 +270,30 @@ open class CreateComponentTask : DefaultTask() {
     @Suppress("unused")
     val resolvedModules: Set<DependencyConfig>
         get() {
+            val moduleDeps = dependencyManager.getModuleDependencies(modules?.items ?: mutableSetOf())
             this.outputs.upToDateWhen {
-                dependencyManager.getModuleDependencies(modules?.items ?: mutableSetOf()).none {
-                    it.version.endsWith("SNAPSHOT") || it.version.endsWith("LOCAL")
+                moduleDeps.none {
+                    it.version.endsWith("SNAPSHOT") ||
+                            it.version.endsWith("LOCAL") ||
+                            (it.dependency.isNotBlank() && recreate)
                 }
             }
-            return dependencyManager.getModuleDependencies(modules?.items ?: mutableSetOf())
+            return moduleDeps
         }
 
     @get:Nested
     @Suppress("unused")
     val resolvedLibs: Set<DependencyConfig>
         get() {
+            val libDeps = dependencyManager.getLibDependencies( libs?.items ?: mutableSetOf())
             this.outputs.upToDateWhen {
-                dependencyManager.getLibDependencies( libs?.items ?: mutableSetOf()).none {
-                    it.version.endsWith("SNAPSHOT") || it.version.endsWith("LOCAL")
+                libDeps.none {
+                    it.version.endsWith("SNAPSHOT") ||
+                            it.version.endsWith("LOCAL") ||
+                            (it.dependency.isNotBlank() && recreate)
                 }
             }
-            return dependencyManager.getLibDependencies(libs?.items ?: mutableSetOf())
+            return libDeps
         }
 
     /**
@@ -243,14 +313,22 @@ open class CreateComponentTask : DefaultTask() {
                 containerTarget = containers?.targetPath ?: "",
                 fileTarget = files?.targetPath ?: "",
                 target = defaultTarget)
-
+        componentDescr.excludesFromUpdate.addAll(excludesFromUpdate)
         dependencyManager.addToDescriptor(componentDescr, excludes)
 
         containers?.items?.forEach { item ->
             with(item) {
                 if(! source.isEmpty) {
-                    val container = FileContainer(name, targetPath, containerType, classifier, targetIncluded,
-                            ContentType.valueOf(contentType))
+                    val container = FileContainer(
+                            name = name,
+                            targetPath =  targetPath,
+                            itemType = itemType,
+                            classifier = classifier,
+                            targetIncluded = targetIncluded,
+                            contentType = ContentType.valueOf(contentType),
+                            excludedFromUpdate = excludedFromUpdate
+                            )
+                    container.excludesFromUpdate.addAll(excludesFromUpdate)
                     container.types.addAll(types)
 
                     if(! componentDescr.addFileContainer(container)) {
@@ -274,7 +352,13 @@ open class CreateComponentTask : DefaultTask() {
         files?.items?.forEach { item ->
             with(item) {
                 if (file.exists() && file.isFile && file.canRead()) {
-                    val file = FileItem(name, extension, targetPath, classifier, ContentType.valueOf(contentType))
+                    val file = FileItem(
+                            name = name,
+                            extension = extension,
+                            targetPath = targetPath,
+                            classifier = classifier,
+                            contentType = ContentType.valueOf(contentType),
+                            excludedFromUpdate = excludedFromUpdate)
                     file.types.addAll(types)
 
                     if(! componentDescr.addFileItem(file)) {
@@ -294,7 +378,12 @@ open class CreateComponentTask : DefaultTask() {
         }
 
         properties?.items?.forEach {
-            val property = Property(it.key, it.value, it.classifier, ContentType.valueOf(it.contentType))
+            val property = Property(
+                    key = it.key,
+                    value = it.value,
+                    classifier = it.classifier,
+                    contentType = ContentType.valueOf(it.contentType),
+                    excludedFromUpdate = it.excludedFromUpdate)
             property.types.addAll(it.types)
             componentDescr.addProperty(property)
 

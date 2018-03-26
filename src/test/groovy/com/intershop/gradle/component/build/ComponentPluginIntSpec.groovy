@@ -38,7 +38,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             containers {
                 add('startscripts') {
                     baseName = 'startscripts'
-                    containerType = 'bin'
+                    itemType = 'bin'
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
                 }
@@ -163,7 +163,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         repoFile.text == outputFile.text
         zipFile.exists()
         outputFile.text.contains('"name" : "startscripts",')
-        outputFile.text.contains('"containerType" : "bin"')
+        outputFile.text.contains('"itemType" : "bin"')
 
         when:
         def result2 = getPreparedGradleRunner()
@@ -204,7 +204,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             containers {
                 add('startscripts') {
                     baseName = 'startscripts'
-                    containerType = 'bin'
+                    itemType = 'bin'
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
                 }
@@ -252,7 +252,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         repoFile.text == outputFile.text
         zipFile.exists()
         outputFile.text.contains('"name" : "startscripts",')
-        outputFile.text.contains('"containerType" : "bin"')
+        outputFile.text.contains('"itemType" : "bin"')
 
         when:
         def result2 = getPreparedGradleRunner()
@@ -320,7 +320,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         repoFile.text == outputFile.text
         zipFile.exists()
         outputFile.text.contains('"name" : "startscripts",')
-        outputFile.text.contains('"containerType" : "bin"')
+        outputFile.text.contains('"itemType" : "bin"')
 
         when:
         def result2 = getPreparedGradleRunner()
@@ -362,7 +362,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             containers {
                 add('startscripts') {
                     baseName = 'startscripts'
-                    containerType = 'bin'
+                    itemType = 'bin'
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
                 }
@@ -408,7 +408,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         repoFile.text == outputFile.text
         zipFile.exists()
         outputFile.text.contains('"name" : "startscripts",')
-        outputFile.text.contains('"containerType" : "bin"')
+        outputFile.text.contains('"itemType" : "bin"')
 
         when:
         def result2 = getPreparedGradleRunner()
@@ -451,13 +451,13 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             containers {
                 add('startscripts') {
                     baseName = 'startscripts'
-                    containerType = 'bin'
+                    itemType = 'bin'
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
                 }
                 add('sites') {
                     baseName = 'share'
-                    containerType = 'sites'
+                    itemType = 'sites'
                     targetPath = 'share'
                     source(fileTree(dir: 'sites', include: '**/**/*.*').files)
                 }
@@ -594,13 +594,13 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             containers {
                 add('startscripts') {
                     baseName = 'startscripts'
-                    containerType = 'bin'
+                    itemType = 'bin'
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
                 }
                 add('sites') {
                     baseName = 'share'
-                    containerType = 'sites'
+                    itemType = 'sites'
                     targetPath = 'share'
                     source(fileTree(dir: 'sites', include: '**/**/*.*').files)
                 }
@@ -705,7 +705,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    def 'Test types handling in container - #gradleVersion'(gradleVersion) {
+    def 'Test types and excludedFromUpdate handling in container - #gradleVersion'(gradleVersion) {
         given:
         String projectName = "testcomponent"
         createSettingsGradle(projectName)
@@ -728,15 +728,16 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 addType('production')
                 addType('test')
                 addTypes(['test1', 'test2'])
+                excludedFromUpdate = true
                 add('startscripts') {
                     baseName = 'startscripts'
-                    containerType = 'bin'
+                    itemType = 'bin'
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
                 }
                 add('sites') {
                     baseName = 'share'
-                    containerType = 'sites'
+                    itemType = 'sites'
                     targetPath = 'share'
                     source(fileTree(dir: 'sites', include: '**/**/*.*').files)
                 }
@@ -744,6 +745,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
 
             modules {
                 addType('production')
+                excludedFromUpdate = true
                 add("com.intershop:testmodule1:1.0.0")
                 add("com.intershop:testmodule2:1.0.0")
             }
@@ -757,6 +759,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             dependencyMngt.classpathVerification.enabled = false
 
             fileItems {
+                excludedFromUpdate = true
                 addType('intTest')
                 add(file("conf/server/test1.properties")) {
                     targetPath = 'share/system/config'
@@ -767,6 +770,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
 
             propertyItems {
+                excludedFromUpdate = true
+
                 add("pkey1", "pvalue1", 'perfTest')
                 add("pkey2", "pvalue2", 'production')
             }
@@ -796,20 +801,24 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         result1.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
         outputFile.exists()
         Component comp = ComponentUtil.INSTANCE.componentFromFile(outputFile)
-        comp.types.containsAll([ "production", "test", "test1", "test2", "inttest", "perfTest" ])
+        comp.types.containsAll([ "production", "test", "test1", "test2", "intTest", "perfTest" ])
         comp.modules['testmodule1'].types.containsAll([ "production" ])
         comp.modules['testmodule1'].types.size() == 1
         comp.modules['testmodule2'].types.containsAll([ "production" ])
         comp.modules['testmodule1'].types.size() == 1
+        comp.modules.values().findAll {it.excludedFromUpdate }.size() == 2
         comp.libs['com.intershop:library1:1.0.0'].types.containsAll([ "test" ])
         comp.libs['com.intershop:library1:1.0.0'].types.size() == 1
         comp.libs['com.intershop:library2:1.0.0'].types.containsAll([ "production" ])
         comp.libs['com.intershop:library2:1.0.0'].types.size() == 1
         comp.fileContainers.find {it.name == 'startscripts'}.types.containsAll([ "production", "test", "test1", "test2" ])
         comp.fileContainers.find {it.name == 'startscripts'}.types.size() == 4
-        comp.fileItems.findAll {it.types.size() == 1 && it.types.containsAll(["inttest"]) }.size() == 2
+        comp.fileContainers.findAll {it.excludedFromUpdate }.size() == 2
+        comp.fileItems.findAll {it.types.size() == 1 && it.types.containsAll(["intTest"]) }.size() == 2
+        comp.fileItems.findAll {it.excludedFromUpdate }.size() == 2
         comp.properties.findAll {it.types.size() == 1 && it.types.containsAll(["perfTest"]) }.size() == 1
         comp.properties.findAll {it.types.size() == 1 && it.types.containsAll(["production"]) }.size() == 1
+        comp.properties.findAll {it.excludedFromUpdate }.size() == 2
 
         when:
         def result2 = getPreparedGradleRunner()
@@ -828,7 +837,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    def 'Test types handling - #gradleVersion'(gradleVersion) {
+    def 'Test types and excludesFromUpdate handling - #gradleVersion'(gradleVersion) {
         given:
         String projectName = "testcomponent"
         createSettingsGradle(projectName)
@@ -852,21 +861,28 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 add('startscripts') {
                     addType('production')
                     baseName = 'startscripts'
-                    containerType = 'bin'
+                    itemType = 'bin'
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
+
+                    addUpdateExcludePattern("**/dir1/*.com")
+                    addUpdateExcludePattern([ "**/dir2/*.com", "**/dir3/*.com" ] as Set)
                 }
                 add('sites') {
                     baseName = 'share'
-                    containerType = 'sites'
+                    itemType = 'sites'
                     targetPath = 'share'
                     source(fileTree(dir: 'sites', include: '**/**/*.*').files)
+
+                    addUpdateExcludePattern("**/dir1/*.com")
                 }
             }
 
             modules {
                 addType('test')
-                add("com.intershop:testmodule1:1.0.0")
+                add("com.intershop:testmodule1:1.0.0") {
+                    addUpdateExcludePattern("**/dir4/*.com")
+                }
                 add("com.intershop:testmodule2:1.0.0")
             }
             
@@ -920,16 +936,22 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         result1.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
         outputFile.exists()
         Component comp = ComponentUtil.INSTANCE.componentFromFile(outputFile)
-        comp.types.containsAll([ "test", "production", "inttest", "perfTest" ])
+        comp.types.containsAll([ "test", "production", "intTest", "perfTest" ])
         comp.types.size() == 4
         comp.modules['testmodule1'].types.containsAll([ "test" ])
         comp.modules['testmodule1'].types.size() == 1
+        comp.modules['testmodule1'].excludesFromUpdate.containsAll(["**/dir4/*.com"])
+        comp.modules['testmodule1'].excludesFromUpdate.size() == 1
         comp.modules['testmodule2'].types.containsAll([ "test" ])
-        comp.modules['testmodule1'].types.size() == 1
+        comp.modules['testmodule2'].types.size() == 1
         comp.libs.values().findAll { it.types.size() == 1 && it.types.containsAll([ "test" ]) }.size() == 3
         comp.fileContainers.find {it.name == 'startscripts'}.types.containsAll([ "test", "production" ])
         comp.fileContainers.find {it.name == 'startscripts'}.types.size() == 2
-        comp.fileItems.findAll {it.types.size() == 1 && it.types.containsAll(["inttest"]) }.size() == 2
+        comp.fileContainers.find {it.name == 'startscripts'}.excludesFromUpdate.containsAll(["**/dir1/*.com", "**/dir2/*.com", "**/dir3/*.com"])
+        comp.fileContainers.find {it.name == 'startscripts'}.excludesFromUpdate.size() == 3
+        comp.fileContainers.find {it.name == 'sites'}.excludesFromUpdate.containsAll(["**/dir1/*.com"])
+        comp.fileContainers.find {it.name == 'sites'}.excludesFromUpdate.size() == 1
+        comp.fileItems.findAll {it.types.size() == 1 && it.types.containsAll(["intTest"]) }.size() == 2
         comp.properties.findAll {it.types.size() == 1 && it.types.containsAll(["perfTest"]) }.size() == 2
 
         when:
@@ -973,7 +995,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 add('startscriptsLinux') {
                     addType('production')
                     baseName = 'startscripts'
-                    containerType = 'bin'
+                    itemType = 'bin'
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
                     classifier = 'linux'
@@ -981,14 +1003,14 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 add('startscriptsWin') {
                     addType('production')
                     baseName = 'startscripts'
-                    containerType = 'bin'
+                    itemType = 'bin'
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.bat').files)
                     classifier = 'win'
                 }
                 add('sites') {
                     baseName = 'share'
-                    containerType = 'sites'
+                    itemType = 'sites'
                     targetPath = 'share'
                     source(fileTree(dir: 'sites', include: '**/**/*.*').files)
                 }
@@ -1103,6 +1125,9 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
 
             decriptorOutputFile = file("build/testdir/testfile.component")
 
+            addUpdateExcludePattern("**/testexclude1/*.com")
+            addUpdateExcludePattern([ "**/testexclude2/*.com", "**/testexclude3/*.com" ] as Set)
+
             modules {
                 add("com.intershop:testmodule1:1.0.0")
                 add("com.intershop:testmodule2:1.0.0")
@@ -1133,6 +1158,9 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         outputFile.text.contains('"componentDescription" : "This is a description",')
         outputFile.text.contains('"target" : "defaultTarget",')
         outputFile.text.contains('testmodule2')
+        outputFile.text.contains('**/testexclude1/*.com')
+        outputFile.text.contains('**/testexclude2/*.com')
+        outputFile.text.contains('**/testexclude3/*.com')
 
         when:
         def result2 = getPreparedGradleRunner()
@@ -1263,6 +1291,526 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         report.text.contains("- org/objectweb/asm/AnnotationVisitor.class also in org.ow2.asm:asm-all:4.2")
         report.text.contains("== Duplicates for org.ow2.asm:asm-all:4.2")
         report.text.contains("- org/objectweb/asm/AnnotationVisitor.class also in org.ow2.asm:asm:5.1")
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    @Unroll
+    def 'Test class collision with missing lib - #gradleVersion'(gradleVersion) {
+        given:
+        String projectName = "testcomponent"
+        createSettingsGradle(projectName)
+
+        buildFile << """
+        plugins {
+            id 'com.intershop.gradle.component.build'
+            id 'ivy-publish'
+        }
+
+        group 'com.intershop.test'
+        version = '1.0.0'
+        
+        component {
+            libs {
+                add("commons-io:commons-io:2.2")
+                add('com.google.code.findbugs:annotations:3.0.0')
+                add('javax.persistence:persistence-api:1.0.2')
+                add('javax.validation:validation-api:10.0.0.GA')
+                add('commons-logging:commons-logging:1.2')
+                add('org.ow2.asm:asm:5.1')
+                add('org.slf4j:slf4j-api:1.7.21')
+                add('junit:junit:4.12')
+                add('com.netflix.servo:servo-atlas:0.12.11')
+                add('net.sf.ehcache:ehcache-core:2.6.11')
+                add('org.springframework:spring-web:4.1.6.RELEASE')
+
+                // double classes
+                add('org.ow2.asm:asm-all:4.2')
+                targetPath = "lib/release/libs"
+            }
+        }
+        
+        ${createRepo(testProjectDir)}
+
+        publishing {
+            ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+        }
+        """.stripIndent()
+
+        File report = new File(testProjectDir, "/build/componentBuild/reports/classcollision/collisionReport.txt")
+
+        when:
+        List<String> args = ['publish']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .buildAndFail()
+
+        then:
+        result1.task(':verifyClasspath').outcome == TaskOutcome.FAILED
+        result1.output.contains("Could not resolve library dependency for javax.validation:validation-api")
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    @Unroll
+    def 'Test incremtal build for SNAPSHOT modules - #gradleVersion'(gradleVersion) {
+        given:
+        String projectName = "testcomponent"
+        createSettingsGradle(projectName)
+
+        createStaticProjectFiles(testProjectDir)
+
+        buildFile << """
+        plugins {
+            id 'com.intershop.gradle.component.build'
+            id 'ivy-publish'
+        }
+
+        group 'com.intershop.test'
+        version = '1.0.0'
+
+        component {
+            containers {
+                add('startscripts') {
+                    baseName = 'startscripts'
+                    itemType = 'bin'
+                    targetPath = 'bin'
+                    source(fileTree(dir: 'src/bin', include: '*.sh').files)
+                }
+            }
+
+            modules {
+                add("com.intershop:testmodule1:1.0.0")
+                add("com.intershop:testmodule4:1.0.0-SNAPSHOT")
+            }
+
+            libs {
+                add("com.intershop:library1:1.0.0")
+                targetPath = "lib/release/libs"
+            }
+
+            dependencyMngt.classpathVerification.enabled = false
+        }
+        
+        ${createRepo(testProjectDir)}
+
+ 
+        //}
+        publishing {
+            ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+        }
+        
+        """.stripIndent()
+
+        File outputFile = new File(testProjectDir, 'build/componentBuild/descriptor/file.component')
+
+        when:
+        List<String> args = ['publish', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result1.task(':publish').outcome == TaskOutcome.SUCCESS
+        result1.task(':createComponent').outcome == TaskOutcome.SUCCESS
+        result1.task(':zipContainerStartscripts').outcome == TaskOutcome.SUCCESS
+        result1.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
+
+        when:
+        def result2 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result2.task(':publish').outcome == TaskOutcome.SUCCESS
+        result2.task(':createComponent').outcome == TaskOutcome.SUCCESS
+        result2.task(':zipContainerStartscripts').outcome == TaskOutcome.UP_TO_DATE
+        result2.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    @Unroll
+    def 'Test incremtal build for LOCAL modules - #gradleVersion'(gradleVersion) {
+        given:
+        String projectName = "testcomponent"
+        createSettingsGradle(projectName)
+
+        createStaticProjectFiles(testProjectDir)
+
+        buildFile << """
+        plugins {
+            id 'com.intershop.gradle.component.build'
+            id 'ivy-publish'
+        }
+
+        group 'com.intershop.test'
+        version = '1.0.0'
+
+        component {
+            containers {
+                add('startscripts') {
+                    baseName = 'startscripts'
+                    itemType = 'bin'
+                    targetPath = 'bin'
+                    source(fileTree(dir: 'src/bin', include: '*.sh').files)
+                }
+            }
+
+            modules {
+                add("com.intershop:testmodule1:1.0.0")
+                add("com.intershop:testmodule5:1.0.0-LOCAL")
+            }
+
+            libs {
+                add("com.intershop:library1:1.0.0")
+                targetPath = "lib/release/libs"
+            }
+
+            dependencyMngt.classpathVerification.enabled = false
+        }
+        
+        ${createRepo(testProjectDir)}
+
+ 
+        //}
+        publishing {
+            ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+        }
+        
+        """.stripIndent()
+
+        File outputFile = new File(testProjectDir, 'build/componentBuild/descriptor/file.component')
+
+        when:
+        List<String> args = ['publish', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result1.task(':publish').outcome == TaskOutcome.SUCCESS
+        result1.task(':createComponent').outcome == TaskOutcome.SUCCESS
+        result1.task(':zipContainerStartscripts').outcome == TaskOutcome.SUCCESS
+        result1.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
+
+        when:
+        def result2 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result2.task(':publish').outcome == TaskOutcome.SUCCESS
+        result2.task(':createComponent').outcome == TaskOutcome.SUCCESS
+        result2.task(':zipContainerStartscripts').outcome == TaskOutcome.UP_TO_DATE
+        result2.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    @Unroll
+    def 'Test incremtal build for SNAPSHOT libraries - #gradleVersion'(gradleVersion) {
+        given:
+        String projectName = "testcomponent"
+        createSettingsGradle(projectName)
+
+        createStaticProjectFiles(testProjectDir)
+
+        buildFile << """
+        plugins {
+            id 'com.intershop.gradle.component.build'
+            id 'ivy-publish'
+        }
+
+        group 'com.intershop.test'
+        version = '1.0.0'
+
+        component {
+            containers {
+                add('startscripts') {
+                    baseName = 'startscripts'
+                    itemType = 'bin'
+                    targetPath = 'bin'
+                    source(fileTree(dir: 'src/bin', include: '*.sh').files)
+                }
+            }
+
+            modules {
+                add("com.intershop:testmodule1:1.0.0")
+                add("com.intershop:testmodule2:1.0.0")
+            }
+
+            libs {
+                add("com.intershop:library1:1.0.0")
+                add("com.intershop:library5:1.0.0-SNAPSHOT")
+                targetPath = "lib/release/libs"
+            }
+
+            dependencyMngt.classpathVerification.enabled = false
+        }
+        
+        ${createRepo(testProjectDir)}
+
+ 
+        //}
+        publishing {
+            ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+        }
+        
+        """.stripIndent()
+
+        File outputFile = new File(testProjectDir, 'build/componentBuild/descriptor/file.component')
+
+        when:
+        List<String> args = ['publish', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result1.task(':publish').outcome == TaskOutcome.SUCCESS
+        result1.task(':createComponent').outcome == TaskOutcome.SUCCESS
+        result1.task(':zipContainerStartscripts').outcome == TaskOutcome.SUCCESS
+        result1.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
+
+        when:
+        def result2 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result2.task(':publish').outcome == TaskOutcome.SUCCESS
+        result2.task(':createComponent').outcome == TaskOutcome.SUCCESS
+        result2.task(':zipContainerStartscripts').outcome == TaskOutcome.UP_TO_DATE
+        result2.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    @Unroll
+    def 'Test incremtal build for LOCAL libraries - #gradleVersion'(gradleVersion) {
+        given:
+        String projectName = "testcomponent"
+        createSettingsGradle(projectName)
+
+        createStaticProjectFiles(testProjectDir)
+
+        buildFile << """
+        plugins {
+            id 'com.intershop.gradle.component.build'
+            id 'ivy-publish'
+        }
+
+        group 'com.intershop.test'
+        version = '1.0.0'
+
+        component {
+            containers {
+                add('startscripts') {
+                    baseName = 'startscripts'
+                    itemType = 'bin'
+                    targetPath = 'bin'
+                    source(fileTree(dir: 'src/bin', include: '*.sh').files)
+                }
+            }
+
+            modules {
+                add("com.intershop:testmodule1:1.0.0")
+                add("com.intershop:testmodule2:1.0.0")
+            }
+
+            libs {
+                add("com.intershop:library1:1.0.0")
+                add("com.intershop:library6:1.0.0-LOCAL")
+                targetPath = "lib/release/libs"
+            }
+
+            dependencyMngt.classpathVerification.enabled = false
+        }
+        
+        ${createRepo(testProjectDir)}
+
+ 
+        //}
+        publishing {
+            ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+        }
+        
+        """.stripIndent()
+
+        File outputFile = new File(testProjectDir, 'build/componentBuild/descriptor/file.component')
+
+        when:
+        List<String> args = ['publish', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result1.task(':publish').outcome == TaskOutcome.SUCCESS
+        result1.task(':createComponent').outcome == TaskOutcome.SUCCESS
+        result1.task(':zipContainerStartscripts').outcome == TaskOutcome.SUCCESS
+        result1.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
+
+        when:
+        def result2 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result2.task(':publish').outcome == TaskOutcome.SUCCESS
+        result2.task(':createComponent').outcome == TaskOutcome.SUCCESS
+        result2.task(':zipContainerStartscripts').outcome == TaskOutcome.UP_TO_DATE
+        result2.task(':verifyClasspath').outcome == TaskOutcome.SKIPPED
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    @Unroll
+    def 'Test missing module handling - #gradleVersion'(gradleVersion) {
+        given:
+        String projectName = "testcomponent"
+        createSettingsGradle(projectName)
+
+        createStaticProjectFiles(testProjectDir)
+
+        buildFile << """
+        plugins {
+            id 'com.intershop.gradle.component.build'
+            id 'ivy-publish'
+        }
+
+        group 'com.intershop.test'
+        version = '1.0.0'
+
+        component {
+            containers {
+                add('startscripts') {
+                    baseName = 'startscripts'
+                    itemType = 'bin'
+                    targetPath = 'bin'
+                    source(fileTree(dir: 'src/bin', include: '*.sh').files)
+                }
+            }
+
+            modules {
+                add("com.intershop:testmodule1:1.0.0")
+                add("com.intershop:testmodule4:1.0.0")
+            }
+
+            libs {
+                add("com.intershop:library1:1.0.0")
+                targetPath = "lib/release/libs"
+            }
+
+            dependencyMngt.classpathVerification.enabled = false
+        }
+        
+        ${createRepo(testProjectDir)}
+
+ 
+        //}
+        publishing {
+            ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+        }
+        
+        """.stripIndent()
+
+        File outputFile = new File(testProjectDir, 'build/componentBuild/descriptor/file.component')
+
+        when:
+        List<String> args = ['publish', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .buildAndFail()
+
+        then:
+        result1.task(':createComponent').outcome == TaskOutcome.FAILED
+        result1.output.contains("Could not resolve module dependency for com.intershop")
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    @Unroll
+    def 'Test missing lib handling - #gradleVersion'(gradleVersion) {
+        given:
+        String projectName = "testcomponent"
+        createSettingsGradle(projectName)
+
+        createStaticProjectFiles(testProjectDir)
+
+        buildFile << """
+        plugins {
+            id 'com.intershop.gradle.component.build'
+            id 'ivy-publish'
+        }
+
+        group 'com.intershop.test'
+        version = '1.0.0'
+
+        component {
+            containers {
+                add('startscripts') {
+                    baseName = 'startscripts'
+                    itemType = 'bin'
+                    targetPath = 'bin'
+                    source(fileTree(dir: 'src/bin', include: '*.sh').files)
+                }
+            }
+
+            modules {
+                add("com.intershop:testmodule1:1.0.0")
+                add("com.intershop:testmodule2:1.0.0")
+            }
+
+            libs {
+                add("com.intershop:library5:1.0.0")
+                add("com.intershop:library1:1.0.0")
+                targetPath = "lib/release/libs"
+            }
+
+            dependencyMngt.classpathVerification.enabled = false
+        }
+        
+        ${createRepo(testProjectDir)}
+
+ 
+        //}
+        publishing {
+            ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+        }
+        
+        """.stripIndent()
+
+        File outputFile = new File(testProjectDir, 'build/componentBuild/descriptor/file.component')
+
+        when:
+        List<String> args = ['publish', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .buildAndFail()
+
+        then:
+        result1.task(':createComponent').outcome == TaskOutcome.FAILED
+        result1.output.contains("Could not resolve library dependency for com.intershop")
 
         where:
         gradleVersion << supportedGradleVersions
@@ -1489,6 +2037,166 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
+    @Unroll
+    def 'Test incremental build with multi project and project dependencies without publishing - #gradleVersion'(gradleVersion) {
+        given:
+        String projectName = "testproject"
+        File settingsfile = createSettingsGradle(projectName)
+
+        createSubProjectJava('project1a', settingsfile, 'com.intereshop.a', "")
+        createSubProjectJava('project2b', settingsfile, 'com.intereshop.b', "")
+
+        buildFile << """
+                plugins {
+                    id 'com.intershop.gradle.component.build'
+                }
+                
+                group 'com.intershop.test'
+                version = '1.0.0'
+                
+                ${createRepo(testProjectDir)}
+        """.stripIndent()
+
+        def compProjectBuild = """
+                apply plugin: 'com.intershop.gradle.component.build'
+                
+                group 'com.intershop.testcomp'
+                version = '1.0.0'
+                
+                component {
+                    
+                    modules {
+                        add(project(':project1a'))
+                        add(project(':project2b'))
+                    }
+                    
+                    libs {
+                        add("com.intershop:library1:1.0.0")
+                        targetPath = "lib/release/libs"
+                    }
+       
+                    dependencyMngt.classpathVerification.enabled = false
+                }
+                
+                publishing {                     
+                     ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+                }
+
+                ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+                ${TestMavenRepoBuilder.declareRepository(new File(testProjectDir, 'repo'))}
+
+        """.stripIndent()
+
+        File subProject = createSubProject('projectComponent', settingsfile, compProjectBuild)
+        File compFile = new File(testProjectDir, "projectComponent/build/componentBuild/descriptor/file.component")
+
+        when:
+        List<String> args1 = ['createComponent', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args1)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result1.task(':projectComponent:createComponent').outcome == TaskOutcome.SUCCESS
+        compFile.exists()
+        compFile.text.contains('"pkgs" : [ "project1a-bin", "project1a-sites" ],')
+        compFile.text.contains('"jars" : [ "project1a" ],')
+        compFile.text.contains('"pkgs" : [ "project2b-bin", "project2b-sites" ],')
+        compFile.text.contains('"jars" : [ "project2b" ],')
+
+        when:
+        def result2 = getPreparedGradleRunner()
+                .withArguments(args1)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result2.task(':projectComponent:createComponent').outcome == TaskOutcome.UP_TO_DATE
+
+        when:
+        List<String> args3 = ['createComponent', '--recreate', '-s', '-i']
+        def result3 = getPreparedGradleRunner()
+                .withArguments(args3)
+                .withGradleVersion(gradleVersion)
+                .build()
+
+        then:
+        result3.task(':projectComponent:createComponent').outcome == TaskOutcome.SUCCESS
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
+    @Unroll
+    def 'Test plugin with multi project and missing project dependencies - #gradleVersion'(gradleVersion) {
+        given:
+        String projectName = "testproject"
+        File settingsfile = createSettingsGradle(projectName)
+
+        createSubProjectJava('project1a', settingsfile, 'com.intereshop.a', "")
+        createSubProjectJava('project2b', settingsfile, 'com.intereshop.b', "")
+
+        buildFile << """
+                plugins {
+                    id 'com.intershop.gradle.component.build'
+                }
+                
+                group 'com.intershop.test'
+                version = '1.0.0'
+                
+                ${createRepo(testProjectDir)}
+        """.stripIndent()
+
+        def compProjectBuild = """
+                apply plugin: 'com.intershop.gradle.component.build'
+                
+                group 'com.intershop.testcomp'
+                version = '1.0.0'
+                
+                component {
+                    
+                    modules {
+                        add(project(':project1a'))
+                        add(project(':project3b'))
+                    }
+                    
+                    libs {
+                        add("com.intershop:library1:1.0.0")
+                        targetPath = "lib/release/libs"
+                    }
+       
+                    dependencyMngt.classpathVerification.enabled = false
+                }
+                
+                publishing {                     
+                     ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+                }
+
+                ${TestIvyRepoBuilder.declareRepository(new File(testProjectDir, 'repo'), 'ivyTest', ivyPattern, artifactPattern)}
+                ${TestMavenRepoBuilder.declareRepository(new File(testProjectDir, 'repo'))}
+
+        """.stripIndent()
+
+        File subProject = createSubProject('projectComponent', settingsfile, compProjectBuild)
+
+        File compFile = new File(testProjectDir, "projectComponent/build/componentBuild/descriptor/file.component")
+
+        when:
+        List<String> args = ['createComponent', '-s', '-i']
+        def result1 = getPreparedGradleRunner()
+                .withArguments(args)
+                .withGradleVersion(gradleVersion)
+                .buildAndFail()
+
+        then:
+        result1.output.contains("Project with path ':project3b' could not be found in project ':projectComponent")
+
+
+        where:
+        gradleVersion << supportedGradleVersions
+    }
+
     private File createSubProjectJava(String projectPath, File settingsGradle, String packageName, String publish = 'ivy'){
         String ivyPublishing = """
             publishing {
@@ -1697,17 +2405,51 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 dependency org: 'com.intershop', name: 'library3', rev: '1.0.0'
             }
             module(org: 'com.intershop', name: 'testmodule3', rev: '1.0.0') {
-                artifact name: 'testmodule2', type: 'local', classifier: 'win', ext: 'zip', entries: [
+                artifact name: 'testmodule3', type: 'local', classifier: 'win', ext: 'zip', entries: [
                         ArchiveFileEntry.newInstance(path: 'testmodule/testfiles/test21.file', content: 'test21.file'),
                         ArchiveFileEntry.newInstance(path: 'testmodule/testconf/test22.conf', content: 'test22.conf'),
                         ArchiveDirectoryEntry.newInstance(path: 'testmodule/empttestdir')
                 ]
-                artifact name: 'testmodule2', type: 'local', classifier: 'linux', ext: 'zip', entries: [
+                artifact name: 'testmodule3', type: 'local', classifier: 'linux', ext: 'zip', entries: [
                         ArchiveFileEntry.newInstance(path: 'testmodule/testfiles/test21.file', content: 'test21.file'),
                         ArchiveFileEntry.newInstance(path: 'testmodule/testconf/test22.conf', content: 'test22.conf'),
                         ArchiveDirectoryEntry.newInstance(path: 'testmodule/empttestdir')
                 ]
                 dependency org: 'com.intershop', name: 'library1', rev: '1.0.0'
+            }
+            module(org: 'com.intershop', name: 'testmodule41', rev: '1.0.0') {
+                artifact name: 'testmodule41', type: 'cartridge', ext: 'zip', entries: [
+                        ArchiveFileEntry.newInstance(path: 'testmodule/testfiles/test1.file', content: 'test1.file'),
+                        ArchiveFileEntry.newInstance(path: 'testmodule/testconf/test2.conf', content: 'test2.conf'),
+                        ArchiveDirectoryEntry.newInstance(path: 'testmodule/empttestdir')
+                ]
+                artifact name: 'testmodule41', type: 'jar', ext: 'jar', entries: [
+                        ArchiveFileEntry.newInstance(path: 'com/class/intern/test1.file', content: 'interntest1.file'),
+                        ArchiveFileEntry.newInstance(path: 'com/class/intern/test2.file', content: 'interntest2.file')
+                ]
+                dependency org: 'com.intershop', name: 'testmodule4', rev: '1.0.0-SNAPSHOT'
+            }
+            module(org: 'com.intershop', name: 'testmodule4', rev: '1.0.0-SNAPSHOT') {
+                artifact name: 'testmodule4', type: 'cartridge', ext: 'zip', entries: [
+                        ArchiveFileEntry.newInstance(path: 'testmodule/testfiles/test1.file', content: 'test1.file'),
+                        ArchiveFileEntry.newInstance(path: 'testmodule/testconf/test2.conf', content: 'test2.conf'),
+                        ArchiveDirectoryEntry.newInstance(path: 'testmodule/empttestdir')
+                ]
+                artifact name: 'testmodule4', type: 'jar', ext: 'jar', entries: [
+                        ArchiveFileEntry.newInstance(path: 'com/class/intern/test1.file', content: 'interntest1.file'),
+                        ArchiveFileEntry.newInstance(path: 'com/class/intern/test2.file', content: 'interntest2.file')
+                ]
+            }
+            module(org: 'com.intershop', name: 'testmodule5', rev: '1.0.0-LOCAL') {
+                artifact name: 'testmodule4', type: 'cartridge', ext: 'zip', entries: [
+                        ArchiveFileEntry.newInstance(path: 'testmodule/testfiles/test1.file', content: 'test1.file'),
+                        ArchiveFileEntry.newInstance(path: 'testmodule/testconf/test2.conf', content: 'test2.conf'),
+                        ArchiveDirectoryEntry.newInstance(path: 'testmodule/empttestdir')
+                ]
+                artifact name: 'testmodule4', type: 'jar', ext: 'jar', entries: [
+                        ArchiveFileEntry.newInstance(path: 'com/class/intern/test1.file', content: 'interntest1.file'),
+                        ArchiveFileEntry.newInstance(path: 'com/class/intern/test2.file', content: 'interntest2.file')
+                ]
             }
         }.writeTo(repoDir)
 
@@ -1732,6 +2474,18 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 ]
             }
             project(groupId: 'com.intershop', artifactId: 'library4', version: '1.0.0'){
+                artifact entries: [
+                        ArchiveFileEntry.newInstance(path: 'com/class/test1.file', content: 'test1.file'),
+                        ArchiveFileEntry.newInstance(path: 'com/class/test2.file', content: 'test2.file'),
+                ]
+            }
+            project(groupId: 'com.intershop', artifactId: 'library5', version: '1.0.0-SNAPSHOT'){
+                artifact entries: [
+                        ArchiveFileEntry.newInstance(path: 'com/class/test1.file', content: 'test1.file'),
+                        ArchiveFileEntry.newInstance(path: 'com/class/test2.file', content: 'test2.file'),
+                ]
+            }
+            project(groupId: 'com.intershop', artifactId: 'library6', version: '1.0.0-LOCAL'){
                 artifact entries: [
                         ArchiveFileEntry.newInstance(path: 'com/class/test1.file', content: 'test1.file'),
                         ArchiveFileEntry.newInstance(path: 'com/class/test2.file', content: 'test2.file'),

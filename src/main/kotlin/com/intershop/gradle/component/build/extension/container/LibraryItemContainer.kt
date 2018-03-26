@@ -18,6 +18,7 @@ package com.intershop.gradle.component.build.extension.container
 import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.Utils.Companion.getDependencyConf
 import com.intershop.gradle.component.build.extension.items.LibraryItem
+import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.dsl.DependencyHandler
@@ -63,16 +64,9 @@ open class LibraryItemContainer
         val depConf = getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the library container.")
 
-        val item = LibraryItem(depConf)
+        val item = getPreconfigureItem(depConf)
         item.setTypes(types.asList())
-        item.targetName = "${depConf.group}_${depConf.module}_${depConf.version}"
-        item.resolveTransitive = resolveTransitive
-
-        if(itemSet.find { it.dependency == item.dependency } != null) {
-            throw InvalidUserDataException("Dependency '$dependency' is already part of the current configuration!")
-        } else {
-            itemSet.add(item)
-        }
+        addItemToList(item)
 
         return item
     }
@@ -114,20 +108,10 @@ open class LibraryItemContainer
     fun add(dependency: Any, action: Action<in LibraryItem>) {
         val depConf = getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the library container.")
-        val item = LibraryItem(depConf)
 
-        addTypes(item)
-
-        item.targetName = "${depConf.group}_${depConf.module}_${depConf.version}"
-        item.resolveTransitive = resolveTransitive
-
+        val item = getPreconfigureItem(depConf)
         action.execute(item)
-
-        if(itemSet.find { it.dependency == item.dependency } != null) {
-            throw InvalidUserDataException("Dependency '$dependency' is already part of the current configuration!")
-        } else {
-            itemSet.add(item)
-        }
+        addItemToList(item)
     }
 
     /**
@@ -140,4 +124,30 @@ open class LibraryItemContainer
      */
     @Suppress("unused")
     var resolveTransitive: Boolean = true
+
+    /*
+     * Creates a preconfigured lib item. Configuration is
+     * taken from container configuration.
+     */
+    private fun getPreconfigureItem(depConf: DependencyConfig) : LibraryItem {
+        val item = LibraryItem(depConf)
+        item.targetName = "${depConf.group}_${depConf.module}_${depConf.version}"
+        item.resolveTransitive = resolveTransitive
+
+        return item
+    }
+
+    /*
+     * Add item to list if the name or the special configuration does not exists in the list.
+     */
+    private fun addItemToList(item: LibraryItem) {
+        addTypes(item)
+
+        if(itemSet.find { it.dependency == item.dependency } != null) {
+            throw InvalidUserDataException("Dependency '${item.dependency}' is already " +
+                    " part of the current configuration!")
+        } else {
+            itemSet.add(item)
+        }
+    }
 }

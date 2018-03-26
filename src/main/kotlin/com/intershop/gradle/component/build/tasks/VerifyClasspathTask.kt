@@ -25,6 +25,7 @@ import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
+import org.gradle.api.tasks.options.Option
 import org.gradle.workers.ForkMode
 import org.gradle.workers.IsolationMode
 import org.gradle.workers.WorkerExecutor
@@ -49,6 +50,18 @@ open class VerifyClasspathTask @Inject constructor(private val workerExecutor: W
     var reportOutput: File
         get() = reportOutputProperty.get().asFile
         set(value)= reportOutputProperty.set(value)
+
+    /**
+     * Projects will be handled incremental without considering build
+     * configuration of the project. the parameter '--recreate' will enable an
+     * automatic recreation if project dependencies are available.
+     *
+     * @property recreate holds the property for the parameter
+     */
+    @set:Option(option = "recreate",
+            description = "Runs 'Component Build' tasks without considering incrementall configuration.")
+    @get:Internal
+    var recreate: Boolean = false
 
     /**
      * Set of all configured modules.
@@ -100,9 +113,13 @@ open class VerifyClasspathTask @Inject constructor(private val workerExecutor: W
     @Suppress("unused")
     val resolvedDependencies: Set<DependencyConfig>
         get() {
+            val deps = dependencyJarManager.getDependencies( libSet, moduleSet)
+
             this.outputs.upToDateWhen {
-                dependencyJarManager.getDependencies(libSet, moduleSet).none {
-                    it.version.endsWith("SNAPSHOT") || it.version.endsWith("LOCAL")
+                deps.none {
+                    it.version.endsWith("SNAPSHOT") ||
+                            it.version.endsWith("LOCAL") ||
+                            (it.dependency.isNotBlank() && recreate)
                 }
             }
             return dependencyJarManager.getDependencies(libSet, moduleSet)

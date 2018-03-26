@@ -27,6 +27,8 @@ import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.gradle.api.provider.Provider
+import org.gradle.api.provider.SetProperty
 import java.io.File
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -54,6 +56,9 @@ open class ComponentExtension @Inject constructor(project: Project) {
     private val inheritContainer = project.container(InheritanceSpec::class.java, InheritanceSpecFactory(project))
 
     private val typeList: MutableSet<String> = mutableSetOf()
+
+    // set of central deployment exclude patterns
+    private val excludesFromUpdateSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
 
     private val libContainer =
             project.objects.newInstance(LibraryItemContainer::class.java, project.dependencies, this)
@@ -157,6 +162,53 @@ open class ComponentExtension @Inject constructor(project: Project) {
     }
 
     /**
+     * This patterns are used for the update.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     *
+     * @property excludesFromUpdate Set of Ant based file patterns
+     */
+    @Suppress("unused")
+    val excludesFromUpdate: Set<String>
+        get() = excludesFromUpdateSetProperty.get()
+
+    /**
+     * This is a provider for excludesFromUpdate property.
+     *
+     * @property excludesFromUpdateProvider Provider for excludesFromUpdate
+     */
+    val excludesFromUpdateProvider: Provider<Set<String>>
+        get() = excludesFromUpdateSetProperty
+
+    /**
+     * Adds a pattern to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     *
+     * @param pattern Ant based file pattern
+     */
+    @Suppress("unused")
+    fun addUpdateExcludePattern(pattern: String) {
+        excludesFromUpdateSetProperty.add(pattern)
+    }
+
+    /**
+     * Adds a set of patterns to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     * If one of the patterns is part of the list, the method
+     * returns false.
+     *
+     * @param patterns set of Ant based file pattern
+     */
+    @Suppress("unused")
+    fun addUpdateExcludePattern(patterns: Set<String>) {
+        patterns.forEach {
+            excludesFromUpdateSetProperty.add(it)
+        }
+    }
+
+    /**
      * This set contains deployment or environment type
      * definitions, like 'production', 'test' etc. The set
      * can be extended.
@@ -176,7 +228,7 @@ open class ComponentExtension @Inject constructor(project: Project) {
      * @return if the environment type is available, false will be returned.
      */
     fun addType(type: String): Boolean {
-        return typeList.add(type.toLowerCase())
+        return typeList.add(type)
     }
 
     /**
@@ -188,7 +240,7 @@ open class ComponentExtension @Inject constructor(project: Project) {
      */
     @Suppress("unused")
     fun addTypes(types: Collection<String>): Boolean {
-        return typeList.addAll(types.map { it.toLowerCase() })
+        return typeList.addAll(types.map { it })
     }
 
     /**

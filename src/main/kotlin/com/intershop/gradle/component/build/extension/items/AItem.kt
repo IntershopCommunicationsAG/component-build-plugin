@@ -86,6 +86,6 @@ abstract class AItem: IItem {
      * @return if one environment type of the list is available, false will be returned.
      */
     fun addTypes(types: Collection<String>): Boolean {
-        return typeList.addAll(types.map { it.toLowerCase() })
+        return typeList.addAll(types.map { it })
     }
 }

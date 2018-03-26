@@ -49,6 +49,8 @@ component {
 
 The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 
+The parameter `--recreate` enable the rebuild of `verifyClasspath` and `createComponent` without considering incremental configuration.
+
 == Project Extension 'component'
 
 === Properties of 'component'
@@ -64,6 +66,7 @@ The package name of all tasks is `com.intershop.gradle.component.build.tasks`.
 | <<targetPath,targetPath>>                     | The default target path of the configured component.
 | <<decriptorOutputFile,decriptorOutputFile>>   | The configuration of the output file of createComponent.
 | <<types,types>>                               | This is a list of deployment and environement types of the component. (*read only*)
+| <<excludesFromUpdate,excludesFromUpdate>>     | This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation.
 | <<libs,libs>>                                 | This is the data container for all libraries. (*read only*)
 | <<modules,modules>>                           | This configuration contains all libraries. (*read only*)
 | <<dependencyMngt,dependencyMngt>>             | This container holds all dependency related configuration parameters. (*read only*)
@@ -135,6 +138,15 @@ This is a list of deployment and environement types of the component. (*read onl
 Default:: `[]`
 
 ***
+[[excludesFromUpdate]]
+[source,groovy]
+Set<String> excludesFromUpdate
+
+:::
+This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation. (*read only*)
+Default:: `[]`
+
+***
 [[libs]]
 [source,groovy]
 LibraryItemContainer libs
@@ -192,6 +204,8 @@ Properties can be configured in this container (*read only*). See <<PropertyItem
 
 |<<addType,addType>>(type) | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
 |<<addTypes,addTypes>>(types) | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
+|<<scaddUpdateExcludePattern,addUpdateExcludePattern>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<maaddUpdateExcludePattern,addUpdateExcludePattern>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |<<mlibs,libs>>(Action<? super LibraryItemContainer> action) | Initialize container for library configuration.
 |<<mmodules,modules>>(Action<? super ModuleItemContainer> action) | Initialize container for modul configuration.
 |<<mdependencyMngt,dependencyMngt>>(Action<? super DependencyMngtContainer> action) | Initialize container for dependency management container. This includes also the configuration for the class collision verification.
@@ -216,12 +230,28 @@ boolean addTypes(Collection<String> types)
 Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
 
 ***
+[[scaddUpdateExcludePattern]]
+[source,groovy]
+addUpdateExcludePattern(String pattern)
+
+:::
+Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+
+***
+[[maaddUpdateExcludePattern]]
+[source,groovy]
+addUpdateExcludePattern(Set<String> patterns)
+
+:::
+Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+
+***
 [[mlibs]]
 [source,groovy]
 libs(Action<? super LibraryItemContainer> action)
 
 :::
-Initialize container for library configuration. Instead of an action it is also possible to use a closure.
+Initialize container for library configuration. Instead of an action it is also possible to use a closure. See <<LibraryItemContainer, `LibraryItemContainer`>>.
 
 ***
 [[mmodules]]
@@ -229,7 +259,7 @@ Initialize container for library configuration. Instead of an action it is also 
 modules(Action<? super ModuleItemContainer> action)
 
 :::
-Initialize container for modul configuration. Instead of an action it is also possible to use a closure.
+Initialize container for modul configuration. Instead of an action it is also possible to use a closure. See <<ModuleItemContainer, `ModuleItemContainer`>>.
 
 ***
 [[mdependencyMngt]]
@@ -237,7 +267,8 @@ Initialize container for modul configuration. Instead of an action it is also po
 dependencyMngt(Action<? super DependencyMngtContainer> action)
 
 :::
-Initialize container for dependency management container. This includes also the configuration for the class collision verification. Instead of an action it is also possible to use a closure.
+Initialize container for dependency management container. This includes also the configuration for the class collision verification.
+Instead of an action it is also possible to use a closure. See <<DependencyMngtContainer, `DependencyMngtContainer`>>.
 
 ***
 [[mfileItems]]
@@ -245,7 +276,7 @@ Initialize container for dependency management container. This includes also the
 fileItems(Action<? super FileItemContainer> action)
 
 :::
-Initialize container for single files. Instead of an action it is also possible to use a closure.
+Initialize container for single files. Instead of an action it is also possible to use a closure. See <<FileItemContainer, `FileItemContainer`>>.
 
 ***
 [[mcontainers]]
@@ -253,7 +284,7 @@ Initialize container for single files. Instead of an action it is also possible 
 containers(Action<? super FileContainerItemContainer> action)
 
 :::
-Initialize container for additional file item containers. Instead of an action it is also possible to use a closure.
+Initialize container for additional file item containers. Instead of an action it is also possible to use a closure. See <<FileContainerItemContainer, `FileContainerItemContainer`>>.
 
 ***
 [[mpropertyItems]]
@@ -261,7 +292,7 @@ Initialize container for additional file item containers. Instead of an action i
 propertyItems(Action<? super PropertyItemContainer> action)
 
 :::
-Initialize container for properties. Instead of an action it is also possible to use a closure.
+Initialize container for properties. Instead of an action it is also possible to use a closure. See <<PropertyItemContainer, `PropertyItemContainer`>>.
 
 ***
 
@@ -336,6 +367,7 @@ Add a collection of deployment or environment types to the list of types. The me
 
 ***
 
+[[LibraryItemContainer]]
 === Container 'libs'
 
 This configuration contains the library configuration of a components. A library is a Maven dependency that includes one jar file.
@@ -381,30 +413,94 @@ Default:: `""`
 
 ==== Methods of 'libs'
 
-[cols="10%,38%,52%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method | Description
 
-|*add* | `Object`, `String...` | Creates an new instance of a library item with the dependency from the object and a list of types. It adds this item to the list and returns the instance for further configuration.
-|*add* | `Object` | Creates an new instance of a library item with the dependency from the object, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
-|*add* | `Collection<Object>` | Creates new instances of library items from the object list with a types list from the container. All items a added to the list of items.
-|*add* | `Object`, `Action<? super LibraryItem>` | Creates an new instance of a library item with the dependency from the object and configures this instance. The item is added to the list of items.
-|*add* | `Object`, `Closure` | Creates an new instance of a library item with the dependency from the object and configures this instance. The item is added to the list of items.
+|<<libs1add,add>>(dependency, type, ...) | Creates an new instance of a library item with the dependency from the object and a list of types. It adds this item to the list and returns the instance for further configuration.
+|<<libs2add,add>>(dependency) | Creates an new instance of a library item with the dependency from the object, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
+|<<libs3add,add>>(dependencies) | Creates new instances of library items from the object list with a types list from the container. All items a added to the list of items.
+|<<libs4add,add>>(dependency,action) | Creates an new instance of a library item with the dependency from the object and configures this instance. The item is added to the list of items.
 |===
 
+[[libs1add]]
+[source,groovy]
+LibraryItem add(Object dependency, String... types)
+
+:::
+Creates a new instance of a library item with the dependency from the object and a list of types. It adds this item to the list and returns the instance for further configuration.
+See <<LibraryItem,LibraryItem>>.
+
+***
+[[libs2add]]
+[source,groovy]
+LibraryItem add(Object dependency)
+
+:::
+Creates a new instance of a library item with the dependency from the object, adds this to the list and returns it for further configuration.
+Types of the container are used as a default configuration. See <<LibraryItem,LibraryItem>>.
+
+***
+[[libs3add]]
+[source,groovy]
+void add(Collection<Object> dependencies)
+
+:::
+Creates new instances of library items from the object list with a types list from the container. All items a added to the list of items.
+
+***
+[[libs4add]]
+[source,groovy]
+void add(Object dependency, Action<? super LibraryItem> action)
+
+:::
+Creates a new instance of a library item with the dependency from the object and configures this instance. The item is added to the list of items.
+Instead of an action it is also possible to use a closure. See <<LibraryItem,LibraryItem>>.
+
+***
+
+[[LibraryItem]]
 ==== Configuration of LibraryItem
 
 ===== Properties
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*dependency*        | `DependencyConfig` | &nbsp; | The dependency configuration of this library.
-|*resolveTransitive* | `boolean`          | `true` | If this value is true, the dependency will be resolved transitive.
-|*targetName*        | `String`           | `""`   | The target name of this library artifact. The default configuration is `$group_$name_$version`.
+|<<libdependency,dependency>>        | The dependency configuration of this library.
+|<<libresolveTransitive,resolveTransitive>> | If this value is true, the dependency will be resolved transitive.
+|<<libtargetName,targetName>>      | The target name of this library artifact.
 |===
 
+[[libdependency]]
+[source,groovy]
+DependencyConfig dependency
+
+:::
+The dependency configuration of this library. See <<DependencyConfig,DependencyConfig>>.
+
+***
+[[libresolveTransitive]]
+[source,groovy]
+boolean resolveTransitive
+
+:::
+If this value is true, the dependency will be resolved transitive.
+Default:: `true`
+
+***
+[[libtargetName]]
+[source,groovy]
+String targetName
+
+:::
+The target name of this library artifact.
+Default:: `${dependency.group}_${dependency.module}_${dependency.version}`
+
+***
+
+[[ModuleItemContainer]]
 === Container 'modules'
 
 This configuration contains the module configuration of a components. A module is an Ivy dependency that includes different files. In future releases this will replaced and an own
@@ -412,92 +508,277 @@ descriptor will be used.
 
 ==== Properties of 'modules'
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*items*             | `Set<ModuleItem>` | `[]`   | Set of all configured dependencies for module items.
-|*resolveTransitive* | `boolean`          | `true` | If this value is true, dependencies will be resolved transitive.
-|*targetPath*        | `String`           | `""`   | A target path for all modules.
+|<<modulesitems,items>> | Set of all configured dependencies for module items.
+|<<modulesresolveTransitive,resolveTransitive>> | If this value is true, dependencies will be resolved transitive.
+|<<modulestargetPath,targetPath>> | A target path for all modules.
 |===
+
+[[modulesitems]]
+[source,groovy]
+Set<ModuleItem> items
+
+:::
+Set of all configured dependencies for module items. See <<ModuleItem,ModuleItem>>.
+Default:: `[]`
+
+***
+[[modulesresolveTransitive]]
+[source,groovy]
+boolean resolveTransitive
+
+:::
+If this value is true, dependencies will be resolved transitive.
+Default:: `true`
+
+***
+[[modulestargetPath]]
+[source,groovy]
+String targetPath
+
+:::
+A target path for all modules.
+Default:: `""`
+
+***
 
 ==== Methods of 'modules'
 
-[cols="10%,38%,52%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method | Description
 
-|*add* | `Object`, `String...` | Creates an new instance of a module item with the dependency from the object and a list of types. It adds this item to the list and returns the instance for further configuration.
-|*add* | `Object` | Creates an new instance of a library item with the dependency from the object, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
-|*add* | `Collection<Object>` | Creates new instances of library items from the object list with a types list from the container. All items a added to the list of items.
-|*add* | `Object`, `Action<? super ModuleItem>` | Creates an new instance of a module item with the dependency from the object and configures this instance. The item is added to the list of items.
-|*add* | `Object`, `Closure` | Creates an new instance of a library item with the dependency from the object and configures this instance. The item is added to the list of items.
+|<<modules1add,add>>(dependency, type, ...) | Creates an new instance of a module item with the dependency from the object and a list of types. It adds this item to the list and returns the instance for further configuration.
+|<<modules2add,add>>(dependency) | Creates an new instance of a library item with the dependency from the object, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
+|<<modules3add,add>>(dependencies) | Creates new instances of library items from the object list with a types list from the container. All items a added to the list of items.
+|<<modules4add,add>>(dependency,action) | Creates an new instance of a module item with the dependency from the object and configures this instance. The item is added to the list of items.
 |===
 
+[[modules1add]]
+[source,groovy]
+ModuleItem add(Object dependency, String... types)
+
+:::
+Creates an new instance of a module item with the dependency from the object and a list of types. It adds this item to the list and returns the instance for further configuration.
+See <<ModuleItem,ModuleItem>>.
+
+***
+[[modules2add]]
+[source,groovy]
+ModuleItem add(Object dependency)
+
+:::
+Creates an new instance of a library item with the dependency from the object, adds this to the list and returns it for further configuration.
+Types of the container are used as a default configuration. See <<ModuleItem,ModuleItem>>.
+
+***
+[[modules3add]]
+[source,groovy]
+void add(Collection<Object> dependencies)
+
+:::
+Creates new instances of library items from the object list with a types list from the container. All items a added to the list of items.
+
+***
+[[modules4add]]
+[source,groovy]
+void add(Object dependency, Action<? super ModuleItem> action)
+
+:::
+Creates an new instance of a module item with the dependency from the object and configures this instance. The item is added to the list of items.
+Instead of an action it is also possible to use a closure. See <<ModuleItem,ModuleItem>>.
+
+***
+
+[[ModuleItem]]
 ==== Configuration of ModuleItem
 
 ===== Properties
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*dependency*        | `DependencyConfig` | &nbsp; | The dependency configuration of this library.
-|*resolveTransitive* | `boolean`          | `true` | If this value is true, the dependency will be resolved transitive.
-|*targetPath*        | `String`           | `""`   | The target path of this module artifact.
-|*targetIncluded*    | `boolean`          | `false` | If the configured target path is part of the component packages, it is necessary to set this property to true.
+|<<moduledependency,dependency>>        | The dependency configuration of this module.
+|<<moduleresolveTransitive,resolveTransitive>> | If this value is true, the dependency will be resolved transitive.
+|<<moduletargetPath,targetPath>>      | The target path of this module artifact. The default value is the module name.
+|<<moduletargetIncluded,targetIncluded>> | If the configured target path is part of the component packages, it is necessary to set this property to true.
 |===
 
+[[moduledependency]]
+[source,groovy]
+DependencyConfig dependency
+
+:::
+The dependency configuration of this module. See <<DependencyConfig,DependencyConfig>>.
+
+***
+[[moduleresolveTransitive]]
+[source,groovy]
+boolean resolveTransitive
+
+:::
+If this value is true, the dependency will be resolved transitive.
+Default:: `true`
+
+***
+[[moduletargetPath]]
+[source,groovy]
+String targetPath
+
+:::
+The target path of this module artifact. The default value is the module name.
+Default:: `dependency.module`
+
+***
+[[moduletargetIncluded]]
+[source,groovy]
+boolean targetIncluded
+
+:::
+If the configured target path is part of the component packages, it is necessary to set this property to true.
+Default:: `false`
+
+***
+
+[[DependencyMngtContainer]]
 === Container 'dependencyMngt'
 
 This configuration contains all dependency related configuration.
 
 ==== Properties of 'dependencyMngt'
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*excludes*       | `Set<DependencyConfig>`   | `[]` | Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups.
-|*classpathVerification* | `ClasspathVerificationContainer` | &nbsp; | The configuration for classpath verification.
+|<<dmexcludes,excludes>> | Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups.
+|<<classpathVerification,classpathVerification>> | The configuration for classpath verification.
 |===
+
+[[dmexcludes]]
+[source,groovy]
+Set<DependencyConfig> excludes
+
+:::
+Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups. See <<DependencyConfig,DependencyConfig>>.
+Default:: `[]`
+
+***
+[[classpathVerification]]
+[source,groovy]
+ClasspathVerificationContainer classpathVerification
+
+:::
+The configuration for classpath verification. See <<ClasspathVerificationContainer,ClasspathVerificationContainer>>
+
+***
 
 ==== Methods of 'dependencyMngt'
 
-[cols="10%,38%,52%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method | Description
 
-|*exclude* | `String`, `String`, `String` | With this method it is possible to add an pattern with a group or organization, a name and a version.
+|<<dmexclude,exclude>>(group,module,version) | With this method it is possible to add an pattern with a group or organization, a name and a version.
 It is possible to configure only a group and a name pattern or only a group pattern.
-|*classpathVerification* | `Action<? super ClasspathVerificationContainer>` +
-`Closure` | Initialize container for classpath verification (check for class collisions).
+|<<classpathVerification,classpathVerification>>(action) | Initialize container for classpath verification (check for class collisions).
 |===
 
+[[dmexclude]]
+[source,groovy]
+void exclude(String group, String module, String version)
+
+:::
+With this method it is possible to add an pattern with a group or organization, a name and a version.
+It is possible to configure only a group and a name pattern or only a group pattern. See See <<DependencyConfig,DependencyConfig>>.
+
+***
+[[classpathVerification]]
+[source,groovy]
+void classpathVerification(Action<? super ClasspathVerificationContainer> action)
+
+:::
+Initialize container for classpath verification (check for class collisions). Instead of an action it is also possible to use a closure.
+See <<ClasspathVerificationContainer,ClasspathVerificationContainer>>
+
+***
+
+[[ClasspathVerificationContainer]]
 ==== Configuration of 'classpathVerification'
 
 ===== Properties
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*enabled*  | `boolean` | `true` | For disabling classpath verification set this property to false.
-|*excludes* | `Set<DependencyConfig>` | `[]` | Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups from class path verification.
-|*excludedClasses* | `Set<String>` | `[]` | Set of patterns to exclude special classes from verification.
+|<<enabled,enabled>> | For disabling classpath verification set this property to false.
+|<<cvexcludes,excludes>> | Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups from class path verification.
+|<<excludedClasses,excludedClasses>> | Set of patterns to exclude special classes from verification.
 |===
+
+[[enabled]]
+[source,groovy]
+boolean enabled
+
+:::
+For disabling classpath verification set this property to false.
+Default:: `true`
+
+***
+[[cvexcludes]]
+[source,groovy]
+Set<DependencyConfig> excludes
+
+:::
+Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups from class path verification. See <<DependencyConfig,DependencyConfig>>.
+Default:: `[]`
+
+***
+[[excludedClasses]]
+[source,groovy]
+Set<String> excludedClasses
+
+:::
+Set of patterns to exclude special classes from verification.
+Default:: `[]`
+
+***
 
 ===== Methods
 
-[cols="10%,38%,52%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method | Description
 
-|*exclude* | `String`, `String`, `String` | With this method it is possible to add an pattern with a group or organization, a name and a version.
+|<<cvmexclude,exclude>>(group,module,version) | With this method it is possible to add an pattern with a group or organization, a name and a version.
 It is possible to configure only a group and a name pattern or only a group pattern.
-|*excludeClass* | `String` | Adds a pattern for classes, to remove these classes from verification.
+|<<excludeClass,excludeClass>>(classPattern) | Adds a pattern for classes, to remove these classes from verification.
 |===
 
+[[cvmexclude]]
+[source,groovy]
+void exclude(String group, String module, String version)
+
+:::
+With this method it is possible to add an pattern with a group or organization, a name and a version.
+It is possible to configure only a group and a name pattern or only a group pattern.
+
+***
+[[excludeClass]]
+[source,groovy]
+void excludeClass(String classPattern)
+
+:::
+Adds a pattern for classes, to remove these classes from verification.
+
+***
+
+[[FileItemContainer]]
 === Container 'fileItems'
 
 This is the configuration of single files.
@@ -539,6 +820,7 @@ This is the configuration of single files.
 |*classifier* | `String` | "" | This property can be used if this configuration is for a special operating system.
 |===
 
+[[FileContainerItemContainer]]
 === Container 'containers'
 
 Sometimes it is necessary to configure files of a component together in a package. This configuration contains this kind of configuration.
@@ -590,6 +872,7 @@ Sometimes it is necessary to configure files of a component together in a packag
 |*source* | `Object...` | Specifies the source  files for packaging. The given paths are evaluated as per Project.files(java.lang.Object[]).
 |===
 
+[[PropertyItemContainer]]
 === Container 'propertyItems'
 
 ==== Properties of 'propertyItems'

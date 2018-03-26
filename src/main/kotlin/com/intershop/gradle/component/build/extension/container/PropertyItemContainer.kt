@@ -55,16 +55,11 @@ open class PropertyItemContainer @Inject constructor(private val parent: Compone
     @Suppress("unused")
     @Throws(InvalidUserDataException::class)
     fun add(key: String, value: String, vararg types: String): PropertyItem {
-        val item = PropertyItem(key)
+
+        val item = getPreconfigureItem(key)
         item.setTypes(types.asList())
-
         item.value = value
-
-        if(itemSet.contains(item)) {
-            throw InvalidUserDataException("Property $key is already part of the current configuration!")
-        } else {
-            itemSet.add(item)
-        }
+        addItemToList(item)
 
         return item
     }
@@ -94,25 +89,43 @@ open class PropertyItemContainer @Inject constructor(private val parent: Compone
     @Suppress("unused")
     @Throws(InvalidUserDataException::class)
     fun add(key: String, action: Action<in PropertyItem>) {
-        val item = PropertyItem(key)
 
-        addTypes(item)
-
+        val item = getPreconfigureItem(key)
         action.execute(item)
-
-        if(itemSet.contains(item)) {
-            throw InvalidUserDataException("Property $key is already part of the current configuration!")
-        } else {
-            itemSet.add(item)
-        }
+        addItemToList(item)
     }
 
-    private fun addTypes(item: AItem) {
+    /*
+     * Creates a preconfigured property item. Configuration is
+     * taken from container configuration.
+     */
+    private fun getPreconfigureItem(key: String) : PropertyItem {
+        val item = PropertyItem(key)
+        item.excludedFromUpdate = excludedFromUpdate
+        return item
+    }
+
+    /*
+     * Add item to list if the name does not exists in the list.
+     */
+    private fun addItemToList(item: PropertyItem) {
         if(types.isEmpty() && parent.types.isNotEmpty()) {
             item.addTypes(parent.types)
         } else {
             item.addTypes(this.types)
         }
+
+        if(itemSet.contains(item)) {
+            throw InvalidUserDataException("Property ${item.key}} is already part of the current configuration!")
+        } else {
+            itemSet.add(item)
+        }
     }
 
+    /**
+     * If an item should not be part of an update installation, this property is set to true.
+     *
+     * @property excludedFromUpdate If this value is true, the item will be not part of an update installation.
+     */
+    var excludedFromUpdate: Boolean = false
 }

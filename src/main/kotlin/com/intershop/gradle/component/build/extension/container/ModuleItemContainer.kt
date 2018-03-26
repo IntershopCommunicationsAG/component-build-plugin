@@ -18,6 +18,7 @@ package com.intershop.gradle.component.build.extension.container
 import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.Utils
 import com.intershop.gradle.component.build.extension.items.ModuleItem
+import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.artifacts.dsl.DependencyHandler
@@ -63,19 +64,9 @@ open class ModuleItemContainer
         val depConf = Utils.getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the module container.")
 
-        val item = ModuleItem(depConf)
-
+        val item = getPreconfigureItem(depConf)
         item.setTypes(types.asList())
-        item.targetPath = depConf.module
-        item.resolveTransitive = resolveTransitive
-
-        if(itemSet.find { it.dependency.module == item.dependency.module } != null)  {
-            throw InvalidUserDataException("Dependency '${item.dependency.module}' is " +
-                    "already part of the current configuration!")
-        } else {
-            itemSet.add(item)
-        }
-
+        addItemToList(item)
         return item
     }
 
@@ -116,21 +107,10 @@ open class ModuleItemContainer
     fun add(dependency: Any, action: Action<in ModuleItem>) {
         val depConf = Utils.getDependencyConf(dpendencyHandler, dependency,
                 "It can not be added to the module container.")
-        val item = ModuleItem(depConf)
 
-        addTypes(item)
-        
-        item.targetPath = depConf.module
-        item.resolveTransitive = resolveTransitive
-
+        val item = getPreconfigureItem(depConf)
         action.execute(item)
-
-        if(itemSet.find { it.dependency.module == item.dependency.module } != null)  {
-            throw InvalidUserDataException("Dependency '${item.dependency.module}' is " +
-                    "already part of the current configuration!")
-        } else {
-            itemSet.add(item)
-        }
+        addItemToList(item)
     }
 
     /**
@@ -143,4 +123,38 @@ open class ModuleItemContainer
      */
     @Suppress("unused")
     var resolveTransitive: Boolean = true
+
+    /*
+     * Creates a preconfigured module item. Configuration is
+     * taken from container configuration.
+     */
+    private fun getPreconfigureItem(depConf: DependencyConfig) : ModuleItem {
+        val item = ModuleItem(depConf)
+        item.excludedFromUpdate = excludedFromUpdate
+        item.targetPath = depConf.module
+        item.resolveTransitive = resolveTransitive
+
+        return item
+    }
+
+    /*
+     * Add item to list if the name does not exists in the list.
+     */
+    private fun addItemToList(item: ModuleItem) {
+        addTypes(item)
+
+        if(itemSet.find { it.dependency.module == item.dependency.module } != null)  {
+            throw InvalidUserDataException("Dependency '${item.dependency.module}' is " +
+                    "already part of the current configuration!")
+        } else {
+            itemSet.add(item)
+        }
+    }
+
+    /**
+     * If an item should not be part of an update installation, this property is set to true.
+     *
+     * @property excludedFromUpdate If this value is true, the item will be not part of an update installation.
+     */
+    var excludedFromUpdate: Boolean = false
 }

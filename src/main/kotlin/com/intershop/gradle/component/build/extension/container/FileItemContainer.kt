@@ -55,17 +55,10 @@ open class FileItemContainer @Inject constructor(@get: Internal override val par
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(file: File, vararg types: String): FileItem {
-        val item = FileItem(file)
-        item.setTypes(types.asList())
 
-        if(itemSet.find { it.name == item.name &&
-                          it.extension == item.extension &&
-                          it.classifier == item.classifier} != null) {
-            throw InvalidUserDataException("File ${file.nameWithoutExtension}.${file.extension} " +
-                    "is already part of the current configuration!")
-        } else {
-            itemSet.add(item)
-        }
+        val item = getPreconfigureItem(file)
+        item.setTypes(types.asList())
+        addItemToList(item)
 
         return item
     }
@@ -92,19 +85,43 @@ open class FileItemContainer @Inject constructor(@get: Internal override val par
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(file: File, action: Action<in FileItem>) {
-        val item = FileItem(file)
 
-        addTypes(item)
-
+        val item = getPreconfigureItem(file)
         action.execute(item)
+        addItemToList(item)
+    }
+
+    /*
+     * Creates a preconfigured file item. Configuration is
+     * taken from container configuration.
+     */
+    private fun getPreconfigureItem(file: File) : FileItem {
+        val item = FileItem(file)
+        item.excludedFromUpdate = excludedFromUpdate
+
+        return item
+    }
+
+    /*
+     * Add item to list if the name or the special configuration does not exists in the list.
+     */
+    private fun addItemToList(item: FileItem) {
+        addTypes(item)
 
         if(itemSet.find { it.name == item.name &&
                         it.extension == item.extension &&
                         it.classifier == item.classifier} != null) {
-            throw InvalidUserDataException("File ${file.nameWithoutExtension}.${file.extension} " +
+            throw InvalidUserDataException("File ${item.file.nameWithoutExtension}.${item.file.extension} " +
                     "is already part of the current configuration!")
         } else {
             itemSet.add(item)
         }
     }
+
+    /**
+     * If an item should not be part of an update installation, this property is set to true.
+     *
+     * @property excludedFromUpdate If this value is true, the item will be not part of an update installation.
+     */
+    var excludedFromUpdate: Boolean = false
 }

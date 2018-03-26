@@ -21,10 +21,12 @@ import com.intershop.gradle.component.build.extension.items.ModuleItem
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import com.intershop.gradle.component.descriptor.Component
 import com.intershop.gradle.component.descriptor.ContentType
+import org.gradle.api.GradleException
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
+import org.gradle.api.artifacts.ResolveException
 import org.gradle.api.artifacts.ResolvedArtifact
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.artifacts.component.ComponentIdentifier
@@ -84,11 +86,15 @@ class DependencyManager(val project: Project) {
      *
      * @return set of resolved dependency configurations
      */
+    @Throws(GradleException::class)
     fun getLibDependencies(items: Set<LibraryItem>): Set<DependencyConfig> {
         if(! libsInitialized) {
             // add configured dependencies
             items.forEach {
-                addDependencyObjects(it)
+                if(!addDependencyObjects(it)) {
+                    procLibDeps.clear()
+                    throw GradleException("Could not resolve library dependency for ${it.dependency.getModuleString()}")
+                }
             }
             libsInitialized = true
         }
@@ -102,11 +108,15 @@ class DependencyManager(val project: Project) {
      *
      * @return set of resolved dependency configurations
      */
+    @Throws(GradleException::class)
     fun getModuleDependencies(items: Set<ModuleItem>): Set<DependencyConfig> {
         if(! modulesInitialized) {
             // add configured dependencies
             items.forEach {
-                addDependencyObjects(it)
+                if(!addDependencyObjects(it)) {
+                    procModuleDeps.clear()
+                    throw GradleException("Could not resolve module dependency for ${it.dependency.getModuleString()}")
+                }
             }
             modulesInitialized = true
         }
@@ -172,46 +182,56 @@ class DependencyManager(val project: Project) {
         }
     }
 
-    private fun addDependencyObjects(item: IDependency) {
+    //@Throws(InvalidUserDataException::class)
+    private fun addDependencyObjects(item: IDependency): Boolean {
         val conf = configurationFor(item.dependency, false)
 
-        with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
-            val dependency = DependencyDescr(moduleGroup, moduleName, moduleVersion)
-            val dependencyConf = DependencyConfig(moduleGroup, moduleName, moduleVersion,
-                    item.dependency.dependency, item.resolveTransitive)
+        try {
+            with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
+                val dependency = DependencyDescr(moduleGroup, moduleName, moduleVersion)
+                val dependencyConf = DependencyConfig(moduleGroup, moduleName, moduleVersion,
+                        item.dependency.dependency, item.resolveTransitive)
 
-            when (item) {
-                is ModuleItem -> {
-                    if (procModuleDeps.none { it.value.targetPath == item.targetPath && it.key != item.dependency }) {
-                        val moduleDesc = ModuleDescr(name = this@with.moduleName ?: "",
-                                targetPath = item.targetPath,
-                                dependency = dependency,
-                                targetIncluded = item.targetIncluded,
-                                contentType = ContentType.valueOf(item.contentType))
-                        addModuleDependency(moduleDesc, this, item.types)
-                        procModuleDeps.put(dependencyConf, moduleDesc)
+                when (item) {
+                    is ModuleItem -> {
+                        if (procModuleDeps.none { it.value.targetPath == item.targetPath && it.key != item.dependency }) {
+                            val moduleDesc = ModuleDescr(
+                                    name = this@with.moduleName ?: "",
+                                    targetPath = item.targetPath,
+                                    dependency = dependency,
+                                    targetIncluded = item.targetIncluded,
+                                    contentType = ContentType.valueOf(item.contentType),
+                                    excludedFromUpdate = item.excludedFromUpdate)
+                            moduleDesc.excludesFromUpdate.addAll(item.excludesFromUpdate)
 
-                    } else {
-                        throwErrorMessage("Target path '${item.targetPath}' for '" +
-                                "${item.dependency.getModuleString()}' exists in list of targets.",
-                                errorOutModuleName)
+                            addModuleDependency(moduleDesc, this, item.types)
+                            procModuleDeps.put(dependencyConf, moduleDesc)
+
+                        } else {
+                            throwErrorMessage("Target path '${item.targetPath}' for '" +
+                                    "${item.dependency.getModuleString()}' exists in list of targets.",
+                                    errorOutModuleName)
+                        }
                     }
-                }
 
-                is LibraryItem -> {
-                    if(procLibDeps.none { it.value.targetName == item.targetName && it.key != item.dependency }) {
-                        val libDescr = LibDescr(dependency = dependency, targetName = item.targetName)
-                        libDescr.types.addAll(item.types)
-                        procLibDeps.put(dependencyConf, libDescr)
-                    } else {
-                        throwErrorMessage("Target name '${item.targetName}' for '" +
-                                "${item.dependency.getModuleString()}' exists in list of targets.", errorOutLibName)
+                    is LibraryItem -> {
+                        if (procLibDeps.none { it.value.targetName == item.targetName && it.key != item.dependency }) {
+                            val libDescr = LibDescr(dependency = dependency, targetName = item.targetName)
+                            libDescr.types.addAll(item.types)
+                            procLibDeps.put(dependencyConf, libDescr)
+                        } else {
+                            throwErrorMessage("Target name '${item.targetName}' for '" +
+                                    "${item.dependency.getModuleString()}' exists in list of targets.", errorOutLibName)
+                        }
                     }
-                }
-                else -> {
-                    logger.warn("The item type {} is not supported.", item::class.java.simpleName)
+                    else -> {
+                        logger.warn("The item type {} is not supported.", item::class.java.simpleName)
+                    }
                 }
             }
+            return true
+        } catch (ex: ResolveException) {
+            return false
         }
     }
 

@@ -21,9 +21,11 @@ import com.intershop.gradle.component.build.extension.items.LibraryItem
 import com.intershop.gradle.component.build.extension.items.ModuleItem
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import com.intershop.gradle.component.build.utils.JarFileInfo
+import org.gradle.api.GradleException
 import org.gradle.api.Project
 import org.gradle.api.artifacts.Configuration
 import org.gradle.api.artifacts.ConfigurationContainer
+import org.gradle.api.artifacts.ResolveException
 import org.gradle.api.artifacts.ResolvedDependency
 import org.gradle.api.artifacts.dsl.DependencyHandler
 
@@ -56,10 +58,16 @@ class DependencyJarManager (val project: Project) {
         if(! dependenciesInitialized) {
             // add configured dependencies
             libItems.forEach {
-                addDependencyObjects(it)
+                if(!addDependencyObjects(it)) {
+                    procDeps.clear()
+                    throw GradleException("Could not resolve library dependency for ${it.dependency.getModuleString()}")
+                }
             }
             moduleItems.forEach {
-                addDependencyObjects(it)
+                if(!addDependencyObjects(it)) {
+                    procDeps.clear()
+                    throw GradleException("Could not resolve module dependency for ${it.dependency.getModuleString()}")
+                }
             }
             dependenciesInitialized = true
         }
@@ -87,18 +95,23 @@ class DependencyJarManager (val project: Project) {
         return jarFileInfos
     }
 
-    private fun addDependencyObjects(item: IDependency) {
+    private fun addDependencyObjects(item: IDependency): Boolean {
         val conf = configurationFor(item.dependency, false)
 
         val jarFileSet = mutableSetOf<JarFileInfo>()
 
-        with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
-            val dependencyConf = DependencyConfig(moduleGroup, moduleName,moduleVersion, "", item.resolveTransitive)
+        try {
+            with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
+                val dependencyConf = DependencyConfig(moduleGroup, moduleName, moduleVersion, "", item.resolveTransitive)
 
-            moduleArtifacts.filter({ it.type == "jar" }).forEach {
-                jarFileSet.add(JarFileInfo(dependencyConf.getModuleString(), "", it.file))
+                moduleArtifacts.filter({ it.type == "jar" }).forEach {
+                    jarFileSet.add(JarFileInfo(dependencyConf.getModuleString(), "", it.file))
+                }
+                procDeps.put(dependencyConf, jarFileSet)
             }
-            procDeps.put(dependencyConf, jarFileSet)
+            return true
+        } catch (ex: ResolveException) {
+            return false
         }
     }
 
