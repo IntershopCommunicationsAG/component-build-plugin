@@ -19,6 +19,7 @@ import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.FileItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
 import java.io.File
@@ -123,5 +124,6 @@ open class FileItemContainer @Inject constructor(@get: Internal override val par
      *
      * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
      */
+    @get:Input
     var excludeFromUpdate: Boolean = false
 }

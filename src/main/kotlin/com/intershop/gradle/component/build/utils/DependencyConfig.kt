@@ -17,6 +17,7 @@
 package com.intershop.gradle.component.build.utils
 
 import org.gradle.api.tasks.Input
+import org.gradle.api.tasks.Internal
 
 /**
  * This class provides a class of a module dependency
@@ -48,6 +49,7 @@ data class DependencyConfig @JvmOverloads constructor(
      *
      * @return true if the dependency information is empty
      */
+    @Internal
     fun isEmptyConfig(): Boolean {
         return (group.isEmpty() && module.isEmpty() && version.isEmpty() && dependency.isEmpty())
     }
@@ -57,6 +59,7 @@ data class DependencyConfig @JvmOverloads constructor(
      *
      * @return the module string
      */
+    @Internal
     fun getModuleString(): String {
         return "$group:$module:$version"
     }

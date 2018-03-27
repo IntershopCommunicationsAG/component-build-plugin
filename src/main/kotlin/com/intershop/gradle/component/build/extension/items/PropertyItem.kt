@@ -48,5 +48,6 @@ class PropertyItem(@get:Input val key: String): AItem(), IItem, IOSSpecific {
      *
      * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
      */
+    @get:Input
     var excludeFromUpdate: Boolean = false
 }

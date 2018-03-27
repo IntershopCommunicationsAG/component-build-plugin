@@ -130,6 +130,7 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
      *
      * @property excludesFromUpdate Set of Ant based file patterns
      */
+    @get:Input
     override val excludesFromUpdate: Set<String>
         get() = excludesFromUpdateSet
 
@@ -176,5 +177,6 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
      *
      * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
      */
+    @get:Input
     var excludeFromUpdate: Boolean = false
 }

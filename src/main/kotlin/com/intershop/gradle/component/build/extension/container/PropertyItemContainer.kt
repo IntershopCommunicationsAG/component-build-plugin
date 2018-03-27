@@ -21,6 +21,7 @@ import com.intershop.gradle.component.build.extension.items.AItem
 import com.intershop.gradle.component.build.extension.items.PropertyItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import javax.inject.Inject
 
@@ -127,5 +128,6 @@ open class PropertyItemContainer @Inject constructor(private val parent: Compone
      *
      * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
      */
+    @get:Input
     var excludeFromUpdate: Boolean = false
 }
