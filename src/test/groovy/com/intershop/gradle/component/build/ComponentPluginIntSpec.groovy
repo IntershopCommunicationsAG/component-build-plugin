@@ -1192,15 +1192,9 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         
         component {
             libs {
-                add("commons-io:commons-io:2.2")
-                add('com.google.code.findbugs:annotations:3.0.0')
-                add('javax.persistence:persistence-api:1.0.2')
-                add('javax.validation:validation-api:1.0.0.GA')
                 add('org.ow2.asm:asm:5.1')
                 add('org.slf4j:slf4j-api:1.7.21')
-                add('junit:junit:4.12')
                 add('com.netflix.servo:servo-atlas:0.12.11')
-                add('net.sf.ehcache:ehcache-core:2.6.11')
                 add('org.springframework:spring-web:4.1.6.RELEASE')
 
                 // double classes
@@ -1248,17 +1242,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         
         component {
             libs {
-                add("commons-io:commons-io:2.2")
-                add('com.google.code.findbugs:annotations:3.0.0')
-                add('javax.persistence:persistence-api:1.0.2')
-                add('javax.validation:validation-api:1.0.0.GA')
-                add('commons-logging:commons-logging:1.2')
                 add('org.ow2.asm:asm:5.1')
                 add('org.slf4j:slf4j-api:1.7.21')
-                add('junit:junit:4.12')
-                add('com.netflix.servo:servo-atlas:0.12.11')
-                add('net.sf.ehcache:ehcache-core:2.6.11')
-                add('org.springframework:spring-web:4.1.6.RELEASE')
 
                 // double classes
                 add('org.ow2.asm:asm-all:4.2')
