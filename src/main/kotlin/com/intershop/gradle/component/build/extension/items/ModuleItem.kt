@@ -18,6 +18,7 @@ package com.intershop.gradle.component.build.extension.items
 import com.intershop.gradle.component.build.extension.Utils
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
 import org.gradle.internal.impldep.org.bouncycastle.asn1.x500.style.RFC4519Style.name
 import org.slf4j.LoggerFactory
@@ -70,6 +71,7 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
      *
      * @property targetIncluded if true, the target path is included in the module fileContainers.
      */
+    @get:Input
     override var targetIncluded:Boolean = false
 
     /**
@@ -79,6 +81,7 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
      *
      * @property excludesFromUpdate Set of Ant based file patterns
      */
+    @get:Input
     override val excludesFromUpdate: Set<String>
         get() = excludesFromUpdateSet
 
@@ -111,9 +114,19 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
     }
 
     /**
+     * This property can be used to add a special type
+     * description for a module.
+     *
+     * @property itemType Module type property
+     */
+    @get:Input
+    override var itemType: String = ""
+
+    /**
      * If an item should not be part of an update installation, this property is set to true.
      *
      * @property excludedFromUpdate If this value is true, the item will be not part of an update installation.
      */
+    @get:Input
     var excludedFromUpdate: Boolean = false
 }

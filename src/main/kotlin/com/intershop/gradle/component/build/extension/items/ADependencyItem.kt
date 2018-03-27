@@ -16,6 +16,8 @@
 
 package com.intershop.gradle.component.build.extension.items
 
+import org.gradle.api.tasks.Input
+
 /**
  * This class contains methods for items with additional
  * dependencies.
@@ -32,6 +34,7 @@ abstract class ADependencyItem : AItem(), IDependency {
      *
      * @property resolveTransitive if true dependencies will be resolved transitive.
      */
+    @get:Input
     override var resolveTransitive: Boolean = true
 
 }

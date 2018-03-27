@@ -34,4 +34,10 @@ interface IContainer {
      * Exclude patterns for update installation.
      */
     val excludesFromUpdate: Set<String>
+
+    /**
+     * This property can be used to add a special type
+     * description for a module.
+     */
+    var itemType: String
 }

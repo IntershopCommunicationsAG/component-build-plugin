@@ -52,7 +52,7 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
      */
     @Suppress("unused")
     @get:Input
-    var itemType: String = ""
+    override var itemType: String = ""
 
     /**
      * This property is used for the creation of

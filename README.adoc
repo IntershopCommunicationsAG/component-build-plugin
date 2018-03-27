@@ -298,6 +298,7 @@ Initialize container for properties. Instead of an action it is also possible to
 
 === Configuration for libs, modules, fileitems and file container
 
+[[itemproperties]]
 ==== Properties of containers and items
 
 [cols="1m,2d" width="100%", options="header"]
@@ -331,6 +332,7 @@ This is a list of deployment and environement types of the component (*read only
 Default:: `[]`
 ***
 
+[[itemmethods]]
 ==== Methods of containers and items
 
 [cols="1m,1d" width="100%", options="header"]
@@ -463,6 +465,7 @@ Instead of an action it is also possible to use a closure. See <<LibraryItem,Lib
 ==== Configuration of LibraryItem
 
 ===== Properties
+See also <<itemproperties,'Properties of containers and items'>> and <<itemmethods, 'Methods of containers and items'>>..
 
 [cols="1m,2d" width="100%", options="header"]
 |===
@@ -503,8 +506,8 @@ Default:: `${dependency.group}_${dependency.module}_${dependency.version}`
 [[ModuleItemContainer]]
 === Container 'modules'
 
-This configuration contains the module configuration of a components. A module is an Ivy dependency that includes different files. In future releases this will replaced and an own
-descriptor will be used.
+This configuration contains the module configuration of a components. A module is an Ivy dependency that includes different files.
+In future releases this will replaced and an own descriptor will be used.
 
 ==== Properties of 'modules'
 
@@ -515,6 +518,8 @@ descriptor will be used.
 |<<modulesitems,items>> | Set of all configured dependencies for module items.
 |<<modulesresolveTransitive,resolveTransitive>> | If this value is true, dependencies will be resolved transitive.
 |<<modulestargetPath,targetPath>> | A target path for all modules.
+|<<modulesexcludedFromUpdate,excludedFromUpdate>> | If an item should not be part of an update installation, this property is set to true.
+This property is used for all items and can be overridden by a configuration of the item.
 |===
 
 [[modulesitems]]
@@ -542,6 +547,16 @@ String targetPath
 :::
 A target path for all modules.
 Default:: `""`
+
+***
+[[modulesexcludedFromUpdate]]
+[source,groovy]
+boolean excludedFromUpdate
+
+:::
+If an item should not be part of an update installation, this property is set to true.
+This property is used for all items and can be overridden by a configuration of the item.
+Default:: `false`
 
 ***
 
@@ -597,6 +612,7 @@ Instead of an action it is also possible to use a closure. See <<ModuleItem,Modu
 ==== Configuration of ModuleItem
 
 ===== Properties
+See also <<itemproperties,'Properties of containers and items'>>.
 
 [cols="1m,2d" width="100%", options="header"]
 |===
@@ -604,8 +620,11 @@ Instead of an action it is also possible to use a closure. See <<ModuleItem,Modu
 
 |<<moduledependency,dependency>>        | The dependency configuration of this module.
 |<<moduleresolveTransitive,resolveTransitive>> | If this value is true, the dependency will be resolved transitive.
+|<<moduleitemType,itemType>> | This property can be used to add a special type description of a module.
 |<<moduletargetPath,targetPath>>      | The target path of this module artifact. The default value is the module name.
 |<<moduletargetIncluded,targetIncluded>> | If the configured target path is part of the component packages, it is necessary to set this property to true.
+|<<moduleexcludedFromUpdate,excludedFromUpdate>> | If this item should not be part of an update installation, this property is set to true.
+|<<moduleexcludesFromUpdate,excludesFromUpdate>>     | This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation.
 |===
 
 [[moduledependency]]
@@ -625,6 +644,15 @@ If this value is true, the dependency will be resolved transitive.
 Default:: `true`
 
 ***
+[[moduleitemType]]
+[source,groovy]
+String itemType
+
+:::
+This property can be used to add a special type description of a module.
+Default:: `""`
+
+***
 [[moduletargetPath]]
 [source,groovy]
 String targetPath
@@ -641,6 +669,54 @@ boolean targetIncluded
 :::
 If the configured target path is part of the component packages, it is necessary to set this property to true.
 Default:: `false`
+
+***
+[[moduleexcludedFromUpdate]]
+[source,groovy]
+boolean excludedFromUpdate
+
+:::
+If this item should not be part of an update installation, this property is set to true.
+Default:: `false`
+
+***
+[[moduleexcludesFromUpdate]]
+[source,groovy]
+Set<String> excludesFromUpdate
+
+:::
+This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation. (*read only*)
+Default:: `[]`
+
+***
+
+===== Methods
+See also <<itemmethods, 'Methods of containers and items'>>.
+
+[cols="1m,1d" width="100%", options="header"]
+|===
+|Method | Description
+
+|<<smoduleaddUpdateExcludePattern,addUpdateExcludePattern>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<mmoduleaddUpdateExcludePattern,addUpdateExcludePattern>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|===
+
+[[smoduleaddUpdateExcludePattern]]
+[source,groovy]
+boolean addUpdateExcludePattern(String pattern)
+
+:::
+Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+If the pattern is part of the list, the methodreturns false.
+
+***
+[[mmoduleaddUpdateExcludePattern]]
+[source,groovy]
+boolean addUpdateExcludePattern(Set<String> patterns)
+
+:::
+Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+If one of the patterns is part of the list, the method returns false.
 
 ***
 
@@ -785,130 +861,472 @@ This is the configuration of single files.
 
 ==== Properties of 'fileItems'
 
-[cols="25%,10%,10%,55%", width="90%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*items*             | `Set<FileItem>` | `[]`   | Set of all configured file items.
-|*targetPath*        | `String`           | `""`   | A target path for all files.
+|<<filesitems,items>> | Set of all configured file items.
+|<<filestargetPath,targetPath>> | A target path for all files.
+|<<filesexcludedFromUpdate,excludedFromUpdate>> | If an item should not be part of an update installation, this property is set to true.
+This property is used for all items and can be overridden by a configuration of the item.
 |===
+
+[[filesitems]]
+[source,groovy]
+Set<FileItem> items
+
+:::
+Set of all configured file items. See <<FileItem,FileItem>>.
+Default:: `[]`
+
+***
+[[filestargetPath]]
+[source,groovy]
+String targetPath
+
+:::
+A target path for all files.
+Default:: `""`
+
+***
+[[filesexcludedFromUpdate]]
+[source,groovy]
+boolean excludedFromUpdate
+
+:::
+If an item should not be part of an update installation, this property is set to true.
+Default:: `false`
+
+***
 
 ==== Methods of 'fileItems'
 
-[cols="10%,38%,52%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method | Description
 
-|*add* | `File`, `String...` | Creates an new instance of a file item with the real file and a list of types. It adds this item to the list and returns the instance for further configuration.
-|*add* | `File` | Creates an new instance of a file item with the real file, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
-|*add* | `Collection<File>` | Creates new instances of file items from the file list with a types list from the container. All items a added to the list of items.
-|*add* | `File`, `Action<? super FileItem>` | Creates an new instance of a file item from the real file and configures this instance. The item is added to the list of items.
-|*add* | `File`, `Closure` | Creates an new instance of a file item from the real file and configures this instance. The item is added to the list of items.
+|<<files1add,add>>(file, type, ...) | Creates an new instance of a file item with the real file and a list of types. It adds this item to the list and returns the instance for further configuration.
+|<<files2add,add>>(file) | Creates an new instance of a file item with the real file, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
+|<<files3add,add>>(files) | Creates new instances of file items from the file list with a types list from the container. All items a added to the list of items.
+|<<files4add,add>>(file,action) | Creates an new instance of a file item from the real file and configures this instance. The item is added to the list of items.
 |===
 
+[[files1add]]
+[source,groovy]
+FileItem add(File file, String... types)
+
+:::
+Creates an new instance of a file item with the real file and a list of types. It adds this item to the list and returns the instance for further configuration.
+See <<FileItem,FileItem>>.
+
+***
+[[files2add]]
+[source,groovy]
+FileItem add(File file)
+
+:::
+Creates an new instance of a library item with the dependency from the object, adds this to the list and returns it for further configuration.
+Types of the container are used as a default configuration. See <<FileItem,FileItem>>.
+
+***
+[[files3add]]
+[source,groovy]
+void add(Collection<File> files)
+
+:::
+Creates new instances of file items from the file list with a types list from the container. All items a added to the list of items.
+
+***
+[[files4add]]
+[source,groovy]
+void add(File file, Action<? super FileItem> action)
+
+:::
+Creates an new instance of a file item from the real file and configures this instance. The item is added to the list of items.
+Instead of an action it is also possible to use a closure. See <<FileItem,FileItem>>.
+
+***
+
+[[FileItem]]
 ==== Configuration of FileItem
 
 ===== Properties
+See also <<itemproperties,'Properties of containers and items'>>.
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
+|<<filename,name>> | The default value is the name without the extension of the configured file. If this property value is changed, the file name can be changed for publishing and deployment.
+|<<fileextension,extension>> | The default value is the extension of the configured file. If this property value is changed, the file extension can be changed for publishing and deployment.
+|<<filetargetPath,targetPath>> | The target path without the file name of this file artifact.
+|<<fileclassifier,classifier>> | This property can be used if this configuration is for a special operating system.
+|<<fileexcludedFromUpdate,excludedFromUpdate>> | If this item should not be part of an update installation, this property is set to true.
+|===
 
-|*name*        | `String` | file name  | The default value is the name without the extension of the configured file. If this property value is changed, the file name can be changed for publishing and deployment.
-|*extension*  | `String` | file extension | The default value is the extension of the configured file. If this property value is changed, the file extension can be changed for publishing and deployment.
-|*targetPath* | `String`  | `""`   | The target path without the file name of this file artifact.
-|*classifier* | `String` | "" | This property can be used if this configuration is for a special operating system.
-|===
+[[filename]]
+[source,groovy]
+String name
+
+:::
+The default value is the name without the extension of the configured file. If this property value is changed, the file name can be changed for publishing and deployment.
+Default:: `*file.nameWithoutExtension*`
+
+***
+[[fileextension]]
+[source,groovy]
+String extension
+
+:::
+The default value is the extension of the configured file. If this property value is changed, the file extension can be changed for publishing and deployment.
+Default:: `*file.extension*`
+
+***
+[[filetargetPath]]
+[source,groovy]
+String targetPath
+
+:::
+The target path without the file name of this file artifact.
+Default:: `""`
+
+***
+[[fileclassifier]]
+[source,groovy]
+String classifier
+
+:::
+This property can be used if this configuration is for a special operating system.
+Default:: `""`
+
+***
+[[fileexcludedFromUpdate]]
+[source,groovy]
+boolean excludedFromUpdate
+
+:::
+If this item should not be part of an update installation, this property is set to true.
+Default:: `false`
+
+***
+
 
 [[FileContainerItemContainer]]
 === Container 'containers'
 
-Sometimes it is necessary to configure files of a component together in a package. This configuration contains this kind of configuration.
+Sometimes it is necessary to configure files of a component together in a package. This configuration contains this kind of file packages.
 
 ==== Properties of 'containers'
 
-[cols="25%,10%,10%,55%", width="90%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*items*             | `Set<FileContainerItem>` | `[]`   | Set of all configured file container items (zip).
-|*targetPath*        | `String`           | `""`   | A target path for all files.
+|<<containersitems,items>> | Set of all configured file container items (zip).
+|<<containerstargetPath,targetPath>> | A target path for all file containers.
+|<<containersexcludedFromUpdate,excludedFromUpdate>> | If an item should not be part of an update installation, this property is set to true.
+This property is used for all items and can be overridden by a configuration of the item.
 |===
+
+[[containersitems]]
+[source,groovy]
+Set<FileContainerItem> items
+
+:::
+Set of all configured dependencies for module items. See <<FileContainerItem,FileContainerItem>>.
+Default:: `[]`
+
+***
+[[containerstargetPath]]
+[source,groovy]
+String targetPath
+
+:::
+A target path for all file containers.
+Default:: `""`
+
+***
+[[containersexcludedFromUpdate]]
+[source,groovy]
+boolean excludedFromUpdate
+
+:::
+If an item should not be part of an update installation, this property is set to true.
+This property is used for all items and can be overridden by a configuration of the item.
+Default:: `false`
+
+***
 
 ==== Methods of 'containers'
 
-[cols="10%,38%,52%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method | Description
 
-|*add* | `String`, `String...` | Creates an new instance of a file container item with a name and a list of types. It adds this item to the list and returns the instance for further configuration.
-|*add* | `String` | Creates an new instance of a file container item with a name, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
-|*add* | `String`, `Action<? super FileContainerItem>` | Creates an new instance of a file container item with a name and configures this instance. The item is added to the list of items.
-|*add* | `String`, `Closure` | Creates an new instance of a file container item with a name and configures this instance. The item is added to the list of items.
+|<<containers1add,add>>(name, type, ...) | Creates an new instance of a file container item with a name and a list of types. It adds this item to the list and returns the instance for further configuration.
+|<<containers2add,add>>(name) | Creates an new instance of a file container item with a name, adds this to the list and returns it for further configuration. Types of the container are used as a default configuration.
+|<<containers3add,add>>(name,action) | Creates an new instance of a file container item with a name and configures this instance. The item is added to the list of items.
 |===
 
+[[containers1add]]
+[source,groovy]
+FileContainerItem add(String name, String... types)
+
+:::
+Creates an new instance of a file container item with a name and a list of types. It adds this item to the list and returns the instance for further configuration.
+See <<FileContainerItem,FileContainerItem>>.
+
+***
+[[containers2add]]
+[source,groovy]
+FileContainerItem add(String name)
+
+:::
+Creates an new instance of a file container item with a name, adds this to the list and returns it for further configuration.
+Types of the container are used as a default configuration. See <<FileContainerItem,FileContainerItem>>.
+
+***
+[[containers3add]]
+[source,groovy]
+void add(name, Action<? super FileContainerItem> action)
+
+:::
+Creates an new instance of a file container item with a name and configures this instance. The item is added to the list of items.
+Instead of an action it is also possible to use a closure. See <<FileContainerItem,FileContainerItem>>.
+
+***
+
+[[FileContainerItem]]
 ==== Configuration of FileContainerItem
 
 ===== Properties
+See also <<itemproperties,'Properties of containers and items'>>.
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*containerType*        | `String` | ""  |
-|*baseName*  | `String` | `projet.name` |
-|*targetPath* | `String`  | `""`   | The target path without the file name of this file artifact.
-|*targetIncluded* | `boolean` | `false` | If the configured target path is part of the package, it is necessary to set this property to true.
-|*source* | FileCollection | [] | The files to be packed. (read only)
-|*classifier* | `String` | "" | This property can be used if this configuration is for a special operating system.
+|<<containerbaseName,baseName>> | This is the base name of the package.
+|<<containeritemType,itemType>> | This property can be used to add a special type description of a container.
+|<<containertargetPath,targetPath>>      | The target path of the file container. This package will be unpacked in this directory.
+|<<containertargetIncluded,targetIncluded>> | If the configured target path is part of the component packages, it is necessary to set this property to true.
+|<<containersource,source>> | The files to be packed. (read only)
+|<<containerclassifier,classifier>> | This property can be used if this configuration is for a special operating system.
+|<<containerexcludedFromUpdate,excludedFromUpdate>> | If this item should not be part of an update installation, this property is set to true.
+|<<containerexcludesFromUpdate,excludesFromUpdate>>     | This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation.
 |===
+
+[[containerbaseName]]
+[source,groovy]
+String baseName
+
+:::
+This is the base name of the package.
+Default:: `*project.name*`
+
+***
+[[containeritemType]]
+[source,groovy]
+String itemType
+
+:::
+This property can be used to add a special type description of a container.
+Default:: `""`
+
+***
+[[containertargetPath]]
+[source,groovy]
+String targetPath
+
+:::
+The target path of the file container. This package will be unpacked in this directory.
+Default:: `""`
+
+***
+[[containertargetIncluded]]
+[source,groovy]
+boolean targetIncluded
+
+:::
+If the configured target path is part of the component packages, it is necessary to set this property to true.
+Default:: `false`
+
+***
+[[containersource]]
+[source,groovy]
+FileCollection source
+
+:::
+The files to be packed. (read only)
+
+***
+[[containerclassifier]]
+[source,groovy]
+String classifier
+
+:::
+This property can be used if this configuration is for a special operating system.
+
+***
+[[containerexcludedFromUpdate]]
+[source,groovy]
+boolean excludedFromUpdate
+
+:::
+If this item should not be part of an update installation, this property is set to true.
+Default:: `false`
+
+***
+[[containerexcludesFromUpdate]]
+[source,groovy]
+Set<String> excludesFromUpdate
+
+:::
+This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation. (*read only*)
+Default:: `[]`
+
+***
 
 ===== Methods
+See also <<itemmethods, 'Methods of containers and items'>>.
 
-[cols="10%,38%,52%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method | Description
 
-|*source* | `Object...` | Specifies the source  files for packaging. The given paths are evaluated as per Project.files(java.lang.Object[]).
+|<<source,source>>(Object... paths) | Specifies the source  files for packaging. The given paths are evaluated as per Project.files(java.lang.Object[]).
+|<<scontaineraddUpdateExcludePattern,addUpdateExcludePattern>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<mcontaineraddUpdateExcludePattern,addUpdateExcludePattern>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |===
+
+[[source]]
+[source,groovy]
+source(Object... paths)
+
+:::
+Specifies the source  files for packaging. The given paths are evaluated as per Project.files(java.lang.Object[]).
+
+***
+[[scontaineraddUpdateExcludePattern]]
+[source,groovy]
+boolean addUpdateExcludePattern(String pattern)
+
+:::
+Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+If the pattern is part of the list, the methodreturns false.
+
+***
+[[mcontaineraddUpdateExcludePattern]]
+[source,groovy]
+boolean addUpdateExcludePattern(Set<String> patterns)
+
+:::
+Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+If one of the patterns is part of the list, the method returns false.
+
+***
 
 [[PropertyItemContainer]]
 === Container 'propertyItems'
 
+This configuration is used to store properties for installations of a component.
+
 ==== Properties of 'propertyItems'
 
-[cols="25%,10%,10%,55%", width="90%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
 
-|*items*             | `Set<PropertyItem>` | `[]`   | Set of all configured property items.
-|*types*             | `Set<String>`      | `[]`   | This is a list of deployment and environement types of the component. (*read only*)  +
-It is used for all items.
+|<<propsitems,items>> | Set of all configured property items.
 |===
+
+[[propsitems]]
+[source,groovy]
+Set<PropertyItem> items
+
+:::
+Set of all configured dependencies for property items. See <<PropertyItem,PropertyItem>>.
+Default:: `[]`
+
+***
 
 ==== Methods of 'propertyItems'
 
-[cols="10%,38%,52%"*, width="95%", options="header"]
+[cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Parameters | Description
+|Method | Description
 
-|*add* | `String`, `String`, `String...` | Creates an new instance of a property configuration item with a property key, a value and a list of types. It adds this item to the list and returns the instance for further configuration.
-|*add* | `String`, `String` | Creates an new instance of a property configuration item with a property key and a value. Types of the container are used as a default configuration.
-|*add* | `String`, `Action<? super PropertyItem>` | Creates an new instance of a property configuration item with a property key and configures this instance. The item is added to the list of items.
-|*add* | `String`, `Closure` | Creates an new instance of a property configuration item with a property key and configures this instance. The item is added to the list of items.
+|<<props1add,add>>(key,value, type, ...) | Creates an new instance of a property configuration item with a property key, a value and a list of types. It adds this item to the list and returns the instance for further configuration.
+|<<props2add,add>>(key,value) | Creates an new instance of a property configuration item with a property key and a value. Types of the container are used as a default configuration.
+|<<props3add,add>>(key,action) | Creates an new instance of a property configuration item with a property key and configures this instance. The item is added to the list of items.
 |===
 
-==== Configuration of FileContainerItem
+[[props1add]]
+[source,groovy]
+PropertyItem add(String key, String value, String... types)
+
+:::
+Creates an new instance of a property configuration item with a property key, a value and a list of types. It adds this item to the list and returns the instance for further configuration.
+See <<PropertyItem,PropertyItem>>.
+
+***
+
+[[props2add]]
+[source,groovy]
+PropertyItem add(String key, String value)
+
+:::
+Creates an new instance of a property configuration item with a property key and a value. Types of the container are used as a default configuration. See <<PropertyItem,PropertyItem>>.
+
+***
+[[props3add]]
+[source,groovy]
+void add(name, Action<? super FileContainerItem> action)
+
+:::
+Creates an new instance of a property configuration item with a property key and configures this instance. The item is added to the list of items.
+Instead of an action it is also possible to use a closure. See <<PropertyItem,PropertyItem>>.
+
+***
+
+[[PropertyItem]]
+==== Configuration of PropertyItem
 
 ===== Properties
+See also <<itemproperties,'Properties of containers and items'>>.
 
-[cols="25%,10%,10%,55%", width="95%, options="header"]
+[cols="1m,2d" width="100%", options="header"]
 |===
-|Property | Type | Default value | Description
+|Property | Description
+|<<value, value>>> | The property value of this item.
+|<<propclassifier, classifier>> | This property can be used if this configuration is for a special operating system.
+|<<propcludedFromUpdate,excludedFromUpdate>> | If this item should not be part of an update installation, this property is set to true.
+|===
 
-|*value* | `String` | "" | The property value of this item.
-|*classifier* | `String` | "" | This property can be used if this configuration is for a special operating system.
-|===
+[[value]]
+[source,groovy]
+String value
+
+:::
+The property value of this item.
+***
+
+[[propclassifier]]
+[source,groovy]
+String classifier
+
+:::
+This property can be used if this configuration is for a special operating system.
+***
+
+[[propcludedFromUpdate]]
+[source,groovy]
+boolean excludedFromUpdate
+
+:::
+If this item should not be part of an update installation, this property is set to true.
+Default:: `false`
+
+***
 
 == License
 
