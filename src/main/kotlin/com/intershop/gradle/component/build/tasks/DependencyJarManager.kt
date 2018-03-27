@@ -100,7 +100,7 @@ class DependencyJarManager (val project: Project) {
 
         val jarFileSet = mutableSetOf<JarFileInfo>()
 
-        try {
+        return try {
             with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
                 val dependencyConf = DependencyConfig(moduleGroup, moduleName, moduleVersion, "", item.resolveTransitive)
 
@@ -109,9 +109,9 @@ class DependencyJarManager (val project: Project) {
                 }
                 procDeps.put(dependencyConf, jarFileSet)
             }
-            return true
+            true
         } catch (ex: ResolveException) {
-            return false
+            false
         }
     }
 
