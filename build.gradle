@@ -17,7 +17,7 @@ plugins {
     // project plugins
     id 'java-gradle-plugin'
     id 'groovy'
-    id 'nebula.kotlin' version '1.2.30'
+    id 'nebula.kotlin' version '1.2.31'
 
     // documentation
     id "org.jetbrains.dokka" version "0.9.16"

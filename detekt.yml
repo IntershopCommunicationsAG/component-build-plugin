@@ -89,7 +89,7 @@ complexity:
     active: false
   LargeClass:
     active: true
-    threshold: 160
+    threshold: 180
   LongMethod:
     active: true
     threshold: 30
