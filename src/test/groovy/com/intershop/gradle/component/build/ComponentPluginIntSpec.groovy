@@ -23,6 +23,7 @@ import com.intershop.gradle.test.builder.TestIvyRepoBuilder.ArchiveDirectoryEntr
 import com.intershop.gradle.test.builder.TestIvyRepoBuilder.ArchiveFileEntry
 import com.intershop.gradle.test.builder.TestMavenRepoBuilder
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 class ComponentPluginIntSpec extends AbstractIntegrationSpec {
@@ -1175,6 +1176,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
+    @IgnoreIf({ System.getProperty("development").isEmpty() })
     @Unroll
     def 'Test plugin with version conflicts - #gradleVersion'(gradleVersion) {
         given:
@@ -1225,6 +1227,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
+    @IgnoreIf({ System.getProperty("development").isEmpty() })
     @Unroll
     def 'Test plugin with class collision - #gradleVersion'(gradleVersion) {
         given:
@@ -1281,6 +1284,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
+    @IgnoreIf({ System.getProperty("development").isEmpty() })
     @Unroll
     def 'Test class collision with missing lib - #gradleVersion'(gradleVersion) {
         given:
