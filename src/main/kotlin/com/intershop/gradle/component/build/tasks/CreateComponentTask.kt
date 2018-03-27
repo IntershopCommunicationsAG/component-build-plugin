@@ -326,7 +326,7 @@ open class CreateComponentTask : DefaultTask() {
                             classifier = classifier,
                             targetIncluded = targetIncluded,
                             contentType = ContentType.valueOf(contentType),
-                            excludedFromUpdate = excludedFromUpdate
+                            excludeFromUpdate = excludeFromUpdate
                             )
                     container.excludesFromUpdate.addAll(excludesFromUpdate)
                     container.types.addAll(types)
@@ -358,7 +358,7 @@ open class CreateComponentTask : DefaultTask() {
                             targetPath = targetPath,
                             classifier = classifier,
                             contentType = ContentType.valueOf(contentType),
-                            excludedFromUpdate = excludedFromUpdate)
+                            excludeFromUpdate = excludeFromUpdate)
                     file.types.addAll(types)
 
                     if(! componentDescr.addFileItem(file)) {
@@ -383,7 +383,7 @@ open class CreateComponentTask : DefaultTask() {
                     value = it.value,
                     classifier = it.classifier,
                     contentType = ContentType.valueOf(it.contentType),
-                    excludedFromUpdate = it.excludedFromUpdate)
+                    excludeFromUpdate = it.excludeFromUpdate)
             property.types.addAll(it.types)
             componentDescr.addProperty(property)
 

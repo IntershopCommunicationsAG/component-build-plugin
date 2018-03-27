@@ -705,7 +705,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    def 'Test types and excludedFromUpdate handling in container - #gradleVersion'(gradleVersion) {
+    def 'Test types and excludeFromUpdate handling in container - #gradleVersion'(gradleVersion) {
         given:
         String projectName = "testcomponent"
         createSettingsGradle(projectName)
@@ -728,7 +728,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 addType('production')
                 addType('test')
                 addTypes(['test1', 'test2'])
-                excludedFromUpdate = true
+                excludeFromUpdate = true
                 add('startscripts') {
                     baseName = 'startscripts'
                     itemType = 'bin'
@@ -745,7 +745,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
 
             modules {
                 addType('production')
-                excludedFromUpdate = true
+                excludeFromUpdate = true
                 add("com.intershop:testmodule1:1.0.0")
                 add("com.intershop:testmodule2:1.0.0")
             }
@@ -759,7 +759,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             dependencyMngt.classpathVerification.enabled = false
 
             fileItems {
-                excludedFromUpdate = true
+                excludeFromUpdate = true
                 addType('intTest')
                 add(file("conf/server/test1.properties")) {
                     targetPath = 'share/system/config'
@@ -770,7 +770,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
 
             propertyItems {
-                excludedFromUpdate = true
+                excludeFromUpdate = true
 
                 add("pkey1", "pvalue1", 'perfTest')
                 add("pkey2", "pvalue2", 'production')
@@ -806,19 +806,19 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         comp.modules['testmodule1'].types.size() == 1
         comp.modules['testmodule2'].types.containsAll([ "production" ])
         comp.modules['testmodule1'].types.size() == 1
-        comp.modules.values().findAll {it.excludedFromUpdate }.size() == 2
+        comp.modules.values().findAll {it.excludeFromUpdate }.size() == 2
         comp.libs['com.intershop:library1:1.0.0'].types.containsAll([ "test" ])
         comp.libs['com.intershop:library1:1.0.0'].types.size() == 1
         comp.libs['com.intershop:library2:1.0.0'].types.containsAll([ "production" ])
         comp.libs['com.intershop:library2:1.0.0'].types.size() == 1
         comp.fileContainers.find {it.name == 'startscripts'}.types.containsAll([ "production", "test", "test1", "test2" ])
         comp.fileContainers.find {it.name == 'startscripts'}.types.size() == 4
-        comp.fileContainers.findAll {it.excludedFromUpdate }.size() == 2
+        comp.fileContainers.findAll {it.excludeFromUpdate }.size() == 2
         comp.fileItems.findAll {it.types.size() == 1 && it.types.containsAll(["intTest"]) }.size() == 2
-        comp.fileItems.findAll {it.excludedFromUpdate }.size() == 2
+        comp.fileItems.findAll {it.excludeFromUpdate }.size() == 2
         comp.properties.findAll {it.types.size() == 1 && it.types.containsAll(["perfTest"]) }.size() == 1
         comp.properties.findAll {it.types.size() == 1 && it.types.containsAll(["production"]) }.size() == 1
-        comp.properties.findAll {it.excludedFromUpdate }.size() == 2
+        comp.properties.findAll {it.excludeFromUpdate }.size() == 2
 
         when:
         def result2 = getPreparedGradleRunner()

@@ -201,7 +201,7 @@ class DependencyManager(val project: Project) {
                                     dependency = dependency,
                                     targetIncluded = item.targetIncluded,
                                     contentType = ContentType.valueOf(item.contentType),
-                                    excludedFromUpdate = item.excludedFromUpdate,
+                                    excludeFromUpdate = item.excludeFromUpdate,
                                     itemType = item.itemType)
                             moduleDesc.excludesFromUpdate.addAll(item.excludesFromUpdate)
 

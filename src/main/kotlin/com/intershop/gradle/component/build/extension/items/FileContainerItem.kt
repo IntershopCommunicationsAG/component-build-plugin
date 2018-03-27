@@ -174,7 +174,7 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
     /**
      * If an item should not be part of an update installation, this property is set to true.
      *
-     * @property excludedFromUpdate If this value is true, the item will be not part of an update installation.
+     * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
      */
-    var excludedFromUpdate: Boolean = false
+    var excludeFromUpdate: Boolean = false
 }

@@ -97,7 +97,7 @@ open class FileContainerItemContainer
      */
     private fun getPreconfigureItem(project: Project, name: String) : FileContainerItem {
         val item = FileContainerItem(project, name)
-        item.excludedFromUpdate = excludedFromUpdate
+        item.excludeFromUpdate = excludeFromUpdate
 
         return item
     }
@@ -121,7 +121,7 @@ open class FileContainerItemContainer
     /**
      * If an item should not be part of an update installation, this property is set to true.
      *
-     * @property excludedFromUpdate If this value is true, the item will be not part of an update installation.
+     * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
      */
-    var excludedFromUpdate: Boolean = false
+    var excludeFromUpdate: Boolean = false
 }
