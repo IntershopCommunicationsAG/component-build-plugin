@@ -30,6 +30,7 @@ import javax.inject.Inject
  * file container (zip packages).
  *
  * @property parent the parent of this container.
+ * @property project the current project.
  * @constructor provides an empty preconfigured file item container
  */
 open class FileContainerItemContainer

@@ -40,7 +40,7 @@ open class VerifyClasspathRunner @Inject constructor(private val jarFiles: Set<J
                                                      private val outputFile: File) : Runnable {
 
     companion object {
-        val logger: Logger = LoggerFactory.getLogger(VerifyClasspathRunner::class.java.name)
+        private val logger: Logger = LoggerFactory.getLogger(VerifyClasspathRunner::class.java.name)
     }
 
     /**

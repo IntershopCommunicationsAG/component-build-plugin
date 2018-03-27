@@ -19,6 +19,8 @@ package com.intershop.gradle.component.build.extension.items
 /**
  * Enumeration with possible content types. This
  * configuration is used for the deployment self.
+ *
+ * @property description description of the enum.
  */
 @Suppress("unused")
 enum class ContentType (val description: String) {

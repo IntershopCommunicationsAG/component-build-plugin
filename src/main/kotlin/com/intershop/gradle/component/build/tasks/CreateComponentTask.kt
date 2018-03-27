@@ -266,6 +266,11 @@ open class CreateComponentTask : DefaultTask() {
     @get:Nested
     var containers: FileContainerItemContainer? = null
 
+    /**
+     * Resolved modules from list of items. (*read only*).
+     *
+     * @property resolvedModules list with dependency configurations
+     */
     @get:Nested
     @Suppress("unused")
     val resolvedModules: Set<DependencyConfig>
@@ -281,6 +286,11 @@ open class CreateComponentTask : DefaultTask() {
             return moduleDeps
         }
 
+    /**
+     * Resolved libraries from list of items. (*read only*).
+     *
+     * @property resolvedLibs list with dependency configurations
+     */
     @get:Nested
     @Suppress("unused")
     val resolvedLibs: Set<DependencyConfig>

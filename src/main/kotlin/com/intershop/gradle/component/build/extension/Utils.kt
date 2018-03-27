@@ -29,6 +29,10 @@ class Utils {
     companion object {
         private val ILLEGAL_CHARACTERS = arrayListOf(' ', '\n', '\r', '\t', '`', '?',
                 '*', '\\', '<', '>', '|', '\"', ':')
+
+        /**
+         * Max path length
+         */
         const val MAX_PATH_LENGTH = 4096
 
         /**

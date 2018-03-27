@@ -31,6 +31,7 @@ import kotlin.properties.Delegates
  * of the component extension.
  *
  * @property description a short description of this container for log messages.
+ * @property parent instance of the extension
  * @constructor provides an empty container
  */
 abstract class AContainer @Inject constructor(@get:Internal protected val description: String,
@@ -63,6 +64,11 @@ abstract class AContainer @Inject constructor(@get:Internal protected val descri
         invalidChars.isEmpty() && ! newValue.startsWith("/")
     }
 
+    /**
+     * Add types to types list from item.
+     *
+     * @parameter item with type AItem.
+     */
     protected fun addTypes(item: AItem) {
         if(types.isEmpty() && parent.types.isNotEmpty()) {
             item.addTypes(parent.types)

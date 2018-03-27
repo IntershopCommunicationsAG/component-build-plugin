@@ -118,7 +118,7 @@ asciidoctorj {
 asciidoctor {
     sourceDir "${buildDir}/tmp/asciidoctorSrc"
     sources {
-        include 'README.adoc'
+        include 'README.asciidoc'
     }
 
     backends 'html5', 'docbook'

@@ -51,12 +51,22 @@ import javax.inject.Inject
 class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelRegistry?) : Plugin<Project> {
 
     companion object {
-        const val TASKDESCRIPTION = "Generate component file from configuration"
+        internal const val TASKDESCRIPTION = "Generate component file from configuration"
+        internal const val COMPONENT_GROUP_NAME = "Component Build"
+
+        /**
+         * Task name for component creation
+         */
         const val COMPONENT_TASKNAME = "createComponent"
+        /**
+         * Task name for component verification
+         */
         const val VERIFYCP_TASKNAME = "verifyClasspath"
 
+        /**
+         * Extension name of this plugin
+         */
         const val COMPONENT_EXTENSION_NAME = "component"
-        const val COMPONENT_GROUP_NAME = "Component Build"
     }
 
     /**
@@ -91,7 +101,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
     class ComponentBuildRule: RuleSource() {
 
         companion object {
-            val logger: Logger = LoggerFactory.getLogger(ComponentBuildRule::class.java.simpleName)
+            private val logger: Logger = LoggerFactory.getLogger(ComponentBuildRule::class.java.simpleName)
 
             private fun createContainerTask(tasks: ModelMap<Task>, container: FileContainerItem): String {
                 val taskName = "zipContainer${container.name.capitalize()}"

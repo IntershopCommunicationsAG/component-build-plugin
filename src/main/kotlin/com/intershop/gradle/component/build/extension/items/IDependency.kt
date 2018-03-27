@@ -23,6 +23,16 @@ import com.intershop.gradle.component.build.utils.DependencyConfig
  */
 interface IDependency: IItem {
 
+    /**
+     * Dependency of the item.
+     *
+     * @property dependency dependency configuration of the item.
+     */
     val dependency: DependencyConfig
+
+    /**
+     * If the dependency should be resolved transitive, it
+     * is necessary to set this value to true.
+     */
     var resolveTransitive: Boolean
 }
