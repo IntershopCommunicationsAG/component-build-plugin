@@ -1176,7 +1176,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
-    @IgnoreIf({ System.getProperty("development").isEmpty() })
+    @IgnoreIf({ System.getProperty("development", "").isEmpty() })
     @Unroll
     def 'Test plugin with version conflicts - #gradleVersion'(gradleVersion) {
         given:
@@ -1227,7 +1227,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
-    @IgnoreIf({ System.getProperty("development").isEmpty() })
+    @IgnoreIf({ System.getProperty("development", "").isEmpty() })
     @Unroll
     def 'Test plugin with class collision - #gradleVersion'(gradleVersion) {
         given:
@@ -1284,7 +1284,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
-    @IgnoreIf({ System.getProperty("development").isEmpty() })
+    @IgnoreIf({ System.getProperty("development", "").isEmpty() })
     @Unroll
     def 'Test class collision with missing lib - #gradleVersion'(gradleVersion) {
         given:
