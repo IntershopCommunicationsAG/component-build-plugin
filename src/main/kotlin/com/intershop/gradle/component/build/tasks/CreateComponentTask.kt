@@ -15,7 +15,6 @@
  */
 package com.intershop.gradle.component.build.tasks
 
-
 import com.intershop.gradle.component.build.extension.container.FileContainerItemContainer
 import com.intershop.gradle.component.build.extension.container.FileItemContainer
 import com.intershop.gradle.component.build.extension.container.LibraryItemContainer
@@ -330,7 +329,7 @@ open class CreateComponentTask : DefaultTask() {
             with(item) {
                 if(! source.isEmpty) {
                     val container = FileContainer(
-                            name = name,
+                            name = baseName,
                             targetPath =  targetPath,
                             itemType = itemType,
                             classifier = classifier,

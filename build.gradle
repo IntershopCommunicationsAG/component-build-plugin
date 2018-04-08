@@ -84,7 +84,7 @@ test {
 }
 
 detekt {
-    version = "1.0.0.RC6-3"
+    version = "1.0.0.RC6-4"
     profile("main") {
         input = "$projectDir/src/main/kotlin"
         config = "$projectDir/detekt.yml"
