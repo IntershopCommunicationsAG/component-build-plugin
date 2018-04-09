@@ -520,6 +520,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 .withGradleVersion(gradleVersion)
                 .build()
 
+        def component = ComponentUtil.INSTANCE.componentFromFile(outputFile)
+
         then:
         result1.task(':publish').outcome == TaskOutcome.SUCCESS
         result1.task(':createComponent').outcome == TaskOutcome.SUCCESS
@@ -537,7 +539,6 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         singleFile1.exists()
         singleFile2.exists()
         outputFile.text.contains('"name" : "startscripts",')
-        outputFile.text.contains('"name" : "sites"')
         outputFile.text.contains('"name" : "test1"')
         outputFile.text.contains('"name" : "test2"')
         outputFile.text.contains('"key" : "pkey1",')
@@ -552,6 +553,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         ivyFile.text.contains('<artifact name="testcomponent" type="component" ext="component" conf="component"/>')
         ivyFile.text.contains('<conf name="component" visibility="public" extends="default"/>')
         ivyFile.text.contains('<conf name="default" visibility="public"/>')
+
+        component.fileContainers.findAll {it.name == 'share' && it.itemType == 'sites'}.size() == 1
 
         ! outputFile.text.contains('com.intershop:library3:1.0.0')
         ! outputFile.text.contains('com.intershop:library4:1.0.0')
@@ -660,6 +663,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 .withArguments(args)
                 .withGradleVersion(gradleVersion)
                 .build()
+        def component = ComponentUtil.INSTANCE.componentFromFile(outputFile)
 
         then:
         result1.task(':publish').outcome == TaskOutcome.SUCCESS
@@ -678,13 +682,14 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         singleFile1.exists()
         singleFile2.exists()
         outputFile.text.contains('"name" : "startscripts",')
-        outputFile.text.contains('"name" : "sites"')
         outputFile.text.contains('"name" : "test1"')
         outputFile.text.contains('"name" : "test2"')
         outputFile.text.contains('"key" : "pkey1",')
         outputFile.text.contains('"value" : "pvalue1",')
         outputFile.text.contains('"key" : "pkey2",')
         outputFile.text.contains('"value" : "pvalue2",')
+
+        component.fileContainers.findAll {it.name == 'share' && it.itemType == 'sites'}.size() == 1
 
         ! outputFile.text.contains('com.intershop:library3:1.0.0')
         ! outputFile.text.contains('com.intershop:library4:1.0.0')
@@ -950,8 +955,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         comp.fileContainers.find {it.name == 'startscripts'}.types.size() == 2
         comp.fileContainers.find {it.name == 'startscripts'}.excludesFromUpdate.containsAll(["**/dir1/*.com", "**/dir2/*.com", "**/dir3/*.com"])
         comp.fileContainers.find {it.name == 'startscripts'}.excludesFromUpdate.size() == 3
-        comp.fileContainers.find {it.name == 'sites'}.excludesFromUpdate.containsAll(["**/dir1/*.com"])
-        comp.fileContainers.find {it.name == 'sites'}.excludesFromUpdate.size() == 1
+        comp.fileContainers.find {it.name == 'share'}.excludesFromUpdate.containsAll(["**/dir1/*.com"])
+        comp.fileContainers.find {it.name == 'share'}.excludesFromUpdate.size() == 1
         comp.fileItems.findAll {it.types.size() == 1 && it.types.containsAll(["intTest"]) }.size() == 2
         comp.properties.findAll {it.types.size() == 1 && it.types.containsAll(["perfTest"]) }.size() == 2
 
@@ -1080,8 +1085,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         outputFile.exists()
         Component comp = ComponentUtil.INSTANCE.componentFromFile(outputFile)
         comp.classifiers.containsAll([ "linux", "win", "" ])
-        comp.fileContainers.find {it.name == 'startscriptsLinux'}.classifier == 'linux'
-        comp.fileContainers.find {it.name == 'startscriptsWin'}.classifier == 'win'
+        comp.fileContainers.findAll {it.name == 'startscripts' && it.classifier == "linux"}.size() == 1
+        comp.fileContainers.findAll {it.name == 'startscripts' && it.classifier == 'win'}.size() == 1
         comp.fileItems.findAll { it.classifier == 'linux' }.size() == 1
         comp.properties.findAll { it.classifier == 'win' }.size() == 1
         comp.modules['testmodule3'].classifiers.containsAll([ "linux", "win" ])
