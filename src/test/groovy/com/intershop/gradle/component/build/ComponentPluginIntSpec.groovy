@@ -201,6 +201,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         
         component {
             ivyPublicationName = "ivyCustomer"
+            descriptorPath = "descriptor"
 
             containers {
                 add('startscripts') {
@@ -212,6 +213,9 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
 
             modules {
+                jarPath = "release/libs"
+                descriptorPath = "descriptor"
+
                 add("com.intershop:testmodule1:1.0.0")
                 add("com.intershop:testmodule2:1.0.0")
             }
@@ -254,6 +258,10 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         zipFile.exists()
         outputFile.text.contains('"name" : "startscripts",')
         outputFile.text.contains('"itemType" : "bin"')
+        Component comp = ComponentUtil.INSTANCE.componentFromFile(outputFile)
+        comp.descriptorPath == "descriptor"
+        comp.modules.findAll {it.value.descriptorPath == "descriptor"}.size() == 2
+        comp.modules.findAll {it.value.jarPath == "release/libs"}.size() == 2
 
         when:
         def result2 = getPreparedGradleRunner()
@@ -359,6 +367,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         
         component {
             mavenPublicationName = "mvnCustomer"
+            descriptorPath = "descriptor"
 
             containers {
                 add('startscripts') {
@@ -370,6 +379,9 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
 
             modules {
+                jarPath = "release/libs"
+                descriptorPath = "descriptor"
+
                 add("com.intershop:testmodule1:1.0.0")
                 add("com.intershop:testmodule2:1.0.0")
             }
@@ -410,6 +422,10 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         zipFile.exists()
         outputFile.text.contains('"name" : "startscripts",')
         outputFile.text.contains('"itemType" : "bin"')
+        Component comp = ComponentUtil.INSTANCE.componentFromFile(outputFile)
+        comp.descriptorPath == "descriptor"
+        comp.modules.findAll {it.value.descriptorPath == "descriptor"}.size() == 2
+        comp.modules.findAll {it.value.jarPath == "release/libs"}.size() == 2
 
         when:
         def result2 = getPreparedGradleRunner()

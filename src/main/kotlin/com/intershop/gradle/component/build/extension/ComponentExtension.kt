@@ -145,6 +145,14 @@ open class ComponentExtension @Inject constructor(project: Project) {
     }
 
     /**
+     * The install path for the component descriptor file.
+     *
+     * @property descriptorPath path for all descriptor files of the component
+     */
+
+    var descriptorPath: String = ""
+
+    /**
      * This file configuration is used for the output
      * of the descriptor file.
      *

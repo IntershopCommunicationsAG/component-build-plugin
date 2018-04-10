@@ -202,6 +202,8 @@ class DependencyManager(val project: Project) {
                                     targetIncluded = item.targetIncluded,
                                     contentType = ContentType.valueOf(item.contentType),
                                     excludeFromUpdate = item.excludeFromUpdate,
+                                    descriptorPath = item.descriptorPath,
+                                    jarPath = item.jarPath,
                                     itemType = item.itemType)
                             moduleDesc.excludesFromUpdate.addAll(item.excludesFromUpdate)
 

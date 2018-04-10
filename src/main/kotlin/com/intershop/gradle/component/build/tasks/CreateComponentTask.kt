@@ -55,14 +55,17 @@ import com.intershop.gradle.component.descriptor.Module as ModuleDescr
  */
 open class CreateComponentTask : DefaultTask() {
 
-    // Outputfile configurationFor
+    // Outputfile
     private val descriptorFileProperty = this.newOutputFile()
-    // display name configurationFor
+    // display name
     private val displayNameProperty = project.objects.property(String::class.java)
-    // component description configurationFor
+    // component description
     private val componentDescriptionProperty = project.objects.property(String::class.java)
-    // component description configurationFor
+    // preconfigured install target of this component
     private val defaultTargetProperty = project.objects.property(String::class.java)
+
+    // install path of the descriptor file of this component
+    private val descriptorPathProperty = project.objects.property(String::class.java)
 
     // set of central deployment exclude patterns
     private val excludesFromUpdateSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
@@ -148,6 +151,16 @@ open class CreateComponentTask : DefaultTask() {
     @Suppress( "unused")
     @get:Input
     var defaultTarget: String by defaultTargetProperty
+
+    /**
+     * This is the path for the descriptor file of an
+     * installed component.
+     *
+     * @property descriptorPath path for all descriptor files
+     */
+    @Suppress( "unused")
+    @get:Input
+    var descriptorPath: String by descriptorPathProperty
 
     /**
      * Set provider for default target property.
@@ -321,7 +334,8 @@ open class CreateComponentTask : DefaultTask() {
                 libsTarget = libs?.targetPath ?: "",
                 containerTarget = containers?.targetPath ?: "",
                 fileTarget = files?.targetPath ?: "",
-                target = defaultTarget)
+                target = defaultTarget,
+                descriptorPath = descriptorPath)
         componentDescr.excludesFromUpdate.addAll(excludesFromUpdate)
         dependencyManager.addToDescriptor(componentDescr, excludes)
 

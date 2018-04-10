@@ -158,6 +158,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
                             displayName = extension.displayName
                             componentDescription = extension.componentDescription
+                            descriptorPath = extension.descriptorPath
 
                             provideUpdateExcludePattern(extension.excludesFromUpdateProvider)
 
@@ -349,7 +350,8 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                 }
             }
 
-            private fun configureProjectArtifactsOnly(tasks: ModelMap<Task>, componentBuildConf: ComponentExtension) {
+            private fun configureProjectArtifactsOnly(tasks: ModelMap<Task>,
+                                                      componentBuildConf: ComponentExtension) {
                 tasks.withType(ZipContainerTask::class.java).forEach { task ->
                     task.project.artifacts.add("component", task) {
                         if(task.artifactClassifier.isNotBlank()) {
