@@ -31,7 +31,7 @@ class Utils {
                 '*', '\\', '<', '>', '|', '\"', ':')
 
         /**
-         * Max path length
+         * Max file system path length.
          */
         const val MAX_PATH_LENGTH = 4096
 

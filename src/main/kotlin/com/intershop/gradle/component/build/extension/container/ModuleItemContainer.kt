@@ -133,6 +133,8 @@ open class ModuleItemContainer
         item.excludeFromUpdate = excludeFromUpdate
         item.targetPath = depConf.module
         item.resolveTransitive = resolveTransitive
+        item.descriptorPath = descriptorPath
+        item.jarPath = jarPath
 
         return item
     }
@@ -156,5 +158,24 @@ open class ModuleItemContainer
      *
      * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
      */
+    @Suppress("unused")
     var excludeFromUpdate: Boolean = false
+
+    /**
+     * The target path for jar files of each module.
+     * This value is used to preconfigure a module item.
+     *
+     * @property jarPath path for all jar files of a module
+     */
+    @Suppress("unused")
+    var jarPath: String = "libs"
+
+    /**
+     * The target path for descriptor files of each module.
+     * This value is used to preconfigure a module item.
+     *
+     * @property descriptorPath path for all descriptor files of a module
+     */
+    @Suppress("unused")
+    var descriptorPath: String = ""
 }

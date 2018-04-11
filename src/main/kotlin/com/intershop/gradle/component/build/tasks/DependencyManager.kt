@@ -194,7 +194,8 @@ class DependencyManager(val project: Project) {
 
                 when (item) {
                     is ModuleItem -> {
-                        if (procModuleDeps.none { it.value.targetPath == item.targetPath && it.key != item.dependency }) {
+                        if (procModuleDeps.none
+                                { it.value.targetPath == item.targetPath && it.key != item.dependency }) {
                             val moduleDesc = ModuleDescr(
                                     name = this@with.moduleName ?: "",
                                     targetPath = item.targetPath,
@@ -202,6 +203,8 @@ class DependencyManager(val project: Project) {
                                     targetIncluded = item.targetIncluded,
                                     contentType = ContentType.valueOf(item.contentType),
                                     excludeFromUpdate = item.excludeFromUpdate,
+                                    descriptorPath = item.descriptorPath,
+                                    jarPath = item.jarPath,
                                     itemType = item.itemType)
                             moduleDesc.excludesFromUpdate.addAll(item.excludesFromUpdate)
 
@@ -290,27 +293,25 @@ class DependencyManager(val project: Project) {
 
             if(module != null) {
                 module.types.addAll(types)
-            } else {
-                if ( isNotExcluded(dep, excludes) ) {
-                    val availableDep = resModuleDeps.keys.find { it.group == dep.group && it.module == dep.module }
-                    if( availableDep == null) {
-                        if(resModuleDeps.none { it.value.targetPath == dep.module}) {
-                            val moduleDesc = ModuleDescr(name = dep.module,
+            } else if ( isNotExcluded(dep, excludes) ) {
+                val availableDep = resModuleDeps.keys.find { it.group == dep.group && it.module == dep.module }
+                if( availableDep == null) {
+                    if(resModuleDeps.none { it.value.targetPath == dep.module}) {
+                        val moduleDesc = ModuleDescr(name = dep.module,
                                     targetPath = dep.module,
                                     dependency = DependencyDescr(dep.group, dep.module, dep.version),
                                     targetIncluded = false,
                                     contentType = ContentType.IMMUTABLE)
-                            moduleDesc.types.addAll(types)
-                            resModuleDeps[dep] = moduleDesc
-                        } else {
-                            throwErrorMessage("Target name '${dep.module}' for '${dep.getModuleString()}' " +
-                                    "exists in list of targets.", errorOutModuleName)
-                        }
+                        moduleDesc.types.addAll(types)
+                        resModuleDeps[dep] = moduleDesc
                     } else {
-                        throwErrorMessage(errorOutVersionInfo, "${dep.group}:${dep.module} $errorOutVersionDescr " +
+                        throwErrorMessage("Target name '${dep.module}' for '${dep.getModuleString()}' " +
+                                    "exists in list of targets.", errorOutModuleName)
+                    }
+                } else {
+                    throwErrorMessage(errorOutVersionInfo, "${dep.group}:${dep.module} $errorOutVersionDescr " +
                                 "[source: $fromDep, availabble: ${dep.getModuleString()}, " +
                                 "new: ${availableDep.getModuleString()}]")
-                    }
                 }
             }
         }

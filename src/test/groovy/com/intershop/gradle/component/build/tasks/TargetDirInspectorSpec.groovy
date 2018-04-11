@@ -36,6 +36,7 @@ class TargetDirInspectorSpec extends Specification {
                     "properties",
                     "container",
                     "defaultTarget",
+                    "descriptorPath",
                      modules,  libs, fileContainers
             )
             TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -67,6 +68,7 @@ class TargetDirInspectorSpec extends Specification {
                 "properties",
                 "container",
                 "defaultTarget",
+                "descriptorPath",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -99,6 +101,7 @@ class TargetDirInspectorSpec extends Specification {
                 "",
                 "same",
                 "defaultTarget",
+                "descriptorPath",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -132,6 +135,7 @@ class TargetDirInspectorSpec extends Specification {
                 "",
                 "same",
                 "defaultTarget",
+                "descriptorPath",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -166,6 +170,7 @@ class TargetDirInspectorSpec extends Specification {
                 "",
                 "same",
                 "defaultTarget",
+                "descriptorPath",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -209,6 +214,7 @@ class TargetDirInspectorSpec extends Specification {
                 "",
                 "same",
                 "defaultTarget",
+                "descriptorPath",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)
@@ -252,6 +258,7 @@ class TargetDirInspectorSpec extends Specification {
                 "",
                 "same",
                 "defaultTarget",
+                "descriptorPath",
                 modules,  libs, fileContainers
         )
         TargetDirInspector inspector = new TargetDirInspector(comp)

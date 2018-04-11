@@ -102,7 +102,8 @@ class DependencyJarManager (val project: Project) {
 
         return try {
             with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
-                val dependencyConf = DependencyConfig(moduleGroup, moduleName, moduleVersion, "", item.resolveTransitive)
+                val dependencyConf = DependencyConfig(moduleGroup, moduleName,
+                        moduleVersion, "", item.resolveTransitive)
 
                 moduleArtifacts.filter({ it.type == "jar" }).forEach {
                     jarFileSet.add(JarFileInfo(dependencyConf.getModuleString(), "", it.file))

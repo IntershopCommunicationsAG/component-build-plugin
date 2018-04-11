@@ -58,6 +58,7 @@ open class VerifyClasspathTask @Inject constructor(private val workerExecutor: W
      *
      * @property recreate holds the property for the parameter
      */
+    @Suppress("unused")
     @set:Option(option = "recreate",
             description = "Runs 'Component Build' tasks without considering incrementall configuration.")
     @get:Internal
