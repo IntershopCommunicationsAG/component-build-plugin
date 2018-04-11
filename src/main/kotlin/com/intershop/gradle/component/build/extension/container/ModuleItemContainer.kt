@@ -135,7 +135,7 @@ open class ModuleItemContainer
         item.resolveTransitive = resolveTransitive
         item.descriptorPath = descriptorPath
         item.jarPath = jarPath
-        
+
         return item
     }
 
@@ -158,6 +158,7 @@ open class ModuleItemContainer
      *
      * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
      */
+    @Suppress("unused")
     var excludeFromUpdate: Boolean = false
 
     /**
@@ -166,8 +167,8 @@ open class ModuleItemContainer
      *
      * @property jarPath path for all jar files of a module
      */
-
-    var jarPath: String = ""
+    @Suppress("unused")
+    var jarPath: String = "libs"
 
     /**
      * The target path for descriptor files of each module.
@@ -175,6 +176,6 @@ open class ModuleItemContainer
      *
      * @property descriptorPath path for all descriptor files of a module
      */
-
+    @Suppress("unused")
     var descriptorPath: String = ""
 }

@@ -135,14 +135,14 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
      *
      * @property jarPath path for all jar files of this module
      */
-
-    var jarPath: String = ""
+    @get:Input
+    var jarPath: String = "libs"
 
     /**
      * The target path for descriptor files of this module.
      *
      * @property descriptorPath path for all descriptor files of this module
      */
-
+    @get:Input
     var descriptorPath: String = ""
 }

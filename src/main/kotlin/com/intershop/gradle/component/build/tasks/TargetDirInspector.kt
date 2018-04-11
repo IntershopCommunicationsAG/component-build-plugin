@@ -38,6 +38,7 @@ class TargetDirInspector(val component: Component) {
         }
     }
 
+    private val descriptorTarget = checkInputForSuffix(component.descriptorPath, "/")
     private val containerTarget = checkInputForSuffix(component.containerTarget,"/")
     private val libsTarget = checkInputForSuffix(component.libsTarget,"/")
     private val modulesTarget = checkInputForSuffix(component.modulesTarget,"/")
@@ -52,6 +53,7 @@ class TargetDirInspector(val component: Component) {
     fun check(): String {
         var errorMsg = ""
 
+        addTarget(descriptorTarget, "", mutableSetOf(), "Descriptor target")
         addTarget(libsTarget, "", mutableSetOf(), "Libraries target")
 
         if(containerTarget.startsWith(libsTarget) && containerTarget.isNotBlank()) {

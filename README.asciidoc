@@ -64,6 +64,7 @@ The parameter `--recreate` enable the rebuild of `verifyClasspath` and `createCo
 | <<displayName,displayName>>                   | The display name is visible for the installation client.
 | <<componentDescription,componentDescription>> | This is a more detailed description of this component.
 | <<targetPath,targetPath>>                     | The default target path of the configured component.
+| <<descriptorPath,descriptorPath>>             | The path for the directory with the component descriptor.
 | <<decriptorOutputFile,decriptorOutputFile>>   | The configuration of the output file of createComponent.
 | <<types,types>>                               | This is a list of deployment and environement types of the component. (*read only*)
 | <<excludesFromUpdate,excludesFromUpdate>>     | This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation.
@@ -109,6 +110,15 @@ String componentDescription
 :::
 This is a more detailed description of this component.
 Default:: `""`
+
+***
+[[descriptorPath]]
+[source,groovy]
+String descriptorPath
+
+:::
+This is the path of the directory for the descriptor file.
+Default:: `component`
 
 ***
 [[targetPath]]
@@ -520,6 +530,8 @@ In future releases this will replaced and an own descriptor will be used.
 |<<modulestargetPath,targetPath>> | A target path for all modules.
 |<<modulesexcludeFromUpdate,excludeFromUpdate>> | If an item should not be part of an update installation, this property is set to true.
 This property is used for all items and can be overridden by a configuration of the item.
+|<<modulesjarPath,jarPath>> | The target path for jar files of each module.
+|<<modulesdescriptorPath,descriptorPath>> | The target path for descriptor files of each module.
 |===
 
 [[modulesitems]]
@@ -557,6 +569,29 @@ boolean excludeFromUpdate
 If an item should not be part of an update installation, this property is set to true.
 This property is used for all items and can be overridden by a configuration of the item.
 Default:: `false`
+
+***
+
+[[modulesjarPath]]
+[source,groovy]
+String jarPath
+
+:::
+The target path for jar files of each module. It is used to preconfigure a module item. If this property is an empty
+string, libs will be installed in the root directory of the module.
+
+Default:: `libs`
+
+***
+
+[[modulesdescriptorPath]]
+[source,groovy]
+String descriptorPath
+
+:::
+The target path for descriptor files of each module. It is used to preconfigure a module item. If this property is an empty
+string, descriptor files will be installed in the root directory of the module.
+Default:: `""`
 
 ***
 
@@ -625,6 +660,8 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |<<moduletargetIncluded,targetIncluded>> | If the configured target path is part of the component packages, it is necessary to set this property to true.
 |<<moduleexcludeFromUpdate,excludeFromUpdate>> | If this item should not be part of an update installation, this property is set to true.
 |<<moduleexcludesFromUpdate,excludesFromUpdate>>     | This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation.
+|<<modulejarPath,jarPath>>     | The target path for all jar files of this module.
+|<<moduledescriptorPath,descriptorPath>>     | The target path for descriptor files of this module.
 |===
 
 [[moduledependency]]
@@ -687,6 +724,28 @@ Set<String> excludesFromUpdate
 :::
 This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation. (*read only*)
 Default:: `[]`
+
+***
+[[modulejarPath]]
+[source,groovy]
+String jarPath
+
+:::
+The target path for jar files of this module. If this property is an empty
+string, libs will be installed in the root directory of the module.
+
+Default:: `libs`
+
+***
+
+[[moduledescriptorPath]]
+[source,groovy]
+String descriptorPath
+
+:::
+The target path for descriptor files of this module. If this property is an empty
+string, descriptor files will be installed in the root directory of the module.
+Default:: `""`
 
 ***
 

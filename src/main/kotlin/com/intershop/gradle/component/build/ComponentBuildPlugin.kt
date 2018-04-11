@@ -55,16 +55,16 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
         internal const val COMPONENT_GROUP_NAME = "Component Build"
 
         /**
-         * Task name for component creation
+         * Task name for component creation.
          */
         const val COMPONENT_TASKNAME = "createComponent"
         /**
-         * Task name for component verification
+         * Task name for component verification.
          */
         const val VERIFYCP_TASKNAME = "verifyClasspath"
 
         /**
-         * Extension name of this plugin
+         * Extension name of this plugin.
          */
         const val COMPONENT_EXTENSION_NAME = "component"
     }

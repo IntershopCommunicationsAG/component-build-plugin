@@ -45,23 +45,24 @@ open class ComponentExtension @Inject constructor(project: Project) {
     companion object {
 
         private const val PLUGIN_OUTPUTDIR = "componentBuild"
+
         /**
-         * default path for descriptor file
+         * default path for descriptor file.
          */
         const val DESCRIPTOR_FILE = "$PLUGIN_OUTPUTDIR/descriptor/file.component"
         /**
-         * default path for report file
+         * default path for report file.
          */
         const val CLASSCOLLISION_REPORT = "$PLUGIN_OUTPUTDIR/reports/classcollision/collisionReport.txt"
 
         internal const val CONTAINER_OUTPUTDIR = "$PLUGIN_OUTPUTDIR/container"
 
         /**
-         * Default name for ivy publication
+         * Default name for ivy publication.
          */
         const val DEFAULT_IVYPUBLICATION = "ivyIntershop"
         /**
-         * Default name for maven publication
+         * Default name for maven publication.
          */
         const val DEFAULT_MAVENPUBLICATION = "mvnIntershop"
     }
@@ -146,11 +147,12 @@ open class ComponentExtension @Inject constructor(project: Project) {
 
     /**
      * The install path for the component descriptor file.
+     * Default value is 'component'.
      *
      * @property descriptorPath path for all descriptor files of the component
      */
 
-    var descriptorPath: String = ""
+    var descriptorPath: String = "component"
 
     /**
      * This file configuration is used for the output
