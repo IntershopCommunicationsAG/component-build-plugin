@@ -127,11 +127,6 @@ open class FileItemContainer @Inject constructor(@get: Internal val parent: Comp
     @get:Input
     var excludeFromUpdate: Boolean = false
 
-    /**
-     * Add types to types list from item.
-     *
-     * @parameter item with type AItem.
-     */
     private fun addTypes(item: AItem) {
         if(types.isEmpty() && parent.types.isNotEmpty()) {
             item.addTypes(parent.types)
