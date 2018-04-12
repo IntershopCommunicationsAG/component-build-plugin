@@ -333,9 +333,12 @@ open class CreateComponentTask : DefaultTask() {
                 modulesTarget = modules?.targetPath ?: "",
                 libsTarget = libs?.targetPath ?: "",
                 containerTarget = containers?.targetPath ?: "",
-                fileTarget = files?.targetPath ?: "",
                 target = defaultTarget,
-                descriptorPath = descriptorPath)
+                descriptorPath = descriptorPath,
+                metadata = ComponentUtil.metadata(project.group.toString(),
+                        project.name,
+                        project.version.toString()))
+
         componentDescr.excludesFromUpdate.addAll(excludesFromUpdate)
         dependencyManager.addToDescriptor(componentDescr, excludes)
 

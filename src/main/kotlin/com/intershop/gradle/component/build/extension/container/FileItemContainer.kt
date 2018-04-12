@@ -16,6 +16,7 @@
 package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.ComponentExtension
+import com.intershop.gradle.component.build.extension.items.AItem
 import com.intershop.gradle.component.build.extension.items.FileItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
@@ -32,8 +33,7 @@ import javax.inject.Inject
  * @property parent the parent of this container.
  * @constructor provides an empty preconfigured file item container
  */
-open class FileItemContainer @Inject constructor(@get: Internal override val parent: ComponentExtension) :
-        AContainer("File Item Container", parent) {
+open class FileItemContainer @Inject constructor(@get: Internal val parent: ComponentExtension) : AItem() {
 
     private val itemSet: MutableSet<FileItem> = mutableSetOf()
 
@@ -126,4 +126,17 @@ open class FileItemContainer @Inject constructor(@get: Internal override val par
      */
     @get:Input
     var excludeFromUpdate: Boolean = false
+
+    /**
+     * Add types to types list from item.
+     *
+     * @parameter item with type AItem.
+     */
+    private fun addTypes(item: AItem) {
+        if(types.isEmpty() && parent.types.isNotEmpty()) {
+            item.addTypes(parent.types)
+        } else {
+            item.addTypes(this.types)
+        }
+    }
 }
