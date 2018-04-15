@@ -25,8 +25,17 @@ import com.intershop.gradle.component.build.utils.DependencyConfig
 open class ClasspathVerificationContainer {
 
     private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
-
     private val excludedClassesSet: MutableSet<String> = mutableSetOf()
+
+    companion object {
+        internal fun createRegexStr(input: String): String {
+            return if (input.isBlank()) {
+                ".*"
+            } else {
+                input.replace(".", "\\.").replace("*", ".*")
+            }
+        }
+    }
 
     /**
      * If this property set to false, class collision will be not
@@ -56,10 +65,7 @@ open class ClasspathVerificationContainer {
     @Suppress("unused")
     @JvmOverloads
     fun exclude(group: String = "", module: String = "", version: String = "") {
-        excludeSet.add(DependencyConfig(
-                DependencyMngtContainer.createRegexStr(group),
-                DependencyMngtContainer.createRegexStr(module),
-                DependencyMngtContainer.createRegexStr(version)))
+        excludeSet.add(DependencyConfig(createRegexStr(group), createRegexStr(module), createRegexStr(version)))
     }
 
     /**

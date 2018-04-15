@@ -81,7 +81,7 @@ open class VerifyClasspathTask @Inject constructor(private val workerExecutor: W
     var libSet: Set<LibraryItem> = mutableSetOf()
 
     /**
-     * Set of all configured excludes patterns.
+     * Set of all configured dependencyExcludes patterns.
      *
      * @property excludes set of exclude patterns
      */
@@ -114,7 +114,7 @@ open class VerifyClasspathTask @Inject constructor(private val workerExecutor: W
     @Suppress("unused")
     val resolvedDependencies: Set<DependencyConfig>
         get() {
-            val deps = dependencyJarManager.getDependencies( libSet, moduleSet)
+            val deps = dependencyJarManager.getDependencies( libSet, moduleSet, excludes)
 
             this.outputs.upToDateWhen {
                 deps.none {
@@ -123,7 +123,7 @@ open class VerifyClasspathTask @Inject constructor(private val workerExecutor: W
                             (it.dependency.isNotBlank() && recreate)
                 }
             }
-            return dependencyJarManager.getDependencies(libSet, moduleSet)
+            return dependencyJarManager.getDependencies(libSet, moduleSet, excludes)
         }
 
     /**

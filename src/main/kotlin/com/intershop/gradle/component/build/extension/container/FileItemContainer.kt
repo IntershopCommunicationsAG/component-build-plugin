@@ -98,7 +98,7 @@ open class FileItemContainer @Inject constructor(@get: Internal val parent: Comp
      */
     private fun getPreconfigureItem(file: File) : FileItem {
         val item = FileItem(file)
-        item.excludeFromUpdate = excludeFromUpdate
+        item.updatable = updatable
 
         return item
     }
@@ -122,10 +122,10 @@ open class FileItemContainer @Inject constructor(@get: Internal val parent: Comp
     /**
      * If an item should not be part of an update installation, this property is set to true.
      *
-     * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
+     * @property updatable If this value is true, the item will be not part of an update installation.
      */
     @get:Input
-    var excludeFromUpdate: Boolean = false
+    var updatable: Boolean = true
 
     private fun addTypes(item: AItem) {
         if(types.isEmpty() && parent.types.isNotEmpty()) {

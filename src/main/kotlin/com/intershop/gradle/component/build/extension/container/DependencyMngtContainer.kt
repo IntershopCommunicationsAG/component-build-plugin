@@ -23,21 +23,11 @@ import javax.inject.Inject
 
 /**
  * Container for all additional dependency configurations, like
- * excludes and the configuration for the verification of the classpath.
+ * dependencyExcludes and the configuration for the verification of the classpath.
  *
  * @constructor priovides the configuration
  */
 open class DependencyMngtContainer @Inject constructor(project: Project) {
-
-    companion object {
-        internal fun createRegexStr(input: String): String {
-            return if (input.isBlank()) {
-                ".*"
-            } else {
-                input.replace(".", "\\.").replace("*", ".*")
-            }
-        }
-    }
 
     private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
 
@@ -65,7 +55,7 @@ open class DependencyMngtContainer @Inject constructor(project: Project) {
     @Suppress("unused")
     @JvmOverloads
     fun exclude(group: String = "", module: String = "", version: String = "") {
-        excludeSet.add(DependencyConfig(createRegexStr(group), createRegexStr(module), createRegexStr(version)))
+        excludeSet.add(DependencyConfig(group, module, version))
     }
 
     /**

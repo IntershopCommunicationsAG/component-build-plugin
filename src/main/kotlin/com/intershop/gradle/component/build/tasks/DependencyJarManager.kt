@@ -54,17 +54,19 @@ class DependencyJarManager (val project: Project) {
      *
      * @return set of resolved dependency configurations
      */
-    fun getDependencies(libItems: Set<LibraryItem>, moduleItems: Set<ModuleItem>): Set<DependencyConfig> {
+    fun getDependencies(libItems: Set<LibraryItem>,
+                        moduleItems: Set<ModuleItem>,
+                        excludes: Set<DependencyConfig>): Set<DependencyConfig> {
         if(! dependenciesInitialized) {
             // add configured dependencies
             libItems.forEach {
-                if(!addDependencyObjects(it)) {
+                if(!addDependencyObjects(it, excludes)) {
                     procDeps.clear()
                     throw GradleException("Could not resolve library dependency for ${it.dependency.getModuleString()}")
                 }
             }
             moduleItems.forEach {
-                if(!addDependencyObjects(it)) {
+                if(!addDependencyObjects(it, excludes)) {
                     procDeps.clear()
                     throw GradleException("Could not resolve module dependency for ${it.dependency.getModuleString()}")
                 }
@@ -87,16 +89,16 @@ class DependencyJarManager (val project: Project) {
 
         procDeps.forEach{
             jarFileInfos.addAll(it.value)
-            val conf = configurationFor(it.key, it.key.transitive)
+            val conf = configurationFor(it.key, excludes, it.key.transitive)
 
-            addTransitiveDependencies(conf, jarFileInfos, excludes, collisionExcludes)
+            addTransitiveDependencies(conf, jarFileInfos, collisionExcludes)
         }
 
         return jarFileInfos
     }
 
-    private fun addDependencyObjects(item: IDependency): Boolean {
-        val conf = configurationFor(item.dependency, false)
+    private fun addDependencyObjects(item: IDependency, excludes: Set<DependencyConfig>): Boolean {
+        val conf = configurationFor(item.dependency, excludes, item.resolveTransitive)
 
         val jarFileSet = mutableSetOf<JarFileInfo>()
 
@@ -118,14 +120,13 @@ class DependencyJarManager (val project: Project) {
 
     private fun addTransitiveDependencies(conf: Configuration,
                                           jarFileSet: MutableSet<JarFileInfo>,
-                                          excludes: Set<DependencyConfig>,
                                           collisionExcludes: Set<DependencyConfig>) {
 
         conf.incoming.resolutionResult.allDependencies.forEach { resDep ->
             if(resDep is ResolvedDependency) {
                 val dep = DependencyConfig(resDep.moduleGroup, resDep.moduleName, resDep.moduleVersion)
 
-                if(! procDeps.keys.contains(dep) && isNotExcluded(dep, excludes, collisionExcludes)) {
+                if(! procDeps.keys.contains(dep) && isNotExcluded(dep, collisionExcludes)) {
                     resDep.moduleArtifacts.filter({ it.type == "jar" }).forEach {
                         jarFileSet.add(JarFileInfo(dep.getModuleString(), resDep.from.toString(), it.file))
                     }
@@ -135,23 +136,28 @@ class DependencyJarManager (val project: Project) {
     }
 
     private fun isNotExcluded(dep: DependencyConfig,
-                              excludes: Set<DependencyConfig>,
                               collisionExcludes: Set<DependencyConfig>) : Boolean {
 
-        val collisionExcluded = collisionExcludes.none { it.group.toRegex().matches(dep.group)
-                                                         && it.module.toRegex().matches(dep.module)
-                                                         && it.version.toRegex().matches(dep.version) }
-
-        return collisionExcluded || excludes.none { it.group.toRegex().matches(dep.group)
-                                                    && it.module.toRegex().matches(dep.module)
-                                                    && it.version.toRegex().matches(dep.version)}
+        return collisionExcludes.none { it.group.toRegex().matches(dep.group)
+                && it.module.toRegex().matches(dep.module)
+                && it.version.toRegex().matches(dep.version) }
     }
 
-    private fun configurationFor(dependency: DependencyConfig, transitive: Boolean) : Configuration {
+    private fun configurationFor(dependency: DependencyConfig,
+                                 excludes: Set<DependencyConfig>,
+                                 transitive: Boolean) : Configuration {
         val conf = configurations.detachedConfiguration(dependencyHandler.create(dependency.getModuleString()))
+
+        if(transitive) {
+            excludes.forEach {
+                conf.exclude(it.getExcludeProperties())
+            }
+        }
+
         conf.description = "Configuration for ${dependency.getModuleString()}"
         conf.isTransitive = transitive
         conf.isVisible = false
         return conf
     }
+
 }

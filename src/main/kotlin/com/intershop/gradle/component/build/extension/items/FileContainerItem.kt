@@ -42,7 +42,8 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
     }
 
     private val sourceProperty: ConfigurableFileCollection = project.files()
-    private val excludesFromUpdateSet: MutableSet<String> = mutableSetOf()
+    private val excludeSet: MutableSet<String> = mutableSetOf()
+    private val preserveSet: MutableSet<String> = mutableSetOf()
 
     /**
      * The package type describes the usage of this
@@ -124,15 +125,14 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
     }
 
     /**
-     * This patterns are used for the update.
-     * Files that matches to one of patterns will be
+     * Files that matches to one of the patterns will be
      * excluded from the update installation.
      *
-     * @property excludesFromUpdate Set of Ant based file patterns
+     * @property excludes Set of Ant based file patterns
      */
     @get:Input
-    override val excludesFromUpdate: Set<String>
-        get() = excludesFromUpdateSet
+    override val excludes: Set<String>
+        get() = excludeSet
 
     /**
      * Adds a pattern to the set of exclude patterns.
@@ -144,8 +144,8 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
      * @param pattern Ant based file pattern
      */
     @Suppress("unused")
-    fun addUpdateExcludePattern(pattern: String): Boolean {
-        return excludesFromUpdateSet.add(pattern)
+    fun exclude(pattern: String): Boolean {
+        return excludeSet.add(pattern)
     }
 
     /**
@@ -158,8 +158,47 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
      * @param patterns set of Ant based file pattern
      */
     @Suppress("unused")
-    fun addUpdateExcludePattern(patterns: Set<String>): Boolean {
-        return excludesFromUpdateSet.addAll(patterns)
+    fun exclude(patterns: Set<String>): Boolean {
+        return excludeSet.addAll(patterns)
+    }
+
+    /**
+     * This patterns are used for the update.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     *
+     * @property preserves Set of Ant based file patterns
+     */
+    @get:Input
+    override val preserves: Set<String>
+        get() = preserveSet
+
+    /**
+     * Adds a pattern to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     * If the pattern is part of the list, the method
+     * returns false.
+     *
+     * @param pattern Ant based file pattern
+     */
+    @Suppress("unused")
+    fun preserve(pattern: String): Boolean {
+        return preserveSet.add(pattern)
+    }
+
+    /**
+     * Adds a set of patterns to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     * If one of the patterns is part of the list, the method
+     * returns false.
+     *
+     * @param patterns set of Ant based file pattern
+     */
+    @Suppress("unused")
+    fun preserve(patterns: Set<String>): Boolean {
+        return preserveSet.addAll(patterns)
     }
 
     /**
@@ -173,10 +212,10 @@ open class FileContainerItem(@get:Internal private val project: Project, @get:In
     override var classifier: String = ""
 
     /**
-     * If an item should not be part of an update installation, this property is set to true.
+     * If an item should not be part of an update installation, this property is set to false.
      *
-     * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
+     * @property updatable If this value is false, the item will be not part of an update installation.
      */
     @get:Input
-    var excludeFromUpdate: Boolean = false
+    var updatable: Boolean = true
 }

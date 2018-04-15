@@ -81,12 +81,57 @@ class DependencyManagerSpec extends Specification {
             add("com.intershop:testmodule2:1.0.0")
         }
 
-        dm.getLibDependencies(extension.libs.items)
-        dm.getModuleDependencies(extension.modules.items)
+        dm.getLibDependencies(extension.libs.items, [] as Set<DependencyConfig>)
+        dm.getModuleDependencies(extension.modules.items, [] as Set<DependencyConfig>)
         dm.addToDescriptor(descr, [] as Set<DependencyConfig>)
 
         then:
-        descr.libs.size() == 3
+        descr.libs.size() == 4
+        descr.modules.size() == 2
+    }
+
+    def 'Test DependencyProcessor - with excludes'() {
+        when:
+        File repoDir = new File(repoProjectDir, "repo")
+        createRepo(repoDir)
+
+        project.repositories {
+            ivy {
+                name 'ivyLocal'
+                url "file://${repoDir.absolutePath.replace('\\', '/')}"
+                layout('pattern') {
+                    ivy "${ivyPattern}"
+                    artifact "${artifactPattern}"
+                    artifact "${ivyPattern}"
+                }
+            }
+            maven {
+                url "file://${repoDir.absolutePath.replace('\\\\', '/')}"
+            }
+            jcenter()
+        }
+
+        Component descr = new Component("TestComponent", "Test Description")
+        DependencyConfig conf = new DependencyConfig("")
+
+        DependencyManager dm = new DependencyManager(project)
+
+        extension.libs {
+            add("com.intershop:library1:1.0.0")
+            targetPath = "lib/release/libs"
+        }
+
+        extension.modules {
+            add("com.intershop:testmodule1:1.0.0")
+            add("com.intershop:testmodule2:1.0.0")
+        }
+
+        dm.getLibDependencies(extension.libs.items, [new DependencyConfig("com.intershop", "library3")] as Set)
+        dm.getModuleDependencies(extension.modules.items, [new DependencyConfig("com.intershop", "library3")] as Set)
+        dm.addToDescriptor(descr, [new DependencyConfig("com.intershop", "library3")] as Set)
+
+        then:
+        descr.libs.size() == 2
         descr.modules.size() == 2
     }
 
@@ -143,8 +188,15 @@ class DependencyManagerSpec extends Specification {
                         TestIvyRepoBuilder.ArchiveFileEntry.newInstance(path: 'com/class/test1.file', content: 'test1.file'),
                         TestIvyRepoBuilder.ArchiveFileEntry.newInstance(path: 'com/class/test2.file', content: 'test2.file'),
                 ]
+                dependency groupId: 'com.intershop', artifactId: 'library5', version: '1.0.0'
             }
             project(groupId: 'com.intershop', artifactId: 'library4', version: '1.0.0'){
+                artifact entries: [
+                        TestIvyRepoBuilder.ArchiveFileEntry.newInstance(path: 'com/class/test1.file', content: 'test1.file'),
+                        TestIvyRepoBuilder.ArchiveFileEntry.newInstance(path: 'com/class/test2.file', content: 'test2.file'),
+                ]
+            }
+            project(groupId: 'com.intershop', artifactId: 'library5', version: '1.0.0'){
                 artifact entries: [
                         TestIvyRepoBuilder.ArchiveFileEntry.newInstance(path: 'com/class/test1.file', content: 'test1.file'),
                         TestIvyRepoBuilder.ArchiveFileEntry.newInstance(path: 'com/class/test2.file', content: 'test2.file'),

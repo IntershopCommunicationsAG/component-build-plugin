@@ -57,7 +57,7 @@ open class InheritanceSpec(project: Project, private val specName: String) : Nam
      * Defines a list of exclude expressions
      * for module artifacts of the inheritance module.
      *
-     * @property excludePatterns pattern strings for excludes
+     * @property excludePatterns pattern strings for dependencyExcludes
      */
     @Suppress("unused")
     var excludePatterns by excludePatternsProperty

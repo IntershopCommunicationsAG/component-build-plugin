@@ -63,4 +63,22 @@ data class DependencyConfig @JvmOverloads constructor(
     fun getModuleString(): String {
         return "$group:$module:$version"
     }
+
+    /**
+     * Returns a map of properties for the Gradle
+     * exclude configuration.
+     *
+     * @return a property map
+     */
+    @Internal
+    fun getExcludeProperties(): Map<String, String> {
+        val excludeMap = mutableMapOf<String,String>()
+        if(group.isNotBlank()) {
+            excludeMap["group"] = group
+        }
+        if(module.isNotBlank()) {
+            excludeMap["module"] = module
+        }
+        return excludeMap
+    }
 }

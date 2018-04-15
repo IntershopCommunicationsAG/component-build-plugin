@@ -31,9 +31,14 @@ interface IContainer {
     val targetPath: String
 
     /**
-     * Exclude patterns for update installation.
+     * Exclude patterns for installation.
      */
-    val excludesFromUpdate: Set<String>
+    val excludes: Set<String>
+
+    /**
+     * Preserve patterns for update installation.
+     */
+    val preserves: Set<String>
 
     /**
      * This property can be used to add a special type
