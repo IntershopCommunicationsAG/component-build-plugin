@@ -23,7 +23,6 @@ import com.intershop.gradle.test.builder.TestIvyRepoBuilder.ArchiveDirectoryEntr
 import com.intershop.gradle.test.builder.TestIvyRepoBuilder.ArchiveFileEntry
 import com.intershop.gradle.test.builder.TestMavenRepoBuilder
 import org.gradle.testkit.runner.TaskOutcome
-import spock.lang.IgnoreIf
 import spock.lang.Unroll
 
 class ComponentPluginIntSpec extends AbstractIntegrationSpec {
@@ -727,7 +726,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    def 'Test types and excludeFromUpdate handling in container - #gradleVersion'(gradleVersion) {
+    def 'Test types and updatable handling in container - #gradleVersion'(gradleVersion) {
         given:
         String projectName = "testcomponent"
         createSettingsGradle(projectName)
@@ -750,7 +749,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 addType('production')
                 addType('test')
                 addTypes(['test1', 'test2'])
-                excludeFromUpdate = true
+                updatable = true
                 add('startscripts') {
                     baseName = 'startscripts'
                     itemType = 'bin'
@@ -758,6 +757,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
                 }
                 add('sites') {
+                    updatable = false
                     baseName = 'share'
                     itemType = 'sites'
                     targetPath = 'share'
@@ -767,7 +767,6 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
 
             modules {
                 addType('production')
-                excludeFromUpdate = true
                 add("com.intershop:testmodule1:1.0.0")
                 add("com.intershop:testmodule2:1.0.0")
             }
@@ -781,7 +780,6 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             dependencyMngt.classpathVerification.enabled = false
 
             fileItems {
-                excludeFromUpdate = true
                 addType('intTest')
                 add(file("conf/server/test1.properties")) {
                     targetPath = 'share/system/config'
@@ -792,8 +790,6 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
 
             propertyItems {
-                excludeFromUpdate = true
-
                 add("pkey1", "pvalue1", 'perfTest')
                 add("pkey2", "pvalue2", 'production')
             }
@@ -828,19 +824,19 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         comp.modules['testmodule1'].types.size() == 1
         comp.modules['testmodule2'].types.containsAll([ "production" ])
         comp.modules['testmodule1'].types.size() == 1
-        comp.modules.values().findAll {it.excludeFromUpdate }.size() == 2
+        comp.modules.values().findAll {it.updatable }.size() == 2
         comp.libs['com.intershop:library1:1.0.0'].types.containsAll([ "test" ])
         comp.libs['com.intershop:library1:1.0.0'].types.size() == 1
         comp.libs['com.intershop:library2:1.0.0'].types.containsAll([ "production" ])
         comp.libs['com.intershop:library2:1.0.0'].types.size() == 1
         comp.fileContainers.find {it.name == 'startscripts'}.types.containsAll([ "production", "test", "test1", "test2" ])
         comp.fileContainers.find {it.name == 'startscripts'}.types.size() == 4
-        comp.fileContainers.findAll {it.excludeFromUpdate }.size() == 2
+        comp.fileContainers.findAll {it.updatable }.size() == 1
         comp.fileItems.findAll {it.types.size() == 1 && it.types.containsAll(["intTest"]) }.size() == 2
-        comp.fileItems.findAll {it.excludeFromUpdate }.size() == 2
+        comp.fileItems.findAll {it.updatable }.size() == 2
         comp.properties.findAll {it.types.size() == 1 && it.types.containsAll(["perfTest"]) }.size() == 1
         comp.properties.findAll {it.types.size() == 1 && it.types.containsAll(["production"]) }.size() == 1
-        comp.properties.findAll {it.excludeFromUpdate }.size() == 2
+        comp.properties.findAll {it.updatable }.size() == 2
 
         when:
         def result2 = getPreparedGradleRunner()
@@ -859,7 +855,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    def 'Test types and excludesFromUpdate handling - #gradleVersion'(gradleVersion) {
+    def 'Test types and excludes handling - #gradleVersion'(gradleVersion) {
         given:
         String projectName = "testcomponent"
         createSettingsGradle(projectName)
@@ -878,6 +874,10 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         version = '1.0.0'
         
         component {
+
+            exclude("**/dir3/**/.folder")
+            preserve("**/dir4/**/.file")
+
             containers {
                 addType('test')
                 add('startscripts') {
@@ -887,8 +887,10 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                     targetPath = 'bin'
                     source(fileTree(dir: 'src/bin', include: '*.sh').files)
 
-                    addUpdateExcludePattern("**/dir1/*.com")
-                    addUpdateExcludePattern([ "**/dir2/*.com", "**/dir3/*.com" ] as Set)
+                    exclude("**/dir1/*.com")
+                    exclude([ "**/dir2/*.com", "**/dir3/*.com" ] as Set)
+                    preserve("**/**/*.jpg")
+
                 }
                 add('sites') {
                     baseName = 'share'
@@ -896,14 +898,15 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                     targetPath = 'share'
                     source(fileTree(dir: 'sites', include: '**/**/*.*').files)
 
-                    addUpdateExcludePattern("**/dir1/*.com")
+                    exclude("**/dir1/*.com")
                 }
             }
 
             modules {
                 addType('test')
                 add("com.intershop:testmodule1:1.0.0") {
-                    addUpdateExcludePattern("**/dir4/*.com")
+                    exclude("**/dir4/*.com")
+                    preserve("**/**/*.jpg")
                 }
                 add("com.intershop:testmodule2:1.0.0")
             }
@@ -960,19 +963,23 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         Component comp = ComponentUtil.INSTANCE.componentFromFile(outputFile)
         comp.types.containsAll([ "test", "production", "intTest", "perfTest" ])
         comp.types.size() == 4
+        comp.excludes.size() == 1
+        comp.preserves.size() == 1
         comp.modules['testmodule1'].types.containsAll([ "test" ])
         comp.modules['testmodule1'].types.size() == 1
-        comp.modules['testmodule1'].excludesFromUpdate.containsAll(["**/dir4/*.com"])
-        comp.modules['testmodule1'].excludesFromUpdate.size() == 1
+        comp.modules['testmodule1'].excludes.containsAll(["**/dir4/*.com"])
+        comp.modules['testmodule1'].excludes.size() == 1
+        comp.modules['testmodule1'].preserves.containsAll(["**/**/*.jpg"])
+        comp.modules['testmodule1'].preserves.size() == 1
         comp.modules['testmodule2'].types.containsAll([ "test" ])
         comp.modules['testmodule2'].types.size() == 1
         comp.libs.values().findAll { it.types.size() == 1 && it.types.containsAll([ "test" ]) }.size() == 3
         comp.fileContainers.find {it.name == 'startscripts'}.types.containsAll([ "test", "production" ])
         comp.fileContainers.find {it.name == 'startscripts'}.types.size() == 2
-        comp.fileContainers.find {it.name == 'startscripts'}.excludesFromUpdate.containsAll(["**/dir1/*.com", "**/dir2/*.com", "**/dir3/*.com"])
-        comp.fileContainers.find {it.name == 'startscripts'}.excludesFromUpdate.size() == 3
-        comp.fileContainers.find {it.name == 'share'}.excludesFromUpdate.containsAll(["**/dir1/*.com"])
-        comp.fileContainers.find {it.name == 'share'}.excludesFromUpdate.size() == 1
+        comp.fileContainers.find {it.name == 'startscripts'}.excludes.containsAll(["**/dir1/*.com", "**/dir2/*.com", "**/dir3/*.com"])
+        comp.fileContainers.find {it.name == 'startscripts'}.excludes.size() == 3
+        comp.fileContainers.find {it.name == 'share'}.excludes.containsAll(["**/dir1/*.com"])
+        comp.fileContainers.find {it.name == 'share'}.excludes.size() == 1
         comp.fileItems.findAll {it.types.size() == 1 && it.types.containsAll(["intTest"]) }.size() == 2
         comp.properties.findAll {it.types.size() == 1 && it.types.containsAll(["perfTest"]) }.size() == 2
 
@@ -1147,8 +1154,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
 
             decriptorOutputFile = file("build/testdir/testfile.component")
 
-            addUpdateExcludePattern("**/testexclude1/*.com")
-            addUpdateExcludePattern([ "**/testexclude2/*.com", "**/testexclude3/*.com" ] as Set)
+            exclude("**/testexclude1/*.com")
+            exclude([ "**/testexclude2/*.com", "**/testexclude3/*.com" ] as Set)
 
             modules {
                 add("com.intershop:testmodule1:1.0.0")
@@ -1197,7 +1204,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
-    @IgnoreIf({ System.getProperty("development", "").isEmpty() })
+    //@IgnoreIf({ System.getProperty("development", "").isEmpty() })
     @Unroll
     def 'Test plugin with version conflicts - #gradleVersion'(gradleVersion) {
         given:
@@ -1248,7 +1255,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
-    @IgnoreIf({ System.getProperty("development", "").isEmpty() })
+    //@IgnoreIf({ System.getProperty("development", "").isEmpty() })
     @Unroll
     def 'Test plugin with class collision - #gradleVersion'(gradleVersion) {
         given:
@@ -1305,7 +1312,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
-    @IgnoreIf({ System.getProperty("development", "").isEmpty() })
+    //@IgnoreIf({ System.getProperty("development", "").isEmpty() })
     @Unroll
     def 'Test class collision with missing lib - #gradleVersion'(gradleVersion) {
         given:

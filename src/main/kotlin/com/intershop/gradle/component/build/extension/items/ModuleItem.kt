@@ -38,7 +38,8 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
         private val logger = LoggerFactory.getLogger(ModuleItem::class.java.simpleName)
     }
 
-    private val excludesFromUpdateSet: MutableSet<String> = mutableSetOf()
+    private val excludeSet: MutableSet<String> = mutableSetOf()
+    private val preserveSet: MutableSet<String> = mutableSetOf()
 
     /**
      * The default target path of the component.
@@ -75,15 +76,14 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
     override var targetIncluded:Boolean = false
 
     /**
-     * This patterns are used for the update.
      * Files that matches to one of patterns will be
      * excluded from the update installation.
      *
-     * @property excludesFromUpdate Set of Ant based file patterns
+     * @property excludes Set of Ant based file patterns
      */
     @get:Input
-    override val excludesFromUpdate: Set<String>
-        get() = excludesFromUpdateSet
+    override val excludes: Set<String>
+        get() = excludeSet
 
     /**
      * Adds a pattern to the set of exclude patterns.
@@ -95,8 +95,8 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
      * @param pattern Ant based file pattern
      */
     @Suppress("unused")
-    fun addUpdateExcludePattern(pattern: String): Boolean {
-        return excludesFromUpdateSet.add(pattern)
+    fun exclude(pattern: String): Boolean {
+        return excludeSet.add(pattern)
     }
 
     /**
@@ -106,11 +106,50 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
      * If one of the patterns is part of the list, the method
      * returns false.
      *
-     * @param patterns Ant based file pattern
+     * @param patterns set of Ant based file pattern
      */
     @Suppress("unused")
-    fun addUpdateExcludePattern(patterns: Set<String>): Boolean {
-        return excludesFromUpdateSet.addAll(patterns)
+    fun exclude(patterns: Set<String>): Boolean {
+        return excludeSet.addAll(patterns)
+    }
+
+    /**
+     * This patterns are used for the update.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     *
+     * @property preserves Set of Ant based file patterns
+     */
+    @get:Input
+    override val preserves: Set<String>
+        get() = preserveSet
+
+    /**
+     * Adds a pattern to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     * If the pattern is part of the list, the method
+     * returns false.
+     *
+     * @param pattern Ant based file pattern
+     */
+    @Suppress("unused")
+    fun preserve(pattern: String): Boolean {
+        return preserveSet.add(pattern)
+    }
+
+    /**
+     * Adds a set of patterns to the set of exclude patterns.
+     * Files that matches to one of patterns will be
+     * excluded from the update installation.
+     * If one of the patterns is part of the list, the method
+     * returns false.
+     *
+     * @param patterns set of Ant based file pattern
+     */
+    @Suppress("unused")
+    fun preserve(patterns: Set<String>): Boolean {
+        return preserveSet.addAll(patterns)
     }
 
     /**
@@ -123,12 +162,12 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
     override var itemType: String = ""
 
     /**
-     * If an item should not be part of an update installation, this property is set to true.
+     * If an item should not be part of an update installation, this property is set to false.
      *
-     * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
+     * @property updatable If this value is false, the item will be not part of an update installation.
      */
     @get:Input
-    var excludeFromUpdate: Boolean = false
+    var updatable: Boolean = true
 
     /**
      * The target path for all jar files of this module.

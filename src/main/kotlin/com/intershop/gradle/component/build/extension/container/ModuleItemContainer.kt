@@ -130,7 +130,7 @@ open class ModuleItemContainer
      */
     private fun getPreconfigureItem(depConf: DependencyConfig) : ModuleItem {
         val item = ModuleItem(depConf)
-        item.excludeFromUpdate = excludeFromUpdate
+        item.updatable = updatable
         item.targetPath = depConf.module
         item.resolveTransitive = resolveTransitive
         item.descriptorPath = descriptorPath
@@ -154,12 +154,12 @@ open class ModuleItemContainer
     }
 
     /**
-     * If an item should not be part of an update installation, this property is set to true.
+     * If an item should not be part of an update installation, this property is set to false.
      *
-     * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
+     * @property updatable If this value is false, the item will be not part of an update installation.
      */
     @Suppress("unused")
-    var excludeFromUpdate: Boolean = false
+    var updatable: Boolean = true
 
     /**
      * The target path for jar files of each module.

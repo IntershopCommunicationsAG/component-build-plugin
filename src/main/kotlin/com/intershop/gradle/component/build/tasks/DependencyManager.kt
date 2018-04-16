@@ -87,11 +87,11 @@ class DependencyManager(val project: Project) {
      * @return set of resolved dependency configurations
      */
     @Throws(GradleException::class)
-    fun getLibDependencies(items: Set<LibraryItem>): Set<DependencyConfig> {
+    fun getLibDependencies(items: Set<LibraryItem>, excludes: Set<DependencyConfig>): Set<DependencyConfig> {
         if(! libsInitialized) {
             // add configured dependencies
             items.forEach {
-                if(!addDependencyObjects(it)) {
+                if(!addDependencyObjects(it, excludes)) {
                     procLibDeps.clear()
                     throw GradleException("Could not resolve library dependency for ${it.dependency.getModuleString()}")
                 }
@@ -109,11 +109,11 @@ class DependencyManager(val project: Project) {
      * @return set of resolved dependency configurations
      */
     @Throws(GradleException::class)
-    fun getModuleDependencies(items: Set<ModuleItem>): Set<DependencyConfig> {
+    fun getModuleDependencies(items: Set<ModuleItem>, excludes: Set<DependencyConfig>): Set<DependencyConfig> {
         if(! modulesInitialized) {
             // add configured dependencies
             items.forEach {
-                if(!addDependencyObjects(it)) {
+                if(!addDependencyObjects(it, excludes)) {
                     procModuleDeps.clear()
                     throw GradleException("Could not resolve module dependency for ${it.dependency.getModuleString()}")
                 }
@@ -131,7 +131,6 @@ class DependencyManager(val project: Project) {
      * @param excludes the exclude configuration for transitive dependencies
      */
     fun addToDescriptor(component: Component, excludes: Set<DependencyConfig>) {
-
         //add modules
         procModuleDeps.values.forEach {
             component.addModule(it)
@@ -151,21 +150,25 @@ class DependencyManager(val project: Project) {
 
         //resolve transitive
         procModuleDeps.forEach {
-            val conf = configurationFor(it.key, it.key.transitive)
-            with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
-                addTransitiveDependencies(conf, it.value.types, excludes)
+            val conf = configurationFor(it.key, excludes, it.key.transitive)
+            if(it.key.transitive) {
+                with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
+                    addTransitiveDependencies(conf, it.value.types)
+                }
             }
         }
         //add libs
         procLibDeps.forEach {
-            val conf = configurationFor(it.key, it.key.transitive)
-            with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
-                addTransitiveDependencies(conf, it.value.types, excludes)
+            val conf = configurationFor(it.key, excludes, it.key.transitive)
+            if(it.key.transitive) {
+                with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
+                    addTransitiveDependencies(conf, it.value.types)
+                }
             }
         }
 
         resModuleDeps.forEach {
-            val conf = configurationFor(it.key, false)
+            val conf = configurationFor(it.key, excludes,false)
             with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
                 addModuleDependency(it.value, this, mutableSetOf())
             }
@@ -182,9 +185,9 @@ class DependencyManager(val project: Project) {
         }
     }
 
-    //@Throws(InvalidUserDataException::class)
-    private fun addDependencyObjects(item: IDependency): Boolean {
-        val conf = configurationFor(item.dependency, false)
+    @Throws(InvalidUserDataException::class)
+    private fun addDependencyObjects(item: IDependency, excludes: Set<DependencyConfig>): Boolean {
+        val conf = configurationFor(item.dependency, excludes, item.resolveTransitive)
 
         try {
             with(conf.resolvedConfiguration.firstLevelModuleDependencies.first()) {
@@ -202,11 +205,12 @@ class DependencyManager(val project: Project) {
                                     dependency = dependency,
                                     targetIncluded = item.targetIncluded,
                                     contentType = ContentType.valueOf(item.contentType),
-                                    excludeFromUpdate = item.excludeFromUpdate,
+                                    updatable = item.updatable,
                                     descriptorPath = item.descriptorPath,
                                     jarPath = item.jarPath,
                                     itemType = item.itemType)
-                            moduleDesc.excludesFromUpdate.addAll(item.excludesFromUpdate)
+                            moduleDesc.excludes.addAll(item.excludes)
+                            moduleDesc.preserves.addAll(item.preserves)
 
                             addModuleDependency(moduleDesc, this, item.types)
                             procModuleDeps.put(dependencyConf, moduleDesc)
@@ -277,7 +281,7 @@ class DependencyManager(val project: Project) {
     }
 
     @Throws(InvalidUserDataException::class)
-    private fun addTransitiveDependencies(conf: Configuration, types: Set<String>, excludes: Set<DependencyConfig>) {
+    private fun addTransitiveDependencies(conf: Configuration, types: Set<String>) {
         var fromDep = ""
 
         val componentIds = conf.incoming.resolutionResult.allDependencies.mapNotNull {
@@ -289,29 +293,31 @@ class DependencyManager(val project: Project) {
                 withArtifacts(IvyModule::class.java, IvyDescriptorArtifact::class.java).execute()
 
         ivyArtifactResolutionResult.resolvedComponents.mapNotNull { idToDependencyConfig(it.id) }.forEach {dep ->
-            val module: ModuleDescr? = resModuleDeps[dep]
+            if(procModuleDeps.keys.none { it.getModuleString() == dep.getModuleString() }) {
+                val moduleKey = resModuleDeps.keys.find { it.getModuleString() == dep.getModuleString() }
 
-            if(module != null) {
-                module.types.addAll(types)
-            } else if ( isNotExcluded(dep, excludes) ) {
-                val availableDep = resModuleDeps.keys.find { it.group == dep.group && it.module == dep.module }
-                if( availableDep == null) {
-                    if(resModuleDeps.none { it.value.targetPath == dep.module}) {
-                        val moduleDesc = ModuleDescr(name = dep.module,
+                if (moduleKey != null) {
+                    resModuleDeps[moduleKey]?.types?.addAll(types)
+                } else {
+                    val availableDep = resModuleDeps.keys.find { it.group == dep.group && it.module == dep.module }
+                    if (availableDep == null) {
+                        if (resModuleDeps.none { it.value.targetPath == dep.module }) {
+                            val moduleDesc = ModuleDescr(name = dep.module,
                                     targetPath = dep.module,
                                     dependency = DependencyDescr(dep.group, dep.module, dep.version),
                                     targetIncluded = false,
                                     contentType = ContentType.IMMUTABLE)
-                        moduleDesc.types.addAll(types)
-                        resModuleDeps[dep] = moduleDesc
-                    } else {
-                        throwErrorMessage("Target name '${dep.module}' for '${dep.getModuleString()}' " +
+                            moduleDesc.types.addAll(types)
+                            resModuleDeps[dep] = moduleDesc
+                        } else {
+                            throwErrorMessage("Target name '${dep.module}' for '${dep.getModuleString()}' " +
                                     "exists in list of targets.", errorOutModuleName)
-                    }
-                } else {
-                    throwErrorMessage(errorOutVersionInfo, "${dep.group}:${dep.module} $errorOutVersionDescr " +
+                        }
+                    } else {
+                        throwErrorMessage(errorOutVersionInfo, "${dep.group}:${dep.module} $errorOutVersionDescr " +
                                 "[source: $fromDep, availabble: ${dep.getModuleString()}, " +
                                 "new: ${availableDep.getModuleString()}]")
+                    }
                 }
             }
         }
@@ -320,21 +326,22 @@ class DependencyManager(val project: Project) {
                 withArtifacts(MavenModule::class.java,  MavenPomArtifact::class.java).execute()
 
         pomArtifactResolutionResult.resolvedComponents.mapNotNull { idToDependencyConfig(it.id) }.forEach {dep ->
-            val lib: LibDescr? = resLibDeps[dep]
-            if(lib != null) {
-                lib.types.addAll(types)
-            } else {
-                if ( isNotExcluded(dep, excludes) ) {
+            if(procLibDeps.keys.none { it.getModuleString() == dep.getModuleString()}) {
+                val libKey = resLibDeps.keys.find { it.getModuleString() == dep.getModuleString() }
+
+                if (libKey != null) {
+                    resLibDeps[libKey]?.types?.addAll(types)
+                } else {
                     val availableDep = resLibDeps.keys.find { it.group == dep.group && it.module == dep.module }
-                    if( availableDep == null ) {
+                    if (availableDep == null) {
                         val targetName = "${dep.group}_${dep.module}_${dep.version}"
-                        if(resLibDeps.none{it.value.targetName == targetName}) {
+                        if (resLibDeps.none { it.value.targetName == targetName }) {
                             val libDescr = LibDescr(dependency = DependencyDescr(dep.group, dep.module, dep.version),
                                     targetName = targetName)
                             libDescr.types.addAll(types)
                             resLibDeps[dep] = libDescr
                         } else {
-                            throwErrorMessage( "Target path '${dep.module}' for '${dep.getModuleString()}'" +
+                            throwErrorMessage("Target path '${dep.module}' for '${dep.getModuleString()}'" +
                                     "exists in List of targets.", errorOutLibName)
                         }
                     } else {
@@ -354,24 +361,11 @@ class DependencyManager(val project: Project) {
     }
 
     /*
-     * Check transitive dependencies if excluded or not
-     * 1. If transitive dependency is part of the configuration
-     * 2. If pattern matches with transitive dependency matches
-     */
-    private fun isNotExcluded(dep: DependencyConfig, excludes: Set<DependencyConfig>) : Boolean {
-
-        val confDepIncluded = procModuleDeps.keys.none { it.group == dep.group && it.module == dep.module} &&
-                procLibDeps.keys.none { it.group == dep.group && it.module == dep.module}
-
-        return confDepIncluded && excludes.none { it.group.toRegex().matches(dep.group)
-                                                  && it.module.toRegex().matches(dep.module)
-                                                  && it.version.toRegex().matches(dep.version) }
-    }
-
-    /*
      *  Project dependencies must be handled special
      */
-    private fun configurationFor(dependency: DependencyConfig, transitive: Boolean) : Configuration {
+    private fun configurationFor(dependency: DependencyConfig,
+                                 excludes: Set<DependencyConfig>,
+                                 transitive: Boolean) : Configuration {
         val depObj = if(dependency.dependency.isNotBlank()) {
                         dependencyHandler.create(project.project(dependency.dependency))
                      } else {
@@ -379,6 +373,13 @@ class DependencyManager(val project: Project) {
                      }
 
         val conf = configurations.detachedConfiguration(depObj)
+
+        if(transitive) {
+            excludes.forEach {
+                conf.exclude(it.getExcludeProperties())
+            }
+        }
+
         conf.description = "Configuration for ${dependency.getModuleString()}"
         conf.isTransitive = transitive
         conf.isVisible = false

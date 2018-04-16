@@ -68,7 +68,10 @@ open class CreateComponentTask : DefaultTask() {
     private val descriptorPathProperty = project.objects.property(String::class.java)
 
     // set of central deployment exclude patterns
-    private val excludesFromUpdateSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
+    private val updateExcludeSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
+
+    // set of central deployment exclude patterns
+    private val updatePreserveSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
 
     private val dependencyManager = DependencyManager(project)
 
@@ -176,12 +179,12 @@ open class CreateComponentTask : DefaultTask() {
      * Files that matches to one of patterns will be
      * excluded from the update installation.
      *
-     * @property excludesFromUpdate Set of Ant based file patterns
+     * @property updateExcludes Set of Ant based file patterns
      */
     @Suppress( "unused")
     @get:Input
-    val excludesFromUpdate: Set<String>
-        get() = excludesFromUpdateSetProperty.get()
+    val updateExcludes: Set<String>
+        get() = updateExcludeSetProperty.get()
 
     /**
      * Adds a pattern to the set of exclude patterns.
@@ -191,8 +194,8 @@ open class CreateComponentTask : DefaultTask() {
      * @param pattern Ant based file pattern
      */
     @Suppress("unused")
-    fun addUpdateExcludePattern(pattern: String) {
-        excludesFromUpdateSetProperty.add(pattern)
+    fun updateExclude(pattern: String) {
+        updateExcludeSetProperty.add(pattern)
     }
 
     /**
@@ -203,20 +206,69 @@ open class CreateComponentTask : DefaultTask() {
      * @param patterns  set of Ant based file pattern
      */
     @Suppress("unused")
-    fun addUpdateExcludePatterns(patterns: Set<String>) {
+    fun updateExclude(patterns: Set<String>) {
         patterns.forEach {
-            excludesFromUpdateSetProperty.add(it)
+            updateExcludeSetProperty.add(it)
         }
     }
 
     /**
-     * Set provider for default property to set excludes from update.
+     * Set provider for default property of
+     * exclude pattern set from update.
      *
      * @param pattern set provider for property.
      */
     @Suppress( "unused")
-    fun provideUpdateExcludePattern(pattern: Provider<Set<String>>)
-            = excludesFromUpdateSetProperty.set(pattern)
+    fun provideUpdateExcludes(pattern: Provider<Set<String>>)
+            = updateExcludeSetProperty.set(pattern)
+
+    /**
+     * This patterns are used for the update.
+     * Files that matches to one of patterns will be
+     * preserved from the update installation.
+     *
+     * @property updatePreserves Set of Ant based file patterns
+     */
+    @Suppress( "unused")
+    @get:Input
+    val updatePreserves: Set<String>
+        get() = updatePreserveSetProperty.get()
+
+    /**
+     * Adds a pattern to the set of preserve patterns.
+     * Files that matches to one of patterns will be
+     * preserved from the update installation.
+     *
+     * @param pattern Ant based file pattern
+     */
+    @Suppress("unused")
+    fun updatePreserve(pattern: String) {
+        updatePreserveSetProperty.add(pattern)
+    }
+
+    /**
+     * Adds a set of patterns to the set of preserve patterns.
+     * Files that matches to one of patterns will be
+     * preserved from the update installation.
+     *
+     * @param patterns  set of Ant based file pattern
+     */
+    @Suppress("unused")
+    fun updatePreserve(patterns: Set<String>) {
+        patterns.forEach {
+            updatePreserveSetProperty.add(it)
+        }
+    }
+
+    /**
+     * Set provider for default property of
+     * the update preserve pattern set.
+     *
+     * @param pattern set provider for property.
+     */
+    @Suppress( "unused")
+    fun provideUpdatePreserves(pattern: Provider<Set<String>>)
+            = updatePreserveSetProperty.set(pattern)
 
     /**
      * Container for all modules. This contains dependencies
@@ -246,10 +298,10 @@ open class CreateComponentTask : DefaultTask() {
      * This is a set with all eexclude patterns
      * for all dependencies.
      *
-     * @property excludes set of all exclude patterns
+     * @property dependencyExcludes set of all exclude patterns
      */
     @get:Nested
-    var excludes: Set<DependencyConfig> = mutableSetOf()
+    var dependencyExcludes: Set<DependencyConfig> = mutableSetOf()
 
     /**
      * This is the container for all single files
@@ -287,7 +339,9 @@ open class CreateComponentTask : DefaultTask() {
     @Suppress("unused")
     val resolvedModules: Set<DependencyConfig>
         get() {
-            val moduleDeps = dependencyManager.getModuleDependencies(modules?.items ?: mutableSetOf())
+            val moduleDeps = dependencyManager.
+                    getModuleDependencies(modules?.items ?: mutableSetOf(), dependencyExcludes)
+
             this.outputs.upToDateWhen {
                 moduleDeps.none {
                     it.version.endsWith("SNAPSHOT") ||
@@ -307,7 +361,7 @@ open class CreateComponentTask : DefaultTask() {
     @Suppress("unused")
     val resolvedLibs: Set<DependencyConfig>
         get() {
-            val libDeps = dependencyManager.getLibDependencies( libs?.items ?: mutableSetOf())
+            val libDeps = dependencyManager.getLibDependencies( libs?.items ?: mutableSetOf(), dependencyExcludes)
             this.outputs.upToDateWhen {
                 libDeps.none {
                     it.version.endsWith("SNAPSHOT") ||
@@ -333,11 +387,16 @@ open class CreateComponentTask : DefaultTask() {
                 modulesTarget = modules?.targetPath ?: "",
                 libsTarget = libs?.targetPath ?: "",
                 containerTarget = containers?.targetPath ?: "",
-                fileTarget = files?.targetPath ?: "",
                 target = defaultTarget,
-                descriptorPath = descriptorPath)
-        componentDescr.excludesFromUpdate.addAll(excludesFromUpdate)
-        dependencyManager.addToDescriptor(componentDescr, excludes)
+                descriptorPath = descriptorPath,
+                metadata = ComponentUtil.metadata(project.group.toString(),
+                        project.name,
+                        project.version.toString()))
+
+        componentDescr.excludes.addAll(updateExcludes)
+        componentDescr.preserves.addAll(updatePreserves)
+
+        dependencyManager.addToDescriptor(componentDescr, dependencyExcludes)
 
         containers?.items?.forEach { item ->
             with(item) {
@@ -349,9 +408,10 @@ open class CreateComponentTask : DefaultTask() {
                             classifier = classifier,
                             targetIncluded = targetIncluded,
                             contentType = ContentType.valueOf(contentType),
-                            excludeFromUpdate = excludeFromUpdate
+                            updatable = updatable
                             )
-                    container.excludesFromUpdate.addAll(excludesFromUpdate)
+                    container.excludes.addAll(excludes)
+                    container.preserves.addAll(preserves)
                     container.types.addAll(types)
 
                     if(! componentDescr.addFileContainer(container)) {
@@ -381,7 +441,7 @@ open class CreateComponentTask : DefaultTask() {
                             targetPath = targetPath,
                             classifier = classifier,
                             contentType = ContentType.valueOf(contentType),
-                            excludeFromUpdate = excludeFromUpdate)
+                            updatable = updatable)
                     file.types.addAll(types)
 
                     if(! componentDescr.addFileItem(file)) {
@@ -406,7 +466,7 @@ open class CreateComponentTask : DefaultTask() {
                     value = it.value,
                     classifier = it.classifier,
                     contentType = ContentType.valueOf(it.contentType),
-                    excludeFromUpdate = it.excludeFromUpdate)
+                    updatable = it.updatable)
             property.types.addAll(it.types)
             componentDescr.addProperty(property)
 

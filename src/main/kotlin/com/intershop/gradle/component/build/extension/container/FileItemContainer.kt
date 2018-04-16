@@ -16,6 +16,7 @@
 package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.ComponentExtension
+import com.intershop.gradle.component.build.extension.items.AItem
 import com.intershop.gradle.component.build.extension.items.FileItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
@@ -32,8 +33,7 @@ import javax.inject.Inject
  * @property parent the parent of this container.
  * @constructor provides an empty preconfigured file item container
  */
-open class FileItemContainer @Inject constructor(@get: Internal override val parent: ComponentExtension) :
-        AContainer("File Item Container", parent) {
+open class FileItemContainer @Inject constructor(@get: Internal val parent: ComponentExtension) : AItem() {
 
     private val itemSet: MutableSet<FileItem> = mutableSetOf()
 
@@ -98,7 +98,7 @@ open class FileItemContainer @Inject constructor(@get: Internal override val par
      */
     private fun getPreconfigureItem(file: File) : FileItem {
         val item = FileItem(file)
-        item.excludeFromUpdate = excludeFromUpdate
+        item.updatable = updatable
 
         return item
     }
@@ -122,8 +122,16 @@ open class FileItemContainer @Inject constructor(@get: Internal override val par
     /**
      * If an item should not be part of an update installation, this property is set to true.
      *
-     * @property excludeFromUpdate If this value is true, the item will be not part of an update installation.
+     * @property updatable If this value is true, the item will be not part of an update installation.
      */
     @get:Input
-    var excludeFromUpdate: Boolean = false
+    var updatable: Boolean = true
+
+    private fun addTypes(item: AItem) {
+        if(types.isEmpty() && parent.types.isNotEmpty()) {
+            item.addTypes(parent.types)
+        } else {
+            item.addTypes(this.types)
+        }
+    }
 }

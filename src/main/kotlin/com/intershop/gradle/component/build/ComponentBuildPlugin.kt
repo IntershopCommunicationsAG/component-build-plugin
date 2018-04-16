@@ -160,11 +160,12 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             componentDescription = extension.componentDescription
                             descriptorPath = extension.descriptorPath
 
-                            provideUpdateExcludePattern(extension.excludesFromUpdateProvider)
+                            provideUpdateExcludes(extension.excludesProvider)
+                            provideUpdatePreserves(extension.preservesProvider)
 
                             libs = extension.libs
                             modules = extension.modules
-                            excludes = extension.dependencyMngt.excludes
+                            dependencyExcludes = extension.dependencyMngt.excludes
                             properties = extension.propertyItems
                             containers = extension.containers
                             files = extension.fileItems
