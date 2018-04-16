@@ -67,7 +67,8 @@ The parameter `--recreate` enable the rebuild of `verifyClasspath` and `createCo
 | <<descriptorPath,descriptorPath>>             | The path for the directory with the component descriptor.
 | <<decriptorOutputFile,decriptorOutputFile>>   | The configuration of the output file of createComponent.
 | <<types,types>>                               | This is a list of deployment and environement types of the component. (*read only*)
-| <<excludesFromUpdate,excludesFromUpdate>>     | This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation.
+| <<excludes,excludes>>                         | Files that matches to one of patterns will be excluded from the update installation.
+| <<preserves,preserves>>                       | Files that matches to one of patterns will be preserved during the update installation.
 | <<libs,libs>>                                 | This is the data container for all libraries. (*read only*)
 | <<modules,modules>>                           | This configuration contains all libraries. (*read only*)
 | <<dependencyMngt,dependencyMngt>>             | This container holds all dependency related configuration parameters. (*read only*)
@@ -148,12 +149,21 @@ This is a list of deployment and environement types of the component. (*read onl
 Default:: `[]`
 
 ***
-[[excludesFromUpdate]]
+[[excludes]]
 [source,groovy]
-Set<String> excludesFromUpdate
+Set<String> excludes
 
 :::
-This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation. (*read only*)
+Files that matches to one of the patterns will be excluded from the update installation. (*read only*)
+Default:: `[]`
+
+***
+[[preserves]]
+[source,groovy]
+Set<String> preserves
+
+:::
+Files that matches to one of the patterns will be preserved during the update installation. (*read only*)
 Default:: `[]`
 
 ***
@@ -214,8 +224,11 @@ Properties can be configured in this container (*read only*). See <<PropertyItem
 
 |<<addType,addType>>(type) | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
 |<<addTypes,addTypes>>(types) | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
-|<<scaddUpdateExcludePattern,addUpdateExcludePattern>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
-|<<maaddUpdateExcludePattern,addUpdateExcludePattern>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<scexclude,exclude>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<maexclude,exclude>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<scpreserve,preserve>>(pattern) | Adds a pattern to the set of preserve patterns. Files that matches to one of patterns will be preserved during the update installation.
+|<<mapreserve,preserve>>(patterns) | Adds a set of patterns to the set of preserve patterns. Files that matches to one of patterns will be preserved during the update installation.
+
 |<<mlibs,libs>>(Action<? super LibraryItemContainer> action) | Initialize container for library configuration.
 |<<mmodules,modules>>(Action<? super ModuleItemContainer> action) | Initialize container for modul configuration.
 |<<mdependencyMngt,dependencyMngt>>(Action<? super DependencyMngtContainer> action) | Initialize container for dependency management container. This includes also the configuration for the class collision verification.
@@ -240,20 +253,36 @@ boolean addTypes(Collection<String> types)
 Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
 
 ***
-[[scaddUpdateExcludePattern]]
+[[scexclude]]
 [source,groovy]
-addUpdateExcludePattern(String pattern)
+exclude(String pattern)
 
 :::
-Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+Adds a pattern to the set of exclude patterns. Files that matches to one of the patterns will be excluded from the update installation.
 
 ***
-[[maaddUpdateExcludePattern]]
+[[maexclude]]
 [source,groovy]
-addUpdateExcludePattern(Set<String> patterns)
+exclude(Set<String> patterns)
 
 :::
-Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+Adds a set of patterns to the set of exclude patterns. Files that matches to one of the patterns will be excluded from the update installation.
+
+***
+[[scpreserve]]
+[source,groovy]
+preserve(String pattern)
+
+:::
+Adds a pattern to the set of preserve patterns. Files that matches to one of the patterns will be preserved during the update installation.
+
+***
+[[mapreserve]]
+[source,groovy]
+preserve(Set<String> patterns)
+
+:::
+Adds a set of patterns to the set of preserve patterns. Files that matches to one of the patterns will be preserved during the update installation.
 
 ***
 [[mlibs]]
@@ -528,7 +557,7 @@ In future releases this will replaced and an own descriptor will be used.
 |<<modulesitems,items>> | Set of all configured dependencies for module items.
 |<<modulesresolveTransitive,resolveTransitive>> | If this value is true, dependencies will be resolved transitive.
 |<<modulestargetPath,targetPath>> | A target path for all modules.
-|<<modulesexcludeFromUpdate,excludeFromUpdate>> | If an item should not be part of an update installation, this property is set to true.
+|<<modulesupdatable,updatable>> | If an item should not be part of an update installation, this property is set to false.
 This property is used for all items and can be overridden by a configuration of the item.
 |<<modulesjarPath,jarPath>> | The target path for jar files of each module.
 |<<modulesdescriptorPath,descriptorPath>> | The target path for descriptor files of each module.
@@ -561,14 +590,14 @@ A target path for all modules.
 Default:: `""`
 
 ***
-[[modulesexcludeFromUpdate]]
+[[modulesupdatable]]
 [source,groovy]
-boolean excludeFromUpdate
+boolean updatable
 
 :::
-If an item should not be part of an update installation, this property is set to true.
+If an item should not be part of an update installation, this property is set to false.
 This property is used for all items and can be overridden by a configuration of the item.
-Default:: `false`
+Default:: `true`
 
 ***
 
@@ -658,8 +687,9 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |<<moduleitemType,itemType>> | This property can be used to add a special type description of a module.
 |<<moduletargetPath,targetPath>>      | The target path of this module artifact. The default value is the module name.
 |<<moduletargetIncluded,targetIncluded>> | If the configured target path is part of the component packages, it is necessary to set this property to true.
-|<<moduleexcludeFromUpdate,excludeFromUpdate>> | If this item should not be part of an update installation, this property is set to true.
-|<<moduleexcludesFromUpdate,excludesFromUpdate>>     | This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation.
+|<<moduleupdatable,updatable>> | If this item should not be part of an update installation, this property is set to false.
+|<<moduleexcludes,excludes>>     | Files that matches to one of the patterns will be excluded from the update installation.
+|<<modulepreserves,preserves>>     | Files that matches to one of the patterns will be preserved during the update installation.
 |<<modulejarPath,jarPath>>     | The target path for all jar files of this module.
 |<<moduledescriptorPath,descriptorPath>>     | The target path for descriptor files of this module.
 |===
@@ -708,21 +738,30 @@ If the configured target path is part of the component packages, it is necessary
 Default:: `false`
 
 ***
-[[moduleexcludeFromUpdate]]
+[[moduleupdatable]]
 [source,groovy]
-boolean excludeFromUpdate
+boolean updatable
 
 :::
-If this item should not be part of an update installation, this property is set to true.
-Default:: `false`
+If this item should not be part of an update installation, this property is set to false.
+Default:: `true`
 
 ***
-[[moduleexcludesFromUpdate]]
+[[moduleexcludes]]
 [source,groovy]
-Set<String> excludesFromUpdate
+Set<String> excludes
 
 :::
-This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation. (*read only*)
+Files that matches to one of the patterns will be excluded from the update installation. (*read only*)
+Default:: `[]`
+
+***
+[[modulepreserves]]
+[source,groovy]
+Set<String> preserves
+
+:::
+Files that matches to one of the patterns will be preserved during the update installation. (*read only*)
 Default:: `[]`
 
 ***
@@ -790,7 +829,7 @@ This configuration contains all dependency related configuration.
 |===
 |Property | Description
 
-|<<dmexcludes,excludes>> | Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups.
+|<<dmexcludes,excludes>> | Set of excludes patterns, eg 'com.test' excludes all dependencies with com.test in groups.
 |<<classpathVerification,classpathVerification>> | The configuration for classpath verification.
 |===
 
@@ -799,7 +838,7 @@ This configuration contains all dependency related configuration.
 Set<DependencyConfig> excludes
 
 :::
-Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups. See <<DependencyConfig,DependencyConfig>>.
+Set of excludes patterns, eg 'com.test' excludes all dependencies with com.test in groups. See <<DependencyConfig,DependencyConfig>>.
 Default:: `[]`
 
 ***
@@ -852,7 +891,7 @@ See <<ClasspathVerificationContainer,ClasspathVerificationContainer>>
 |Property | Description
 
 |<<enabled,enabled>> | For disabling classpath verification set this property to false.
-|<<cvexcludes,excludes>> | Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups from class path verification.
+|<<cvexcludes,excludes>> | Set of excludes patterns, eg 'com.test' excludes all dependencies with com.test in groups from class path verification.
 |<<excludedClasses,excludedClasses>> | Set of patterns to exclude special classes from verification.
 |===
 
@@ -870,7 +909,7 @@ Default:: `true`
 Set<DependencyConfig> excludes
 
 :::
-Set of excludes patterns, eg 'com.test.*' excludes all dependencies with com.test in groups from class path verification. See <<DependencyConfig,DependencyConfig>>.
+Set of excludes patterns, eg 'com.test' excludes all dependencies with com.test in groups from class path verification. See <<DependencyConfig,DependencyConfig>>.
 Default:: `[]`
 
 ***
@@ -926,7 +965,7 @@ This is the configuration of single files.
 
 |<<filesitems,items>> | Set of all configured file items.
 |<<filestargetPath,targetPath>> | A target path for all files.
-|<<filesexcludeFromUpdate,excludeFromUpdate>> | If an item should not be part of an update installation, this property is set to true.
+|<<filesupdatable,updatable>> | If an item should not be part of an update installation, this property is set to true.
 This property is used for all items and can be overridden by a configuration of the item.
 |===
 
@@ -948,13 +987,13 @@ A target path for all files.
 Default:: `""`
 
 ***
-[[filesexcludeFromUpdate]]
+[[filesupdatable]]
 [source,groovy]
-boolean excludeFromUpdate
+boolean updatable
 
 :::
-If an item should not be part of an update installation, this property is set to true.
-Default:: `false`
+If an item should not be part of an update installation, this property is set to false.
+Default:: `true`
 
 ***
 
@@ -1019,7 +1058,7 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |<<fileextension,extension>> | The default value is the extension of the configured file. If this property value is changed, the file extension can be changed for publishing and deployment.
 |<<filetargetPath,targetPath>> | The target path without the file name of this file artifact.
 |<<fileclassifier,classifier>> | This property can be used if this configuration is for a special operating system.
-|<<fileexcludeFromUpdate,excludeFromUpdate>> | If this item should not be part of an update installation, this property is set to true.
+|<<fileupdatable,updatable>> | If this item should not be part of an update installation, this property is set to false.
 |===
 
 [[filename]]
@@ -1058,13 +1097,13 @@ This property can be used if this configuration is for a special operating syste
 Default:: `""`
 
 ***
-[[fileexcludeFromUpdate]]
+[[fileupdatable]]
 [source,groovy]
-boolean excludeFromUpdate
+boolean updatable
 
 :::
-If this item should not be part of an update installation, this property is set to true.
-Default:: `false`
+If this item should not be part of an update installation, this property is set to false.
+Default:: `true`
 
 ***
 
@@ -1082,7 +1121,7 @@ Sometimes it is necessary to configure files of a component together in a packag
 
 |<<containersitems,items>> | Set of all configured file container items (zip).
 |<<containerstargetPath,targetPath>> | A target path for all file containers.
-|<<containersexcludeFromUpdate,excludeFromUpdate>> | If an item should not be part of an update installation, this property is set to true.
+|<<containersupdatable,updatable>> | If an item should not be part of an update installation, this property is set to false.
 This property is used for all items and can be overridden by a configuration of the item.
 |===
 
@@ -1104,14 +1143,14 @@ A target path for all file containers.
 Default:: `""`
 
 ***
-[[containersexcludeFromUpdate]]
+[[containersupdatable]]
 [source,groovy]
-boolean excludeFromUpdate
+boolean updatable
 
 :::
-If an item should not be part of an update installation, this property is set to true.
+If an item should not be part of an update installation, this property is set to false.
 This property is used for all items and can be overridden by a configuration of the item.
-Default:: `false`
+Default:: `true`
 
 ***
 
@@ -1170,8 +1209,9 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |<<containertargetIncluded,targetIncluded>> | If the configured target path is part of the component packages, it is necessary to set this property to true.
 |<<containersource,source>> | The files to be packed. (read only)
 |<<containerclassifier,classifier>> | This property can be used if this configuration is for a special operating system.
-|<<containerexcludeFromUpdate,excludeFromUpdate>> | If this item should not be part of an update installation, this property is set to true.
-|<<containerexcludesFromUpdate,excludesFromUpdate>>     | This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation.
+|<<containerupdatable,updatable>> | If this item should not be part of an update installation, this property is set to false.
+|<<containerexcludes,excludes>>     | Files that matches to one of the patterns will be excluded from the update installation.
+|<<containerpreserves,preserves>>     | Files that matches to one of the patterns will be preserved during the update installation.
 |===
 
 [[containerbaseName]]
@@ -1226,21 +1266,30 @@ String classifier
 This property can be used if this configuration is for a special operating system.
 
 ***
-[[containerexcludeFromUpdate]]
+[[containerupdatable]]
 [source,groovy]
-boolean excludeFromUpdate
+boolean updatable
 
 :::
-If this item should not be part of an update installation, this property is set to true.
-Default:: `false`
+If this item should not be part of an update installation, this property is set to false.
+Default:: `true`
 
 ***
-[[containerexcludesFromUpdate]]
+[[containerexcludes]]
 [source,groovy]
-Set<String> excludesFromUpdate
+Set<String> excludes
 
 :::
-This patterns are used for the update. Files that matches to one of patterns will be excluded from the update installation. (*read only*)
+Files that matches to one of the patterns will be excluded from the update installation. (*read only*)
+Default:: `[]`
+
+***
+[[containerpreserves]]
+[source,groovy]
+Set<String> preserves
+
+:::
+Files that matches to one of the patterns will be preserved during the update installation. (*read only*)
 Default:: `[]`
 
 ***
@@ -1358,7 +1407,7 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |Property | Description
 |<<value, value>>> | The property value of this item.
 |<<propclassifier, classifier>> | This property can be used if this configuration is for a special operating system.
-|<<propexcludeFromUpdate,excludeFromUpdate>> | If this item should not be part of an update installation, this property is set to true.
+|<<propupdatable,updatable>> | If this item should not be part of an update installation, this property is set to false.
 |===
 
 [[value]]
@@ -1377,13 +1426,13 @@ String classifier
 This property can be used if this configuration is for a special operating system.
 ***
 
-[[propexcludeFromUpdate]]
+[[propupdatable]]
 [source,groovy]
-boolean excludeFromUpdate
+boolean updatable
 
 :::
-If this item should not be part of an update installation, this property is set to true.
-Default:: `false`
+If this item should not be part of an update installation, this property is set to false.
+Default:: `true`
 
 ***
 
