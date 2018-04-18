@@ -21,6 +21,7 @@ import com.intershop.gradle.component.build.extension.items.ModuleItem
 import com.intershop.gradle.component.build.utils.DependencyConfig
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.Project
 import org.gradle.api.artifacts.dsl.DependencyHandler
 import org.gradle.api.tasks.Internal
 import javax.inject.Inject
@@ -35,6 +36,7 @@ import javax.inject.Inject
  */
 open class ModuleItemContainer
         @Inject constructor(private val dpendencyHandler: DependencyHandler,
+                            @get:Internal val project: Project,
                             @get:Internal override val parent: ComponentExtension) :
         AContainer( "Module Container", parent) {
 
@@ -129,7 +131,7 @@ open class ModuleItemContainer
      * taken from container configuration.
      */
     private fun getPreconfigureItem(depConf: DependencyConfig) : ModuleItem {
-        val item = ModuleItem(depConf)
+        val item = ModuleItem(project, depConf)
         item.updatable = updatable
         item.targetPath = depConf.module
         item.resolveTransitive = resolveTransitive

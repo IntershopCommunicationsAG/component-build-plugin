@@ -29,6 +29,7 @@ import com.intershop.gradle.component.descriptor.FileContainer
 import com.intershop.gradle.component.descriptor.FileItem
 import com.intershop.gradle.component.descriptor.Property
 import com.intershop.gradle.component.descriptor.util.ComponentUtil
+import org.gradle.api.Action
 import org.gradle.api.DefaultTask
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.file.RegularFile
@@ -40,6 +41,8 @@ import org.gradle.api.tasks.Nested
 import org.gradle.api.tasks.OutputFile
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.options.Option
+import org.gradle.api.tasks.util.PatternFilterable
+import org.gradle.api.tasks.util.PatternSet
 import java.io.File
 import com.intershop.gradle.component.descriptor.Library as LibDesr
 import com.intershop.gradle.component.descriptor.Module as ModuleDescr
@@ -71,7 +74,7 @@ open class CreateComponentTask : DefaultTask() {
     private val updateExcludeSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
 
     // set of central deployment exclude patterns
-    private val updatePreserveSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
+    private val preserveProperty: PatternSet  = project.objects.newInstance(PatternSet::class.java)
 
     private val dependencyManager = DependencyManager(project)
 
@@ -224,40 +227,38 @@ open class CreateComponentTask : DefaultTask() {
 
     /**
      * This patterns are used for the update.
-     * Files that matches to one of patterns will be
-     * preserved from the update installation.
+     * Files that matches to one of patterns will be excluded
+     * from the preserved files.
      *
-     * @property updatePreserves Set of Ant based file patterns
+     * @property preserveExcludes Set of Ant based file patterns
      */
     @Suppress( "unused")
     @get:Input
-    val updatePreserves: Set<String>
-        get() = updatePreserveSetProperty.get()
+    val preserveExcludes: Set<String>
+        get() = preserveProperty.excludes
 
     /**
-     * Adds a pattern to the set of preserve patterns.
-     * Files that matches to one of patterns will be
-     * preserved from the update installation.
+     * This patterns are used for the update.
+     * Files that matches to one of patterns will be included
+     * from the preserved files.
      *
-     * @param pattern Ant based file pattern
+     * @property preserveIncludes Set of Ant based file patterns
      */
-    @Suppress("unused")
-    fun updatePreserve(pattern: String) {
-        updatePreserveSetProperty.add(pattern)
-    }
+    @Suppress( "unused")
+    @get:Input
+    val preserveIncludes: Set<String>
+        get() = preserveProperty.includes
 
     /**
-     * Adds a set of patterns to the set of preserve patterns.
+     * Add pattern to the set of patterns.
      * Files that matches to one of patterns will be
-     * preserved from the update installation.
+     * excluded or included to the update installation.
      *
-     * @param patterns  set of Ant based file pattern
+     * @param action Action for configuring the preserve filter
      */
     @Suppress("unused")
-    fun updatePreserve(patterns: Set<String>) {
-        patterns.forEach {
-            updatePreserveSetProperty.add(it)
-        }
+    fun preserve(action: Action<in PatternFilterable>) {
+        action.execute(preserveProperty)
     }
 
     /**
@@ -267,8 +268,9 @@ open class CreateComponentTask : DefaultTask() {
      * @param pattern set provider for property.
      */
     @Suppress( "unused")
-    fun provideUpdatePreserves(pattern: Provider<Set<String>>)
-            = updatePreserveSetProperty.set(pattern)
+    fun providePreserve(patternSet: PatternFilterable) {
+        preserveProperty.copyFrom(patternSet)
+    }
 
     /**
      * Container for all modules. This contains dependencies
@@ -394,7 +396,8 @@ open class CreateComponentTask : DefaultTask() {
                         project.version.toString()))
 
         componentDescr.excludes.addAll(updateExcludes)
-        componentDescr.preserves.addAll(updatePreserves)
+        componentDescr.preserveExcludes.addAll(preserveExcludes)
+        componentDescr.preserveIncludes.addAll(preserveIncludes)
 
         dependencyManager.addToDescriptor(componentDescr, dependencyExcludes)
 
@@ -411,7 +414,8 @@ open class CreateComponentTask : DefaultTask() {
                             updatable = updatable
                             )
                     container.excludes.addAll(excludes)
-                    container.preserves.addAll(preserves)
+                    container.preserveExcludes.addAll(preserveExcludes)
+                    container.preserveIncludes.addAll(preserveIncludes)
                     container.types.addAll(types)
 
                     if(! componentDescr.addFileContainer(container)) {

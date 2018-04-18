@@ -36,9 +36,14 @@ interface IContainer {
     val excludes: Set<String>
 
     /**
-     * Preserve patterns for update installation.
+     * Preserve exclude patterns for update installation.
      */
-    val preserves: Set<String>
+    val preserveExcludes: Set<String>
+
+    /**
+     * Preserve include patterns for update installation.
+     */
+    val preserveIncludes: Set<String>
 
     /**
      * This property can be used to add a special type

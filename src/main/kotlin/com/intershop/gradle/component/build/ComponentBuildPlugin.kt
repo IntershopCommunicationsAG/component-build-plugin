@@ -161,7 +161,8 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             descriptorPath = extension.descriptorPath
 
                             provideUpdateExcludes(extension.excludesProvider)
-                            provideUpdatePreserves(extension.preservesProvider)
+
+                            providePreserve(extension.preserve)
 
                             libs = extension.libs
                             modules = extension.modules

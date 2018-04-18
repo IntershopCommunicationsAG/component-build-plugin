@@ -17,10 +17,14 @@ package com.intershop.gradle.component.build.extension.items
 
 import com.intershop.gradle.component.build.extension.Utils
 import com.intershop.gradle.component.build.utils.DependencyConfig
+import groovy.lang.Closure
+import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
+import org.gradle.api.Project
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Nested
-import org.gradle.internal.impldep.org.bouncycastle.asn1.x500.style.RFC4519Style.name
+import org.gradle.api.tasks.util.PatternFilterable
+import org.gradle.api.tasks.util.PatternSet
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
@@ -31,15 +35,15 @@ import kotlin.properties.Delegates
  * @property dependency a dependency configuration of this module
  * @constructor initialize an module with a defined dependency
  */
-class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
+class ModuleItem(private val project: Project, @get:Nested override val dependency: DependencyConfig) :
         ADependencyItem(), IItem, IContainer, IDependency {
 
     companion object {
         private val logger = LoggerFactory.getLogger(ModuleItem::class.java.simpleName)
     }
 
+    private val preserveProperty: PatternSet  = project.objects.newInstance(PatternSet::class.java)
     private val excludeSet: MutableSet<String> = mutableSetOf()
-    private val preserveSet: MutableSet<String> = mutableSetOf()
 
     /**
      * The default target path of the component.
@@ -50,6 +54,7 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
      */
     override var targetPath by Delegates.vetoable("") { _, _, newValue ->
         val invalidChars = Utils.getIllegalChars(newValue)
+        val name = dependency.getModuleString()
         if(!invalidChars.isEmpty()) {
             throw InvalidUserDataException("Target path of module '$name' " +
                     "contains invalid characters '$invalidChars'.")
@@ -116,40 +121,56 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
     /**
      * This patterns are used for the update.
      * Files that matches to one of patterns will be
-     * excluded from the update installation.
+     * excluded in the preserve set of the update installation.
      *
      * @property preserves Set of Ant based file patterns
      */
     @get:Input
-    override val preserves: Set<String>
-        get() = preserveSet
+    override val preserveExcludes: Set<String>
+        get() = preserveProperty.excludes
 
     /**
-     * Adds a pattern to the set of exclude patterns.
+     * This patterns are used for the update.
      * Files that matches to one of patterns will be
-     * excluded from the update installation.
-     * If the pattern is part of the list, the method
-     * returns false.
+     * included in the preserve set of the update installation.
      *
-     * @param pattern Ant based file pattern
+     * @property preserves Set of Ant based file patterns
      */
-    @Suppress("unused")
-    fun preserve(pattern: String): Boolean {
-        return preserveSet.add(pattern)
+    @get:Input
+    override val preserveIncludes: Set<String>
+        get() = preserveProperty.includes
+
+    /**
+     * Get patternset to preserve files from update.
+     * Files that matches to one of patterns will be
+     * excluded/included from the update installation.
+     *
+     * @param action Action for configuring the preserve filter
+     */
+    val preserve: PatternFilterable
+        get() = preserveProperty
+
+    /**
+     * Configure preserve pattern set, to preserve
+     * files during the update installation of
+     * this module.
+     *
+     * @param action action to configure pattern set
+     */
+    fun preserve(action: Action<in PatternFilterable>) {
+        action.execute(preserveProperty)
     }
 
     /**
-     * Adds a set of patterns to the set of exclude patterns.
-     * Files that matches to one of patterns will be
-     * excluded from the update installation.
-     * If one of the patterns is part of the list, the method
-     * returns false.
+     * Configure preserve pattern set, to preserve
+     * files during the update installation of
+     * this module.
      *
-     * @param patterns set of Ant based file pattern
+     * @param closure closure to configure pattern set
      */
     @Suppress("unused")
-    fun preserve(patterns: Set<String>): Boolean {
-        return preserveSet.addAll(patterns)
+    fun preserve(closure: Closure<Any>) {
+        project.configure(preserveProperty, closure)
     }
 
     /**
@@ -158,6 +179,7 @@ class ModuleItem(@get:Nested override val dependency: DependencyConfig) :
      *
      * @property itemType Module type property
      */
+    @Suppress("unused")
     @get:Input
     override var itemType: String = ""
 

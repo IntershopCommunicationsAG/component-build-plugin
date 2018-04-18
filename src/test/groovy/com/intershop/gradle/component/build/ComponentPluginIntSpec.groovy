@@ -876,7 +876,9 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         component {
 
             exclude("**/dir3/**/.folder")
-            preserve("**/dir4/**/.file")
+            preserve {
+                include "**/dir4/**/.file"
+            }
 
             containers {
                 addType('test')
@@ -889,7 +891,9 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
 
                     exclude("**/dir1/*.com")
                     exclude([ "**/dir2/*.com", "**/dir3/*.com" ] as Set)
-                    preserve("**/**/*.jpg")
+                    preserve { 
+                       include "**/**/*.jpg"
+                    }
 
                 }
                 add('sites') {
@@ -906,7 +910,9 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 addType('test')
                 add("com.intershop:testmodule1:1.0.0") {
                     exclude("**/dir4/*.com")
-                    preserve("**/**/*.jpg")
+                    preserve { 
+                        include "**/**/*.jpg"
+                    }
                 }
                 add("com.intershop:testmodule2:1.0.0")
             }
@@ -964,13 +970,13 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         comp.types.containsAll([ "test", "production", "intTest", "perfTest" ])
         comp.types.size() == 4
         comp.excludes.size() == 1
-        comp.preserves.size() == 1
+        comp.preserveIncludes.size() == 1
         comp.modules['testmodule1'].types.containsAll([ "test" ])
         comp.modules['testmodule1'].types.size() == 1
         comp.modules['testmodule1'].excludes.containsAll(["**/dir4/*.com"])
         comp.modules['testmodule1'].excludes.size() == 1
-        comp.modules['testmodule1'].preserves.containsAll(["**/**/*.jpg"])
-        comp.modules['testmodule1'].preserves.size() == 1
+        comp.modules['testmodule1'].preserveIncludes.containsAll(["**/**/*.jpg"])
+        comp.modules['testmodule1'].preserveIncludes.size() == 1
         comp.modules['testmodule2'].types.containsAll([ "test" ])
         comp.modules['testmodule2'].types.size() == 1
         comp.libs.values().findAll { it.types.size() == 1 && it.types.containsAll([ "test" ]) }.size() == 3
