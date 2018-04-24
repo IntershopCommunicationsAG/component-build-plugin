@@ -217,6 +217,7 @@ open class FileContainerItem(private val project: Project, @get:Input val name: 
      *
      * @param closure closure to configure pattern set
      */
+    @Suppress("unused")
     fun preserve(closure: Closure<Any>) {
         project.configure(preserveProperty, closure)
     }
