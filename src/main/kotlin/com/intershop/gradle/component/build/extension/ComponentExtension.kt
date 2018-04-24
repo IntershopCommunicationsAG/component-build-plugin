@@ -29,6 +29,8 @@ import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
 import org.gradle.api.provider.Provider
 import org.gradle.api.provider.SetProperty
+import org.gradle.api.tasks.util.PatternFilterable
+import org.gradle.api.tasks.util.PatternSet
 import java.io.File
 import javax.inject.Inject
 import kotlin.properties.Delegates
@@ -75,13 +77,13 @@ open class ComponentExtension @Inject constructor(project: Project) {
     private val excludesSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
 
     // set of central deployment preserve patterns
-    private val preserveSetProperty: SetProperty<String> = project.objects.setProperty(String::class.java)
+    private val preserveProperty: PatternSet  = project.objects.newInstance(PatternSet::class.java)
 
     private val libContainer =
             project.objects.newInstance(LibraryItemContainer::class.java, project.dependencies, this)
 
     private val moduleContainer =
-            project.objects.newInstance(ModuleItemContainer::class.java, project.dependencies, this)
+            project.objects.newInstance(ModuleItemContainer::class.java, project.dependencies, project, this)
 
     private val dependencyMngtContainer =
             project.objects.newInstance(DependencyMngtContainer::class.java, project)
@@ -234,52 +236,23 @@ open class ComponentExtension @Inject constructor(project: Project) {
     }
 
     /**
-     * This patterns are used for the update.
-     * Files that matches to one of patterns will be
-     * excluded from the update installation.
+     * This is a provider for preserved include patterns.
      *
-     * @property preserves Set of Ant based file patterns
+     * @property preserveIncludeProvider Provider for dependencyExcludes
      */
-    @Suppress("unused")
-    val preserves: Set<String>
-        get() = preserveSetProperty.get()
+    val preserve: PatternFilterable
+        get() = preserveProperty
 
     /**
-     * This is a provider for dependencyExcludes property.
-     *
-     * @property excludesProvider Provider for dependencyExcludes
-     */
-    val preservesProvider: Provider<Set<String>>
-        get() = preserveSetProperty
-
-    /**
-     * Adds a pattern to the set of exclude patterns.
+     * Configure patternset for perserve files from update.
      * Files that matches to one of patterns will be
-     * excluded from the update installation.
-     * If the pattern is part of the list, the method
-     * returns false.
+     * excluded or included to the update installation.
      *
-     * @param pattern Ant based file pattern
+     * @param action Action for configuring the preserve filter
      */
     @Suppress("unused")
-    fun preserve(pattern: String) {
-        preserveSetProperty.add(pattern)
-    }
-
-    /**
-     * Adds a set of patterns to the set of exclude patterns.
-     * Files that matches to one of patterns will be
-     * excluded from the update installation.
-     * If one of the patterns is part of the list, the method
-     * returns false.
-     *
-     * @param patterns set of Ant based file pattern
-     */
-    @Suppress("unused")
-    fun preserve(patterns: Set<String>) {
-        patterns.forEach {
-            preserveSetProperty.add(it)
-        }
+    fun preserve(action: Action<in PatternFilterable>) {
+        action.execute(preserveProperty)
     }
 
     /**

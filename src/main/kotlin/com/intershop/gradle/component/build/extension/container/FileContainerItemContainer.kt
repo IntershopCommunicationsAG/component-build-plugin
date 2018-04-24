@@ -87,7 +87,6 @@ open class FileContainerItemContainer
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(name: String, action: Action<in FileContainerItem>) {
-
         val item = getPreconfigureItem(project, name)
         action.execute(item)
         addItemToList(item)

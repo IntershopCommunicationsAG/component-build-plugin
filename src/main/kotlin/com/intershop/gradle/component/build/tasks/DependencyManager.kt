@@ -210,7 +210,8 @@ class DependencyManager(val project: Project) {
                                     jarPath = item.jarPath,
                                     itemType = item.itemType)
                             moduleDesc.excludes.addAll(item.excludes)
-                            moduleDesc.preserves.addAll(item.preserves)
+                            moduleDesc.preserveExcludes.addAll(item.preserveExcludes)
+                            moduleDesc.preserveIncludes.addAll(item.preserveIncludes)
 
                             addModuleDependency(moduleDesc, this, item.types)
                             procModuleDeps.put(dependencyConf, moduleDesc)

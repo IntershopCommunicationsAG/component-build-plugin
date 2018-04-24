@@ -12,16 +12,15 @@ NOTE: This library requires Gradle 4 and JDK 8
 
 NOTE: This library is under development and not final released.
 
-
 == Summary
 This plugin generates a component descriptor, that can be used for deployments on any platforms. It is possible to
 add modules (eg Intershop Cartridges), libraries, zip files (container), single files and properties for different
 installation and environemnt types and operating systems (classifier). The configuration contains also the installation
 target.
-There is also an deployment plugin, that used the descriptor for an installation.
+There is also an installation plugin, that used the descriptor for an installation.
 
 == Usage
-To apply the component-build Gradle Plugin to your projects, add the following in your build script:
+To apply the component-build Gradle plugin to your projects, add the following in your build script:
 
 [source,groovy]
 [subs=+attributes]
@@ -68,7 +67,7 @@ The parameter `--recreate` enable the rebuild of `verifyClasspath` and `createCo
 | <<decriptorOutputFile,decriptorOutputFile>>   | The configuration of the output file of createComponent.
 | <<types,types>>                               | This is a list of deployment and environement types of the component. (*read only*)
 | <<excludes,excludes>>                         | Files that matches to one of patterns will be excluded from the update installation.
-| <<preserves,preserves>>                       | Files that matches to one of patterns will be preserved during the update installation.
+| <<preserve,preserve>>                         | Pattern set to preserve files during an update installation.
 | <<libs,libs>>                                 | This is the data container for all libraries. (*read only*)
 | <<modules,modules>>                           | This configuration contains all libraries. (*read only*)
 | <<dependencyMngt,dependencyMngt>>             | This container holds all dependency related configuration parameters. (*read only*)
@@ -158,13 +157,21 @@ Files that matches to one of the patterns will be excluded from the update insta
 Default:: `[]`
 
 ***
-[[preserves]]
+[[preserve]]
 [source,groovy]
-Set<String> preserves
+PatternFilterable preserve
 
 :::
-Files that matches to one of the patterns will be preserved during the update installation. (*read only*)
-Default:: `[]`
+Pattern set to preserve files during an update installation (*read only*)
+Default:: `PaternFilterable` without a configuration
+
+Example::
+[source,groovy]
+    preserve {
+        include 'extraDir/**'
+        include 'dir1/**'
+        exclude 'dir1/extra.txt'
+    }
 
 ***
 [[libs]]
@@ -226,15 +233,15 @@ Properties can be configured in this container (*read only*). See <<PropertyItem
 |<<addTypes,addTypes>>(types) | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
 |<<scexclude,exclude>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |<<maexclude,exclude>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
-|<<scpreserve,preserve>>(pattern) | Adds a pattern to the set of preserve patterns. Files that matches to one of patterns will be preserved during the update installation.
-|<<mapreserve,preserve>>(patterns) | Adds a set of patterns to the set of preserve patterns. Files that matches to one of patterns will be preserved during the update installation.
+|<<apreserve,preserve>>(action) | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
+|<<cpreserve,preserve>>(closure) | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
 
-|<<mlibs,libs>>(Action<? super LibraryItemContainer> action) | Initialize container for library configuration.
-|<<mmodules,modules>>(Action<? super ModuleItemContainer> action) | Initialize container for modul configuration.
-|<<mdependencyMngt,dependencyMngt>>(Action<? super DependencyMngtContainer> action) | Initialize container for dependency management container. This includes also the configuration for the class collision verification.
-|<<mfileItems,fileItems>>(Action<? super FileItemContainer> action) | Initialize container for single files.
-|<<mcontainers,containers>>(Action<? super FileContainerItemContainer> action) | Initialize container for additional file item containers.
-|<<mpropertyItems,propertyItems>>(Action<? super PropertyItemContainer> action) | Initialize container for properties.
+|<<mlibs,libs>>(action) | Initialize container for library configuration.
+|<<mmodules,modules>>(action) | Initialize container for modul configuration.
+|<<mdependencyMngt,dependencyMngt>>(action) | Initialize container for dependency management container. This includes also the configuration for the class collision verification.
+|<<mfileItems,fileItems>>(action) | Initialize container for single files.
+|<<mcontainers,containers>>(action) | Initialize container for additional file item containers.
+|<<mpropertyItems,propertyItems>>(action) | Initialize container for properties.
 |===
 
 [[addType]]
@@ -269,12 +276,21 @@ exclude(Set<String> patterns)
 Adds a set of patterns to the set of exclude patterns. Files that matches to one of the patterns will be excluded from the update installation.
 
 ***
-[[scpreserve]]
+[[apreserve]][[cpreserve]]
 [source,groovy]
-preserve(String pattern)
+preserve(Action<? super PatternFilterable> action)
+preserve(Closure closure)
 
 :::
-Adds a pattern to the set of preserve patterns. Files that matches to one of the patterns will be preserved during the update installation.
+Configures the patternset with an action or closure - depends on the script language. Files that matches to one of patterns will be preserved during the update installation.
+
+Example::
+[source,groovy]
+    preserve {
+        include 'extraDir/**'
+        include 'dir1/**'
+        exclude 'dir1/extra.txt'
+    }
 
 ***
 [[mapreserve]]
@@ -689,7 +705,7 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |<<moduletargetIncluded,targetIncluded>> | If the configured target path is part of the component packages, it is necessary to set this property to true.
 |<<moduleupdatable,updatable>> | If this item should not be part of an update installation, this property is set to false.
 |<<moduleexcludes,excludes>>     | Files that matches to one of the patterns will be excluded from the update installation.
-|<<modulepreserves,preserves>>     | Files that matches to one of the patterns will be preserved during the update installation.
+|<<modulepreserve,preserve>>     | Pattern set to preserve files during an update installation.
 |<<modulejarPath,jarPath>>     | The target path for all jar files of this module.
 |<<moduledescriptorPath,descriptorPath>>     | The target path for descriptor files of this module.
 |===
@@ -756,13 +772,21 @@ Files that matches to one of the patterns will be excluded from the update insta
 Default:: `[]`
 
 ***
-[[modulepreserves]]
+[[modulepreserve]]
 [source,groovy]
-Set<String> preserves
+PatternFilterable preserve
 
 :::
-Files that matches to one of the patterns will be preserved during the update installation. (*read only*)
-Default:: `[]`
+Pattern set to preserve files during an update installation (*read only*)
+Default:: `PaternFilterable` without a configuration
+
+Example::
+[source,groovy]
+    preserve {
+        include 'extraDir/**'
+        include 'dir1/**'
+        exclude 'dir1/extra.txt'
+    }
 
 ***
 [[modulejarPath]]
@@ -797,6 +821,9 @@ See also <<itemmethods, 'Methods of containers and items'>>.
 
 |<<smoduleaddUpdateExcludePattern,addUpdateExcludePattern>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |<<mmoduleaddUpdateExcludePattern,addUpdateExcludePattern>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<mapreserve,preserve>>(action) | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
+|<<mcpreserve,preserve>>(closure) | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
+
 |===
 
 [[smoduleaddUpdateExcludePattern]]
@@ -815,6 +842,23 @@ boolean addUpdateExcludePattern(Set<String> patterns)
 :::
 Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 If one of the patterns is part of the list, the method returns false.
+
+***
+[[mapreserve]][[mcpreserve]]
+[source,groovy]
+preserve(Action<? super PatternFilterable> action)
+preserve(Closure closure)
+
+:::
+Configures the patternset with an action or closure - depends on the script language. Files that matches to one of patterns will be preserved during the update installation.
+
+Example::
+[source,groovy]
+    preserve {
+        include 'extraDir/**'
+        include 'dir1/**'
+        exclude 'dir1/extra.txt'
+    }
 
 ***
 
@@ -1211,7 +1255,7 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |<<containerclassifier,classifier>> | This property can be used if this configuration is for a special operating system.
 |<<containerupdatable,updatable>> | If this item should not be part of an update installation, this property is set to false.
 |<<containerexcludes,excludes>>     | Files that matches to one of the patterns will be excluded from the update installation.
-|<<containerpreserves,preserves>>     | Files that matches to one of the patterns will be preserved during the update installation.
+|<<containerpreserve,preserve>>     | Pattern set to preserve files during an update installation.
 |===
 
 [[containerbaseName]]
@@ -1284,13 +1328,22 @@ Files that matches to one of the patterns will be excluded from the update insta
 Default:: `[]`
 
 ***
-[[containerpreserves]]
+[[containerpreserve]]
 [source,groovy]
-Set<String> preserves
+PatternFilterable preserve
 
 :::
-Files that matches to one of the patterns will be preserved during the update installation. (*read only*)
-Default:: `[]`
+Pattern set to preserve files during an update installation (*read only*)
+Default:: `PaternFilterable` without a configuration
+
+Example::
+[source,groovy]
+    preserve {
+        include 'extraDir/**'
+        include 'dir1/**'
+        exclude 'dir1/extra.txt'
+    }
+
 
 ***
 
@@ -1304,6 +1357,9 @@ See also <<itemmethods, 'Methods of containers and items'>>.
 |<<source,source>>(Object... paths) | Specifies the source  files for packaging. The given paths are evaluated as per Project.files(java.lang.Object[]).
 |<<scontaineraddUpdateExcludePattern,addUpdateExcludePattern>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |<<mcontaineraddUpdateExcludePattern,addUpdateExcludePattern>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<macontainerpreserve,preserve>>(action) | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
+|<<mccontainerpreserve,preserve>>(closure) | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
+
 |===
 
 [[source]]
@@ -1330,6 +1386,23 @@ boolean addUpdateExcludePattern(Set<String> patterns)
 :::
 Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 If one of the patterns is part of the list, the method returns false.
+
+***
+[[macontainerpreserve]][[mccontainerpreserve]]
+[source,groovy]
+preserve(Action<? super PatternFilterable> action)
+preserve(Closure closure)
+
+:::
+Configures the patternset with an action or closure - depends on the script language. Files that matches to one of patterns will be preserved during the update installation.
+
+Example::
+[source,groovy]
+    preserve {
+        include 'extraDir/**'
+        include 'dir1/**'
+        exclude 'dir1/extra.txt'
+    }
 
 ***
 
