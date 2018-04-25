@@ -386,9 +386,9 @@ open class CreateComponentTask : DefaultTask() {
         val componentDescr = Component(
                 displayName = displayName,
                 componentDescription = componentDescription,
-                modulesTarget = modules?.targetPath ?: "",
-                libsTarget = libs?.targetPath ?: "",
-                containerTarget = containers?.targetPath ?: "",
+                modulesPath = modules?.targetPath ?: "",
+                libsPath = libs?.targetPath ?: "",
+                containerPath = containers?.targetPath ?: "",
                 target = defaultTarget,
                 descriptorPath = descriptorPath,
                 metadata = ComponentUtil.metadata(project.group.toString(),

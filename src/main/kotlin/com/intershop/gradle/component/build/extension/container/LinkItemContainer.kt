@@ -17,47 +17,47 @@ package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.AItem
-import com.intershop.gradle.component.build.extension.items.FileItem
+import com.intershop.gradle.component.build.extension.items.LinkItem
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
-import java.io.File
 import javax.inject.Inject
 
 /**
  * This class provides a container for
- * deployable single files.
+ * deployable link configurations.
  *
  * @property parent the parent of this container.
- * @constructor provides an empty preconfigured file item container
+ * @constructor provides an empty preconfigured link item container
  */
-open class FileItemContainer @Inject constructor(@get: Internal val parent: ComponentExtension) : AItem() {
+open class LinkItemContainer @Inject constructor(@get: Internal val parent: ComponentExtension) : AItem() {
 
-    private val itemSet: MutableSet<FileItem> = mutableSetOf()
+    private val itemSet: MutableSet<LinkItem> = mutableSetOf()
 
     /**
-     * This set provides all configured files.
+     * This set provides all configured links.
      *
-     * @property items set of all configured files
+     * @property items set of all configured links
      */
     @get:Nested
-    val items: Set<FileItem>
+    val items: Set<LinkItem>
         get() = itemSet
 
     /**
-     * Add a single file to the component. This
-     * kind of files will be copied as they are.
+     * Add a single link to the component. This
+     * links will be created during the installation.
      *
-     * @param file a real file on the file system
+     * @param name name of the link
+     * @param targetPath the target path of the link
      * @param types set of deployment or environment types
      */
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
-    fun add(file: File, vararg types: String): FileItem {
+    fun add(name: String, targetPath: String, vararg types: String): LinkItem {
 
-        val item = getPreconfigureItem(file)
+        val item = getPreconfigureItem(name, targetPath)
         item.setTypes(types.asList())
         addItemToList(item)
 
@@ -65,29 +65,31 @@ open class FileItemContainer @Inject constructor(@get: Internal val parent: Comp
     }
 
     /**
-     * Add a single file to the configuration.
+     * Add a link configuration to the configuration.
      *
-     * @param file a real file on the file system
+     * @param name name of the link
+     * @param targetPath the target path of the link
      */
     @Throws(InvalidUserDataException::class)
-    fun add(file: File) : FileItem {
+    fun add(name: String, targetPath: String) : LinkItem {
         if(types.isEmpty() && parent.types.isNotEmpty()) {
-            return add(file, *parent.types.toTypedArray())
+            return add(name, targetPath, *parent.types.toTypedArray())
         }
-        return add(file, *this.types.toTypedArray())
+        return add(name, targetPath, *this.types.toTypedArray())
     }
 
     /**
-     * Add a single file to the configuration and configures this.
+     * Add a link configuration to the configuration and configures this.
      *
-     * @param file a real file on the file system.
-     * @param action action to configure all parameters of file item.
+     * @param name name of the link
+     * @param targetPath the target path of the link
+     * @param action action to configure all parameters of link item.
      */
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
-    fun add(file: File, action: Action<in FileItem>) {
+    fun add(name: String, targetPath: String, action: Action<in LinkItem>) {
 
-        val item = getPreconfigureItem(file)
+        val item = getPreconfigureItem(name, targetPath)
         action.execute(item)
         addItemToList(item)
     }
@@ -96,8 +98,9 @@ open class FileItemContainer @Inject constructor(@get: Internal val parent: Comp
      * Creates a preconfigured file item. Configuration is
      * taken from container configuration.
      */
-    private fun getPreconfigureItem(file: File) : FileItem {
-        val item = FileItem(file)
+    @Throws(InvalidUserDataException::class)
+    private fun getPreconfigureItem(name: String, targetPath: String) : LinkItem {
+        val item = LinkItem(name, targetPath)
         item.updatable = updatable
 
         return item
@@ -106,14 +109,13 @@ open class FileItemContainer @Inject constructor(@get: Internal val parent: Comp
     /*
      * Add item to list if the name or the special configuration does not exists in the list.
      */
-    private fun addItemToList(item: FileItem) {
+    @Throws(InvalidUserDataException::class)
+    private fun addItemToList(item: LinkItem) {
         addTypes(item)
 
         if(itemSet.find { it.name == item.name &&
-                        it.extension == item.extension &&
-                        it.classifier == item.classifier} != null) {
-            throw InvalidUserDataException("File ${item.file.nameWithoutExtension}.${item.file.extension} " +
-                    "is already part of the current configuration!")
+                          it.classifier == item.classifier} != null) {
+            throw InvalidUserDataException("Link with ${item.name} is already part of the current configuration!")
         } else {
             itemSet.add(item)
         }

@@ -1,4 +1,5 @@
 rootProject.name = 'component-build-plugin'
 
 // for development
-// includeBuild '../component-descriptor'
+includeBuild '../component-descriptor'
+includeBuild '../component-installation-plugin'

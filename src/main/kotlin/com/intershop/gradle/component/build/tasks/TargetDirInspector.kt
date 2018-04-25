@@ -39,9 +39,9 @@ class TargetDirInspector(val component: Component) {
     }
 
     private val descriptorTarget = checkInputForSuffix(component.descriptorPath, "/")
-    private val containerTarget = checkInputForSuffix(component.containerTarget,"/")
-    private val libsTarget = checkInputForSuffix(component.libsTarget,"/")
-    private val modulesTarget = checkInputForSuffix(component.modulesTarget,"/")
+    private val containerTarget = checkInputForSuffix(component.containerPath,"/")
+    private val libsTarget = checkInputForSuffix(component.libsPath,"/")
+    private val modulesTarget = checkInputForSuffix(component.modulesPath,"/")
 
     private val targetDirInfos = mutableSetOf<TargetDirInfo>()
 

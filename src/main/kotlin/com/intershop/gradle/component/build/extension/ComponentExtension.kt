@@ -16,9 +16,11 @@
 package com.intershop.gradle.component.build.extension
 
 import com.intershop.gradle.component.build.extension.container.DependencyMngtContainer
+import com.intershop.gradle.component.build.extension.container.DirectoryContainer
 import com.intershop.gradle.component.build.extension.container.FileContainerItemContainer
 import com.intershop.gradle.component.build.extension.container.FileItemContainer
 import com.intershop.gradle.component.build.extension.container.LibraryItemContainer
+import com.intershop.gradle.component.build.extension.container.LinkItemContainer
 import com.intershop.gradle.component.build.extension.container.ModuleItemContainer
 import com.intershop.gradle.component.build.extension.container.PropertyItemContainer
 import com.intershop.gradle.component.build.extension.inheritance.InheritanceSpec
@@ -93,6 +95,12 @@ open class ComponentExtension @Inject constructor(project: Project) {
 
     private val containerContainer =
             project.objects.newInstance(FileContainerItemContainer::class.java, project, this)
+
+    private val linkContainer =
+            project.objects.newInstance(LinkItemContainer::class.java, this)
+
+    private val directoryContainer =
+            project.objects.newInstance(DirectoryContainer::class.java, this)
 
     private val propertyContainer =
             project.objects.newInstance(PropertyItemContainer::class.java, this)
@@ -379,6 +387,44 @@ open class ComponentExtension @Inject constructor(project: Project) {
     @Suppress("unused")
     fun containers(action: Action<in FileContainerItemContainer>) {
         action.execute(containerContainer)
+    }
+
+    /**
+     * The container for all single link configurations.
+     * These links will be created as they are.
+     *
+     * @property links container of link configurations
+     */
+    val links: LinkItemContainer
+        get() = linkContainer
+
+    /**
+     * Configures links of a component.
+     *
+     * @param action execute the link container configuration
+     */
+    @Suppress("unused")
+    fun links(action: Action<in LinkItemContainer>) {
+        action.execute(linkContainer)
+    }
+
+    /**
+     * The container for all single directory configurations.
+     * These directories will be created as they are.
+     *
+     * @property links container of link configurations
+     */
+    val directories: DirectoryContainer
+        get() = directoryContainer
+
+    /**
+     * Configures directories of a component.
+     *
+     * @param action execute the directory container configuration
+     */
+    @Suppress("unused")
+    fun directories(action: Action<in DirectoryContainer>) {
+        action.execute(directoryContainer)
     }
 
     /**

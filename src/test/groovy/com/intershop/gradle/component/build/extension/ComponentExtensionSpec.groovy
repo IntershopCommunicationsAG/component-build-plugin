@@ -236,4 +236,54 @@ class ComponentExtensionSpec extends Specification {
         extension.containers.items.first().types.contains('development')
         extension.containers.items.first().types.size() == 2
     }
+
+    def 'check handling of links'() {
+        when:
+        extension.links.add('test1/test2', 'test1/test2')
+
+        then:
+        extension.links.items.size() == 1
+    }
+
+    def 'check handling of invalid link configs'() {
+        when:
+        extension.links.add('/test1/test2', 'test1/test2')
+
+        then:
+        thrown(org.gradle.api.InvalidUserDataException)
+    }
+
+    def 'check handling of doubled link configs'() {
+        when:
+        extension.links.add('test1/test2', 'test1/test2')
+        extension.links.add('test1/test2', 'test1/test2')
+
+        then:
+        thrown(org.gradle.api.InvalidUserDataException)
+    }
+
+    def 'check handling of directories'() {
+        when:
+        extension.directories.add('test1/test2')
+
+        then:
+        extension.directories.items.size() == 1
+    }
+
+    def 'check handling of invalid directory configs'() {
+        when:
+        extension.directories.add('/test1/test2')
+
+        then:
+        thrown(org.gradle.api.InvalidUserDataException)
+    }
+
+    def 'check handling of doubled directory configs'() {
+        when:
+        extension.directories.add('test1/test2')
+        extension.directories.add('test1/test2')
+
+        then:
+        thrown(org.gradle.api.InvalidUserDataException)
+    }
 }
