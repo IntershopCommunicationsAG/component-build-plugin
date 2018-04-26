@@ -21,6 +21,14 @@ import org.gradle.api.tasks.Input
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
+/**
+ * This class represents a directory configuration of a component.
+ *
+ * @property targetPath the target path of the directory
+ *
+ * @constructor initializes a configuration from target name and target path.
+ */
+
 class Directory constructor(
         @get:Input val targetPath: String) : AItem(), IItem, IOSSpecific {
 

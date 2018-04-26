@@ -21,6 +21,14 @@ import org.gradle.api.tasks.Input
 import org.slf4j.LoggerFactory
 import kotlin.properties.Delegates
 
+/**
+ * This class represents a link configuration of a component.
+ *
+ * @property name the name of the link
+ * @property targetPath the target path of the link
+ *
+ * @constructor initializes a configuration from target name and target path.
+ */
 class LinkItem constructor(
         @get:Input val name: String,
         @get:Input val targetPath: String) : AItem(), IItem, IOSSpecific {
@@ -63,6 +71,10 @@ class LinkItem constructor(
     init {
         internalTargetPath = targetPath
         internalName = name
+
+        if(internalName == internalTargetPath) {
+            throw InvalidUserDataException("Link name '$name' and taret '$targetPath' are identical.")
+        }
     }
 
     /**

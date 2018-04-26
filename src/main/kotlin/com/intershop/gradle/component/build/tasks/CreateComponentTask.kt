@@ -15,9 +15,11 @@
  */
 package com.intershop.gradle.component.build.tasks
 
+import com.intershop.gradle.component.build.extension.container.DirectoryContainer
 import com.intershop.gradle.component.build.extension.container.FileContainerItemContainer
 import com.intershop.gradle.component.build.extension.container.FileItemContainer
 import com.intershop.gradle.component.build.extension.container.LibraryItemContainer
+import com.intershop.gradle.component.build.extension.container.LinkItemContainer
 import com.intershop.gradle.component.build.extension.container.ModuleItemContainer
 import com.intershop.gradle.component.build.extension.container.PropertyItemContainer
 import com.intershop.gradle.component.build.utils.DependencyConfig
@@ -25,8 +27,10 @@ import com.intershop.gradle.component.build.utils.getValue
 import com.intershop.gradle.component.build.utils.setValue
 import com.intershop.gradle.component.descriptor.Component
 import com.intershop.gradle.component.descriptor.ContentType
+import com.intershop.gradle.component.descriptor.Directory
 import com.intershop.gradle.component.descriptor.FileContainer
 import com.intershop.gradle.component.descriptor.FileItem
+import com.intershop.gradle.component.descriptor.Link
 import com.intershop.gradle.component.descriptor.Property
 import com.intershop.gradle.component.descriptor.util.ComponentUtil
 import org.gradle.api.Action
@@ -333,6 +337,24 @@ open class CreateComponentTask : DefaultTask() {
     var containers: FileContainerItemContainer? = null
 
     /**
+     * This is the container for all zip container
+     * of this component.
+     *
+     * @property containers container for file containers (zip) packages
+     */
+    @get:Nested
+    var links: LinkItemContainer? = null
+
+    /**
+     * This is the container for all zip container
+     * of this component.
+     *
+     * @property containers container for file containers (zip) packages
+     */
+    @get:Nested
+    var directories: DirectoryContainer? = null
+
+    /**
      * Resolved modules from list of items. (*read only*).
      *
      * @property resolvedModules list with dependency configurations
@@ -473,6 +495,39 @@ open class CreateComponentTask : DefaultTask() {
                     updatable = it.updatable)
             property.types.addAll(it.types)
             componentDescr.addProperty(property)
+
+            // component types and classifiers contains all available
+            // types and classifiers
+            componentDescr.types.addAll(it.types)
+            componentDescr.classifiers.add(it.classifier)
+        }
+
+        links?.items?.forEach {
+            val link = Link(
+                    name = it.name,
+                    targetPath = it.targetPath,
+                    classifier = it.classifier,
+                    contentType = ContentType.valueOf(it.contentType),
+                    updatable = it.updatable)
+
+            link.types.addAll(it.types)
+            componentDescr.addLinkItem(link)
+
+            // component types and classifiers contains all available
+            // types and classifiers
+            componentDescr.types.addAll(it.types)
+            componentDescr.classifiers.add(it.classifier)
+        }
+
+        directories?.items?.forEach {
+            val directory = Directory(
+                    dirPath = it.targetPath,
+                    classifier = it.classifier,
+                    contentType = ContentType.valueOf(it.contentType),
+                    updatable = it.updatable)
+
+            directory.types.addAll(it.types)
+            componentDescr.addDirectory(directory)
 
             // component types and classifiers contains all available
             // types and classifiers

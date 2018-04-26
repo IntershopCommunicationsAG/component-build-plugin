@@ -223,7 +223,6 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         }
 
         ${createRepo(testProjectDir)}
-
  
         //}
         publishing {

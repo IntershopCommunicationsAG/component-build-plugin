@@ -170,6 +170,8 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             properties = extension.propertyItems
                             containers = extension.containers
                             files = extension.fileItems
+                            links = extension.links
+                            directories = extension.directories
 
                             defaultTarget = extension.targetPath
 

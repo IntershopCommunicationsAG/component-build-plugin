@@ -239,7 +239,7 @@ class ComponentExtensionSpec extends Specification {
 
     def 'check handling of links'() {
         when:
-        extension.links.add('test1/test2', 'test1/test2')
+        extension.links.add('test1/test2', 'test3/test4')
 
         then:
         extension.links.items.size() == 1
