@@ -39,7 +39,7 @@ class Directory constructor(
     private var internalTargetPath by Delegates.vetoable("") { _, _, newValue ->
         val invalidChars = Utils.getIllegalChars(newValue)
         if(!invalidChars.isEmpty()) {
-            throw InvalidUserDataException("Target path of directory '${targetPath}'" +
+            throw InvalidUserDataException("Target path of directory '$targetPath'" +
                     "contains invalid characters '$invalidChars'.")
         }
         if(newValue.startsWith("/")) {
@@ -47,7 +47,7 @@ class Directory constructor(
                     "starts with a leading '/' - only a relative path is allowed.")
         }
         if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {
-            Directory.logger.warn("The target path of directory '${targetPath}' "
+            Directory.logger.warn("The target path of directory '$targetPath' "
                     + "is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
         }
         invalidChars.isEmpty() && ! newValue.startsWith("/")

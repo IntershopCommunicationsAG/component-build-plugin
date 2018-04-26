@@ -244,9 +244,9 @@ open class ComponentExtension @Inject constructor(project: Project) {
     }
 
     /**
-     * This is a provider for preserved include patterns.
+     * This is the configuration for preserved patterns.
      *
-     * @property preserveIncludeProvider Provider for dependencyExcludes
+     * @property preserve pattern filter set to preserve files
      */
     val preserve: PatternFilterable
         get() = preserveProperty

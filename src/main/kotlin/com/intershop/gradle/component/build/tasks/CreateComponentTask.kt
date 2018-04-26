@@ -266,10 +266,9 @@ open class CreateComponentTask : DefaultTask() {
     }
 
     /**
-     * Set provider for default property of
-     * the update preserve pattern set.
+     * Configure pattern set to update preserve pattern set.
      *
-     * @param pattern set provider for property.
+     * @param patternSet Pattern set to preserve files.
      */
     @Suppress( "unused")
     fun providePreserve(patternSet: PatternFilterable) {

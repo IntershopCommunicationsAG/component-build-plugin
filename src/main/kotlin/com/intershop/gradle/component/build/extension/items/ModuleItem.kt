@@ -123,7 +123,7 @@ class ModuleItem(private val project: Project, @get:Nested override val dependen
      * Files that matches to one of patterns will be
      * excluded in the preserve set of the update installation.
      *
-     * @property preserves Set of Ant based file patterns
+     * @property preserveExcludes Set of Ant based file patterns
      */
     @get:Input
     override val preserveExcludes: Set<String>
@@ -134,7 +134,7 @@ class ModuleItem(private val project: Project, @get:Nested override val dependen
      * Files that matches to one of patterns will be
      * included in the preserve set of the update installation.
      *
-     * @property preserves Set of Ant based file patterns
+     * @property preserveIncludes Set of Ant based file patterns
      */
     @get:Input
     override val preserveIncludes: Set<String>
@@ -145,7 +145,7 @@ class ModuleItem(private val project: Project, @get:Nested override val dependen
      * Files that matches to one of patterns will be
      * excluded/included from the update installation.
      *
-     * @param action Action for configuring the preserve filter
+     * @property preserve pattern set to preserve files.
      */
     val preserve: PatternFilterable
         get() = preserveProperty

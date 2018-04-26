@@ -34,7 +34,7 @@ class TargetDirInspector(val component: Component) {
         internal val logger = LoggerFactory.getLogger(TargetDirInspector::class.java.simpleName)
     }
 
-    val root = Node("","", "componentRoot")
+    private val root = Node("componentRootDir","", "")
 
     /**
      * Runs the test for all directories of a component.
@@ -43,7 +43,7 @@ class TargetDirInspector(val component: Component) {
      */
 
     fun check() : String {
-        var errorMsg = StringBuilder()
+        val errorMsg = StringBuilder()
 
         var rv = root.addTarget("", "", component.descriptorPath)
         when(rv.second) {
