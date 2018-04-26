@@ -13,9 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.intershop.gradle.component.build.utils.tree
 
+/**
+ * Enumeration for status information during
+ * the descriptor validation.
+ */
 enum class AddStatus {
     IDENTICAL,
     NOTSELFCONTAINED,

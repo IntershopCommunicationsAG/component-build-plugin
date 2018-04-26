@@ -85,7 +85,18 @@ class Node(val name: String, val environment: String, val classifier: String) {
         return node
     }
 
-    fun addTarget(environment: String, classifier: String, vararg pathEntry: String): Triple<Node,AddStatus,String> {
+    /**
+     * Addd path for target with environment and classifier.
+     *
+     * @param environment environment/type string
+     * @param classifier classifier / OS type string
+     * @param pathEntry path entries
+     *
+     * @return the result status with the new child node
+     */
+    fun addTarget(environment: String,
+                  classifier: String,
+                  vararg pathEntry: String): Triple<Node,AddStatus,String> {
         var state = AddStatus.ADDED
         var msg = ""
         val node = addPath(environment, classifier, *pathEntry)
@@ -110,14 +121,26 @@ class Node(val name: String, val environment: String, val classifier: String) {
                 recursiveChildCheck(this.children, doubleNodes)
                 if(doubleNodes.isNotEmpty()) {
                     state = AddStatus.NOTSELFCONTAINED
-                    msg = "There is configured child target '${doubleNodes.first().getPath()}' in the path '${node.getPath()}'"
+                    msg = "There is configured child target '${doubleNodes.first().getPath()}' " +
+                            "in the path '${node.getPath()}'"
                 }
             }
         }
         return Triple(node, state, msg)
     }
 
-    fun addTarget(environment: Set<String>, classifier: String, vararg pathEntry: String): Triple<Node,AddStatus,String> {
+    /**
+     * Addd path for target with an environment set and classifier.
+     *
+     * @param environment environment/type set of strings
+     * @param classifier classifier / OS type string
+     * @param pathEntry path entries
+     *
+     * @return the result status with the new child node
+     */
+    fun addTarget(environment: Set<String>,
+                  classifier: String,
+                  vararg pathEntry: String): Triple<Node,AddStatus,String> {
         return if(environment.isEmpty()) {
             addTarget("", classifier, *pathEntry)
         } else {
@@ -133,7 +156,18 @@ class Node(val name: String, val environment: String, val classifier: String) {
         }
     }
 
-    fun addTarget(environment: Set<String>, classifier: Set<String>, vararg pathEntry: String): Triple<Node,AddStatus,String> {
+    /**
+     * Addd path for target with an environment set and classifier set.
+     *
+     * @param environment environment/type set of strings
+     * @param classifier classifier / OS type set of strings
+     * @param pathEntry path entries
+     *
+     * @return the result status with the new child node
+     */
+    fun addTarget(environment: Set<String>,
+                  classifier: Set<String>,
+                  vararg pathEntry: String): Triple<Node,AddStatus,String> {
         return if(classifier.isEmpty()) {
             addTarget(environment, "", *pathEntry)
         } else {

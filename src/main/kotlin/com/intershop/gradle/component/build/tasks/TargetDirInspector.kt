@@ -41,22 +41,21 @@ class TargetDirInspector(val component: Component) {
      *
      * @return the error message if the test fails
      */
-
     fun check() : String {
         val errorMsg = StringBuilder()
 
         var rv = root.addTarget("", "", component.descriptorPath)
         when(rv.second) {
-            AddStatus.IDENTICAL -> errorMsg.append("The path '${rv.first.getPath()}' of descriptor was defined by an other component artifact!")
-            AddStatus.NOTSELFCONTAINED -> errorMsg.append("The path '${rv.first.getPath()}' of descriptor exists. ${rv.third}")
+            AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "descriptor", ""))
+            AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "descriptor", ""))
             else -> logger.debug("Descriptor path {} was ok.", rv.first.getPath())
         }
 
         if(component.libs.isNotEmpty()) {
             rv = root.addTarget("", "", component.libsPath)
             when (rv.second) {
-                AddStatus.IDENTICAL -> errorMsg.append("The path '${rv.first.getPath()}' of libraries was defined by an other component artifact!")
-                AddStatus.NOTSELFCONTAINED -> errorMsg.append("The path '${rv.first.getPath()}' of libraries exists. ${rv.third}")
+                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "libraries", ""))
+                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "libraries", ""))
                 else -> logger.debug("Libraries path {} was ok.", rv.first.getPath())
             }
         }
@@ -64,8 +63,12 @@ class TargetDirInspector(val component: Component) {
         component.modules.forEach {
             rv = root.addTarget(it.value.types, it.value.classifiers, component.modulesPath, it.key)
             when(rv.second) {
-                AddStatus.IDENTICAL -> errorMsg.append("The path '${rv.first.getPath()} of module '${it.value.dependency}' was defined by an other component artifact!")
-                AddStatus.NOTSELFCONTAINED -> errorMsg.append("The path '${rv.first.getPath()}' of module '${it.value.dependency}' exists. ${rv.third}")
+                AddStatus.IDENTICAL -> {
+                    errorMsg.append(getIdenticalMsg(rv, "module", it.value.dependency.toString()))
+                }
+                AddStatus.NOTSELFCONTAINED -> {
+                    errorMsg.append(getSelfcontainedMsg(rv, "module", it.value.dependency.toString()))
+                }
                 else -> logger.debug("Module {} path {} was ok.", it.value.dependency, rv.first.getPath())
             }
         }
@@ -73,8 +76,8 @@ class TargetDirInspector(val component: Component) {
         component.fileContainers.forEach {
             rv = root.addTarget(it.types, it.classifier, component.containerPath,it.targetPath)
             when(rv.second) {
-                AddStatus.IDENTICAL -> errorMsg.append("The path '${rv.first.getPath()}' of container '${it.name}' was defined by an other component artifact!")
-                AddStatus.NOTSELFCONTAINED -> errorMsg.append("The path '${rv.first.getPath()}' of container '${it.name}' exists. ${rv.third}")
+                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "container", it.name))
+                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "container", it.name))
                 else -> logger.debug("Container {} path {} was ok.", it.name, rv.first.getPath())
             }
         }
@@ -82,8 +85,8 @@ class TargetDirInspector(val component: Component) {
         component.linkItems.forEach {
             rv = root.addTarget(it.types, it.classifier, it.name)
             when(rv.second) {
-                AddStatus.IDENTICAL -> errorMsg.append("The path '${rv.first.getPath()}' of link '${it.name}' was defined by an other component artifact!")
-                AddStatus.NOTSELFCONTAINED -> errorMsg.append("The path '${rv.first.getPath()}' of link '${it.name}' exists. ${rv.third}")
+                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "link", it.name))
+                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "link", it.name))
                 else -> logger.debug("Link {} path {} was ok.", it.name, rv.first.getPath())
             }
         }
@@ -91,12 +94,20 @@ class TargetDirInspector(val component: Component) {
         component.directoryItems.forEach {
             rv = root.addTarget(it.types, it.classifier, it.dirPath)
             when(rv.second) {
-                AddStatus.IDENTICAL -> errorMsg.append("The path '${rv.first.getPath()}' of directory '${it.dirPath}' was defined by an other component artifact!")
-                AddStatus.NOTSELFCONTAINED -> errorMsg.append( "The path '${rv.first.getPath()}' of directory '${it.dirPath}' exists. ${rv.third}")
+                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "directory", it.dirPath))
+                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "link", it.dirPath))
                 else -> logger.debug("Directory {} path {} was ok.", it.dirPath, rv.first.getPath())
             }
         }
 
         return errorMsg.toString()
+    }
+
+    private fun getIdenticalMsg(result: Triple<Node,AddStatus,String>, type: String, name: String) : String {
+        return "The path '${result.first.getPath()}' of $type '$name' was defined by an other component artifact! \n"
+    }
+
+    private fun getSelfcontainedMsg(result: Triple<Node,AddStatus,String>, type: String, name: String): String {
+        return "The path '${result.first.getPath()}' of $type '${name}' exists. ${result.third} \n"
     }
 }
