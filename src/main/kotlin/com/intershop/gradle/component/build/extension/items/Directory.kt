@@ -43,7 +43,7 @@ class Directory constructor(
                     "contains invalid characters '$invalidChars'.")
         }
         if(newValue.startsWith("/")) {
-            throw InvalidUserDataException("Target path of directory '${targetPath}'" +
+            throw InvalidUserDataException("Target path of directory '$targetPath'" +
                     "starts with a leading '/' - only a relative path is allowed.")
         }
         if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {

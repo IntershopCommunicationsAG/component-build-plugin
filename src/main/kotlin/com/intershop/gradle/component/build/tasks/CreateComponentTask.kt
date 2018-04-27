@@ -520,7 +520,7 @@ open class CreateComponentTask : DefaultTask() {
 
         directories?.items?.forEach {
             val directory = Directory(
-                    dirPath = it.targetPath,
+                    targetPath = it.targetPath,
                     classifier = it.classifier,
                     contentType = ContentType.valueOf(it.contentType),
                     updatable = it.updatable)

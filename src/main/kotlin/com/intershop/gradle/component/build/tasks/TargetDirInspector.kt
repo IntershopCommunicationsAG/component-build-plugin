@@ -92,11 +92,11 @@ class TargetDirInspector(val component: Component) {
         }
 
         component.directoryItems.forEach {
-            rv = root.addTarget(it.types, it.classifier, it.dirPath)
+            rv = root.addTarget(it.types, it.classifier, it.targetPath)
             when(rv.second) {
-                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "directory", it.dirPath))
-                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "link", it.dirPath))
-                else -> logger.debug("Directory {} path {} was ok.", it.dirPath, rv.first.getPath())
+                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "directory", it.targetPath))
+                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "link", it.targetPath))
+                else -> logger.debug("Directory {} path {} was ok.", it.targetPath, rv.first.getPath())
             }
         }
 
