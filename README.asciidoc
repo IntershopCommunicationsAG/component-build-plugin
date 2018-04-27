@@ -73,6 +73,8 @@ The parameter `--recreate` enable the rebuild of `verifyClasspath` and `createCo
 | <<dependencyMngt,dependencyMngt>>             | This container holds all dependency related configuration parameters. (*read only*)
 | <<fileItems,fileItems>>                       | This is the configuration of all single files. (*read only*)
 | <<containers,containers>>                     | File containers can be configured in this configuration. (*read only*)
+| <<links,links>>                               | Links can be configured in this configuration. (*read only*)
+| <<directories,directories>>                   | Directories is a container for empty directories. (*read only*)
 | <<propertyItems,propertyItems>>               | Properties can be configured in this container. (*read only*)
 |===
 
@@ -214,6 +216,23 @@ FileContainerItemContainer containers
 File containers can be configured in this configuration (*read only*). See <<FileContainerItemContainer, `FileContainerItemContainer`>>.
 
 ***
+
+[[links]]
+[source,groovy]
+LinkItemContainer links
+
+:::
+This is a container for link configurations (*read only*). See <<LinkItemContainer, `LinkItemContainer`>>.
+
+***
+[[directories]]
+[source,groovy]
+DirectoryContainer directories
+
+:::
+Directories are configuration of empty folders (*read only*). See <<DirectoryContainer, `DirectoryContainer`>>.
+
+***
 [[propertyItems]]
 [source,groovy]
 PropertyItemContainer propertyItems
@@ -227,21 +246,22 @@ Properties can be configured in this container (*read only*). See <<PropertyItem
 
 [cols="1m,1d" width="100%", options="header"]
 |===
-|Method     | Description
+|Method                                     | Description
 
-|<<addType,addType>>(type) | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
-|<<addTypes,addTypes>>(types) | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
-|<<scexclude,exclude>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
-|<<maexclude,exclude>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
-|<<apreserve,preserve>>(action) | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
-|<<cpreserve,preserve>>(closure) | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
-
-|<<mlibs,libs>>(action) | Initialize container for library configuration.
-|<<mmodules,modules>>(action) | Initialize container for modul configuration.
-|<<mdependencyMngt,dependencyMngt>>(action) | Initialize container for dependency management container. This includes also the configuration for the class collision verification.
-|<<mfileItems,fileItems>>(action) | Initialize container for single files.
-|<<mcontainers,containers>>(action) | Initialize container for additional file item containers.
-|<<mpropertyItems,propertyItems>>(action) | Initialize container for properties.
+|<<addType,addType>>(type)                  | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
+|<<addTypes,addTypes>>(types)               | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
+|<<scexclude,exclude>>(pattern)             | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<maexclude,exclude>>(patterns)            | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
+|<<apreserve,preserve>>(action)             | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
+|<<cpreserve,preserve>>(closure)            | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
+|<<mlibs,libs>>(action)                     | Initializes container for library configuration.
+|<<mmodules,modules>>(action)               | Initializes container for modul configuration.
+|<<mdependencyMngt,dependencyMngt>>(action) | Initializes container for dependency management container. This includes also the configuration for the class collision verification.
+|<<mfileItems,fileItems>>(action)           | Initializes container for single files.
+|<<mcontainers,containers>>(action)         | Initializes container for additional file item containers.
+|<<mlinks,links>>(action)                   | Initializes container for link configurations.
+|<<mdirectories,directories>>(action)       | Initializes container for directories.
+|<<mpropertyItems,propertyItems>>(action)   | Initializes container for properties.
 |===
 
 [[addType]]
@@ -306,7 +326,7 @@ Adds a set of patterns to the set of preserve patterns. Files that matches to on
 libs(Action<? super LibraryItemContainer> action)
 
 :::
-Initialize container for library configuration. Instead of an action it is also possible to use a closure. See <<LibraryItemContainer, `LibraryItemContainer`>>.
+Initializes container for library configuration. Instead of an action it is also possible to use a closure. See <<LibraryItemContainer, `LibraryItemContainer`>>.
 
 ***
 [[mmodules]]
@@ -314,7 +334,7 @@ Initialize container for library configuration. Instead of an action it is also 
 modules(Action<? super ModuleItemContainer> action)
 
 :::
-Initialize container for modul configuration. Instead of an action it is also possible to use a closure. See <<ModuleItemContainer, `ModuleItemContainer`>>.
+Initializes container for modul configuration. Instead of an action it is also possible to use a closure. See <<ModuleItemContainer, `ModuleItemContainer`>>.
 
 ***
 [[mdependencyMngt]]
@@ -322,7 +342,7 @@ Initialize container for modul configuration. Instead of an action it is also po
 dependencyMngt(Action<? super DependencyMngtContainer> action)
 
 :::
-Initialize container for dependency management container. This includes also the configuration for the class collision verification.
+Initializes container for dependency management container. This includes also the configuration for the class collision verification.
 Instead of an action it is also possible to use a closure. See <<DependencyMngtContainer, `DependencyMngtContainer`>>.
 
 ***
@@ -331,7 +351,7 @@ Instead of an action it is also possible to use a closure. See <<DependencyMngtC
 fileItems(Action<? super FileItemContainer> action)
 
 :::
-Initialize container for single files. Instead of an action it is also possible to use a closure. See <<FileItemContainer, `FileItemContainer`>>.
+Initializes container for single files. Instead of an action it is also possible to use a closure. See <<FileItemContainer, `FileItemContainer`>>.
 
 ***
 [[mcontainers]]
@@ -339,19 +359,35 @@ Initialize container for single files. Instead of an action it is also possible 
 containers(Action<? super FileContainerItemContainer> action)
 
 :::
-Initialize container for additional file item containers. Instead of an action it is also possible to use a closure. See <<FileContainerItemContainer, `FileContainerItemContainer`>>.
+Initializes container for additional file item containers. Instead of an action it is also possible to use a closure. See <<FileContainerItemContainer, `FileContainerItemContainer`>>.
+
+***
+[[mlinks]]
+[source,groovy]
+links(Action<? super LinkItemContainer> action)
+
+:::
+Initializes container for link configurations. See <<LinkItemContainer, `LinkItemContainer`>>.
+
+***
+[[mdirectories]]
+[source,groovy]
+directories(Action<? super DirectoryContainer> action)
+
+:::
+Initializes directory configuration container. See <<DirectoryContainer, `DirectoryContainer`>>.
 
 ***
 [[mpropertyItems]]
 [source,groovy]
-propertyItems(Action<? super PropertyItemContainer> action)
+properties(Action<? super PropertyItemContainer> action)
 
 :::
 Initialize container for properties. Instead of an action it is also possible to use a closure. See <<PropertyItemContainer, `PropertyItemContainer`>>.
 
 ***
 
-=== Configuration for libs, modules, fileitems and file container
+=== Configuration for libs, modules, fileitems, links, directories and file container
 
 [[itemproperties]]
 ==== Properties of containers and items
@@ -1406,6 +1442,233 @@ Example::
 
 ***
 
+[[LinkItemContainer]]
+=== Container 'links'
+
+This configuration contains link configuration for Linux and MacOS.
+
+==== Properties of 'links'
+
+[cols="1m,2d" width="100%", options="header"]
+|===
+|Property | Description
+
+|<<linksitems,items>> | Set of all configured link items.
+|===
+
+[[linksitems]]
+[source,groovy]
+Set<LinkItem> items
+
+:::
+Set of all configured link items. See <<LinkItem,LinkItem>>.
+Default:: `[]`
+
+***
+
+==== Methods of 'links'
+
+[cols="1m,1d" width="100%", options="header"]
+|===
+|Method | Description
+
+|<<links1add,add>>(name,targetPath,type, ...) | Creates an new instance of a link configuration item with a link name, target path and a list of types. It adds this item to the list and returns the instance for further configuration.
+|<<links2add,add>>(name,targetPath) | Creates an new instance of a link configuration item with a link name and target path. Types of the container are used as a default configuration.
+|<<links3add,add>>(name,targetPath ,action) | Creates an new instance of a link configuration item with a link name and target path and configures this instance. The item is added to the list of items.
+|===
+
+[[links1add]]
+[source,groovy]
+LinkItem add(String name, String targetPath, String... types)
+
+:::
+Creates an new instance of a link configuration item with a link name, target path and a list of types. It adds this item to the list and returns the instance for further configuration.
+See <<LinkItem,LinkItem>>.
+
+***
+[[links2add]]
+[source,groovy]
+LinkItem add(String name, String targetPath)
+
+:::
+Creates an new instance of a link configuration item with a link name and target path. It adds this item to the list and returns the instance for further configuration.
+See <<LinkItem,LinkItem>>.
+
+***
+[[links3add]]
+[source,groovy]
+LinkItem add(String name, String targetPath, Action<? super LinkItem> action)
+
+:::
+Creates an new instance of a link configuration item with a link name and target path and configures this instance. It adds this item to the list and returns the instance for further configuration.
+See <<LinkItem,LinkItem>>.
+
+***
+
+[[LinkItem]]
+==== Configuration of LinkItem
+
+===== Properties
+See also <<itemproperties,'Properties of containers and items'>>.
+
+[cols="1m,2d" width="100%", options="header"]
+|===
+|Property | Description
+
+|<<linkname,name>>                  | The name of the link.
+|<<linktargetPath,targetPath>>      | The target of the link.
+|<<linkclassifier, classifier>>     | This property can be used if this configuration is for a special operating system.
+|<<linkupdatable,updatable>>        | If this item should not be part of an update installation, this property is set to false.
+|===
+
+[[linkname]]
+[source,groovy]
+String name
+
+:::
+The name of the link. It must be a valid file system path.
+Default:: `""`
+
+***
+[[linktargetPath]]
+[source,groovy]
+String targetPath
+
+:::
+The target of the link. This must be also a valid file system path.
+Default:: `""`
+
+***
+[[linkclassifier]]
+[source,groovy]
+String classifier
+
+:::
+This property can be used if this configuration is for a special operating system.
+***
+
+[[linkupdatable]]
+[source,groovy]
+boolean updatable
+
+:::
+If this item should not be part of an update installation, this property is set to false.
+Default:: `true`
+
+***
+
+[[DirectoryContainer]]
+=== Container 'directories'
+
+This configuration container is used for empty directories.
+
+==== Properties of 'directories'
+
+[cols="1m,2d" width="100%", options="header"]
+|===
+|Property | Description
+
+|<<directoriesitems,items>> | Set of all configured directory items.
+|===
+
+[[directory]]
+[source,groovy]
+Set<Directory> items
+
+:::
+Set of all configured directory items. See <<Directory,Directory>>.
+Default:: `[]`
+
+***
+
+==== Methods of 'directories'
+
+[cols="1m,1d" width="100%", options="header"]
+|===
+|Method | Description
+
+|<<directories1add,add>>(targetPath, type, ...) | Creates an new instance of a directory configuration item with a target path and a list of types. It adds this item to the list and returns the instance for further configuration.
+|<<directories2add,add>>(targetPath) | Creates an new instance of a directory configuration item with a target path. Types of the container are used as a default configuration.
+|<<directories3add,add>>(targetPath,action) | Creates an new instance of a directory configuration item with a target path and configures this instance. The item is added to the list of items.
+|===
+
+[[directories1add]]
+[source,groovy]
+Directory add(String targetPath, String... types)
+
+:::
+Creates an new instance of a directory item with a target path and a list of types. It adds this item to the list and returns the instance for further configuration.
+See <<Directory,Directory>>.
+
+***
+[[directories2add]]
+[source,groovy]
+Directory add(String targetPath)
+
+:::
+Creates an new instance of a directory item with a target path. It adds this item to the list and returns the instance for further configuration.
+See <<Directory,Directory>>.
+
+***
+[[directories3add]]
+[source,groovy]
+Directory add(String targetPath, Action<? super LinkItem> action)
+
+:::
+Creates an new instance of a directory item with a ltarget path and configures this instance. It adds this item to the list and returns the instance for further configuration.
+See <<Directory,Directory>>.
+
+***
+
+[[Directory]]
+==== Configuration of Directory
+
+===== Properties
+See also <<itemproperties,'Properties of containers and items'>>.
+
+[cols="1m,2d" width="100%", options="header"]
+|===
+|Property | Description
+|<<directorname,name>>                  | The path of the directory.
+|<<directoryclassifier, classifier>>     | This property can be used if this configuration is for a special operating system.
+|<<directoryupdatable,updatable>>        | If this item should not be part of an update installation, this property is set to false.
+|===
+
+[[directorytargetPath]]
+[source,groovy]
+String targetPath
+
+:::
+This is the directory path. This must be a valid file system path.
+Default:: `""`
+
+***
+[[directoryclassifier]]
+[source,groovy]
+String classifier
+
+:::
+This property can be used if this configuration is for a special operating system.
+***
+
+[[directoryupdatable]]
+[source,groovy]
+boolean updatable
+
+:::
+If this item should not be part of an update installation, this property is set to false.
+Default:: `true`
+
+***
+
+===== Methods
+
+[cols="1m,1d" width="100%", options="header"]
+|===
+|Method | Description
+
+|===
+
 [[PropertyItemContainer]]
 === Container 'propertyItems'
 
@@ -1425,7 +1688,7 @@ This configuration is used to store properties for installations of a component.
 Set<PropertyItem> items
 
 :::
-Set of all configured dependencies for property items. See <<PropertyItem,PropertyItem>>.
+Set of all configured property items. See <<PropertyItem,PropertyItem>>.
 Default:: `[]`
 
 ***
@@ -1459,9 +1722,10 @@ PropertyItem add(String key, String value)
 Creates an new instance of a property configuration item with a property key and a value. Types of the container are used as a default configuration. See <<PropertyItem,PropertyItem>>.
 
 ***
+
 [[props3add]]
 [source,groovy]
-void add(name, Action<? super FileContainerItem> action)
+void add(String name, Action<? super FileContainerItem> action)
 
 :::
 Creates an new instance of a property configuration item with a property key and configures this instance. The item is added to the list of items.
@@ -1478,7 +1742,8 @@ See also <<itemproperties,'Properties of containers and items'>>.
 [cols="1m,2d" width="100%", options="header"]
 |===
 |Property | Description
-|<<value, value>>> | The property value of this item.
+
+|<<value, value>> | The property value of this item.
 |<<propclassifier, classifier>> | This property can be used if this configuration is for a special operating system.
 |<<propupdatable,updatable>> | If this item should not be part of an update installation, this property is set to false.
 |===

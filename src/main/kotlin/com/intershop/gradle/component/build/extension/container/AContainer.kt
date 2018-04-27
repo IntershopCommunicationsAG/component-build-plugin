@@ -35,6 +35,7 @@ import kotlin.properties.Delegates
  * @constructor provides an empty container
  */
 abstract class AContainer @Inject constructor(@get:Internal protected val description: String,
+                                              @get:Internal protected val defTargetPath: String,
                                               @get:Internal protected open val parent: ComponentExtension) : AItem() {
 
     companion object {
@@ -48,7 +49,7 @@ abstract class AContainer @Inject constructor(@get:Internal protected val descri
      * @property targetPath contains the default installation path
      */
     @get:Input
-    var targetPath: String by Delegates.vetoable("") { _, _, newValue ->
+    var targetPath: String by Delegates.vetoable(defTargetPath) { _, _, newValue ->
         val invalidChars = Utils.getIllegalChars(newValue)
         if(!invalidChars.isEmpty()) {
             throw InvalidUserDataException("Target path of file item container contains " +

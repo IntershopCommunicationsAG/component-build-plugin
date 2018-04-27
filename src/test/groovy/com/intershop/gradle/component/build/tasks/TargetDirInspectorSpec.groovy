@@ -107,6 +107,42 @@ class TargetDirInspectorSpec extends Specification {
         inspector.check() == ""
     }
 
+    def 'Module, links and container are located in the same directory'() {
+        when:
+        Set<String> types = [] as Set<String>
+        Set<String> classifiers = [] as Set<String>
+
+        Map<String, Module> modules= [:]
+        modules.put("core", new Module("core", "core", new Dependency("com.intershop", "core", "1.0.0")))
+        modules.put("isml", new Module("isml", "isml", new Dependency("com.intershop", "isml", "1.0.0")))
+
+        Map<String, Library> libs = [:]
+        libs.put("com.intershop_lib1_1.0.0", new Library(new Dependency("com.intershop", "lib1", "1.0.0"), "com.intershop_lib1_1.0.0"))
+        libs.put("com.intershop_lib2_1.0.0", new Library(new Dependency("com.intershop", "lib2", "1.0.0"), "com.intershop_lib2_1.0.0"))
+
+        Set<FileContainer> fileContainers = []
+        fileContainers.add(new FileContainer("container1", "container1", "bin"))
+        fileContainers.add(new FileContainer("container2", "container2", "conf"))
+
+        Set<Link> links = []
+        links.add(new Link("same/modules/corelink", "same/modules/core"))
+        links.add(new Link("same/modules/ismllink", "same/modules/isml"))
+
+        Component comp = new Component("testdescriptor", "",
+                types,  classifiers,
+                "same",
+                "modules/libs",
+                "same",
+                "defaultTarget",
+                "descriptorPath",
+                modules,  libs, fileContainers, [] as Set<FileItem>, links
+        )
+        TargetDirInspector inspector = new TargetDirInspector(comp)
+
+        then:
+        inspector.check() == ""
+    }
+
     def 'Container with different OS'() {
         when:
         Set<String> types = [] as Set<String>

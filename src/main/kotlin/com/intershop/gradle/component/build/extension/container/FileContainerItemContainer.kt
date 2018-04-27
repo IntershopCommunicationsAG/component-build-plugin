@@ -36,7 +36,7 @@ import javax.inject.Inject
 open class FileContainerItemContainer
         @Inject constructor(@get:Internal val project: Project,
                             @get:Internal override val parent: ComponentExtension) :
-        AContainer("File Container Container", parent) {
+        AContainer("File Container Container", "", parent) {
 
     private val itemSet: MutableSet<FileContainerItem> = mutableSetOf()
 

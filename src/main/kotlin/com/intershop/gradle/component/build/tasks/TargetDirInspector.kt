@@ -15,8 +15,10 @@
  */
 package com.intershop.gradle.component.build.tasks
 
-import com.intershop.gradle.component.build.utils.TargetDirInfo
+import com.intershop.gradle.component.build.utils.tree.AddStatus
+import com.intershop.gradle.component.build.utils.tree.Node
 import com.intershop.gradle.component.descriptor.Component
+import org.slf4j.LoggerFactory
 
 /**
  * This class verifies that directories of the configured
@@ -29,109 +31,83 @@ import com.intershop.gradle.component.descriptor.Component
 class TargetDirInspector(val component: Component) {
 
     companion object {
-        private fun checkInputForSuffix(input: String, suffix: String) : String {
-            return if(input.endsWith(suffix) || input.isBlank()) {
-                input
-            } else {
-                input.trim() + "/"
-            }
-        }
+        internal val logger = LoggerFactory.getLogger(TargetDirInspector::class.java.simpleName)
     }
 
-    private val descriptorTarget = checkInputForSuffix(component.descriptorPath, "/")
-    private val containerTarget = checkInputForSuffix(component.containerTarget,"/")
-    private val libsTarget = checkInputForSuffix(component.libsTarget,"/")
-    private val modulesTarget = checkInputForSuffix(component.modulesTarget,"/")
-
-    private val targetDirInfos = mutableSetOf<TargetDirInfo>()
+    private val root = Node("componentRootDir","", "")
 
     /**
      * Runs the test for all directories of a component.
      *
      * @return the error message if the test fails
      */
-    fun check(): String {
-        var errorMsg = ""
+    fun check() : String {
+        val errorMsg = StringBuilder()
 
-        addTarget(descriptorTarget, "", mutableSetOf(), "Descriptor target")
-        addTarget(libsTarget, "", mutableSetOf(), "Libraries target")
-
-        if(containerTarget.startsWith(libsTarget) && containerTarget.isNotBlank()) {
-            errorMsg = "The target of containers is located in the library folder. This is not allowed!"
+        var rv = root.addTarget("", "", component.descriptorPath)
+        when(rv.second) {
+            AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "descriptor", ""))
+            AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "descriptor", ""))
+            else -> logger.debug("Descriptor path {} was ok.", rv.first.getPath())
         }
 
-        if( modulesTarget.startsWith(libsTarget) && modulesTarget.isNotBlank() && errorMsg.isBlank()) {
-            errorMsg = "The target of modules is located in the library folder. This is not allowed!"
-        }
-
-        if(errorMsg.isBlank()) {
-            component.modules.forEach {
-                    errorMsg = addTarget("$modulesTarget${it.key}/", "",
-                            it.value.types, "Module ${it.key}")
-                    ! errorMsg.isBlank()
+        if(component.libs.isNotEmpty()) {
+            rv = root.addTarget("", "", component.libsPath)
+            when (rv.second) {
+                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "libraries", ""))
+                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "libraries", ""))
+                else -> logger.debug("Libraries path {} was ok.", rv.first.getPath())
             }
         }
 
-        if(errorMsg.isBlank()) {
-            component.fileContainers.any {
-                errorMsg = addTarget("$containerTarget${it.targetPath}/", it.classifier,
-                        it.types, "Container ${it.name} (${it.itemType})")
-                ! errorMsg.isBlank()
+        component.modules.forEach {
+            rv = root.addTarget(it.value.types, it.value.classifiers, component.modulesPath, it.key)
+            when(rv.second) {
+                AddStatus.IDENTICAL -> {
+                    errorMsg.append(getIdenticalMsg(rv, "module", it.value.dependency.toString()))
+                }
+                AddStatus.NOTSELFCONTAINED -> {
+                    errorMsg.append(getSelfcontainedMsg(rv, "module", it.value.dependency.toString()))
+                }
+                else -> logger.debug("Module {} path {} was ok.", it.value.dependency, rv.first.getPath())
             }
         }
 
-        return errorMsg
+        component.fileContainers.forEach {
+            rv = root.addTarget(it.types, it.classifier, component.containerPath,it.targetPath)
+            when(rv.second) {
+                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "container", it.name))
+                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "container", it.name))
+                else -> logger.debug("Container {} path {} was ok.", it.name, rv.first.getPath())
+            }
+        }
+
+        component.linkItems.forEach {
+            rv = root.addTarget(it.types, it.classifier, it.name)
+            when(rv.second) {
+                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "link", it.name))
+                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "link", it.name))
+                else -> logger.debug("Link {} path {} was ok.", it.name, rv.first.getPath())
+            }
+        }
+
+        component.directoryItems.forEach {
+            rv = root.addTarget(it.types, it.classifier, it.targetPath)
+            when(rv.second) {
+                AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "directory", it.targetPath))
+                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "link", it.targetPath))
+                else -> logger.debug("Directory {} path {} was ok.", it.targetPath, rv.first.getPath())
+            }
+        }
+
+        return errorMsg.toString()
     }
 
-    private fun addTarget(target: String,
-                          classifier: String,
-                          types: MutableSet<String>,
-                          owner: String) : String {
-
-        var errorMsg = ""
-
-        val targetInfos: List<TargetDirInfo> = targetDirInfos.filter { it.target == target }
-
-        if(targetInfos.isEmpty()) {
-            val similarTargetInfo: TargetDirInfo? = targetDirInfos.find { it.target.startsWith(target) }
-
-            if (similarTargetInfo != null) {
-                with(similarTargetInfo) {
-                    errorMsg = "The target dir '$target' of '$owner' starts with '$target' of '$owner'."
-                }
-            }
-        }
-
-            if (errorMsg.isBlank() && targetInfos.isNotEmpty()) {
-                targetInfos.forEach {
-                    if(it.classifiers.contains(classifier)) {
-
-                        if (it.types.isEmpty() && types.isEmpty()) {
-                            errorMsg = "The target dir '$target' of '$owner' exists always in the list. " +
-                                    "See '${it.target}' of '${it.owner}' ($classifier)."
-                        } else if(it.types.intersect(types).isNotEmpty()) {
-                            errorMsg = "The target dir '$target' of '$owner' exists always in the list. " +
-                                    "See '${it.target}' of '${it.owner}' ($types)."
-                        }
-                    }
-                }
-            }
-
-
-        if(errorMsg.isBlank()) {
-            addNewTarget(target, classifier, types, owner)
-        }
-
-        return errorMsg
+    private fun getIdenticalMsg(result: Triple<Node,AddStatus,String>, type: String, name: String) : String {
+        return "The path '${result.first.getPath()}' of $type '$name' was defined by an other component artifact! \n"
     }
 
-    private fun addNewTarget(target: String,
-                             classifier: String,
-                             types: MutableSet<String>,
-                             owner: String) {
-        val targetInfo = TargetDirInfo(target, mutableSetOf(), mutableSetOf(), owner)
-        targetInfo.classifiers.add(classifier)
-        targetInfo.types.addAll(types)
-        targetDirInfos.add(targetInfo)
+    private fun getSelfcontainedMsg(result: Triple<Node,AddStatus,String>, type: String, name: String): String {
+        return "The path '${result.first.getPath()}' of $type '${name}' exists. ${result.third} \n"
     }
 }

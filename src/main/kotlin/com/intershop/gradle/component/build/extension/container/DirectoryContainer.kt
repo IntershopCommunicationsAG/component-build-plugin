@@ -17,47 +17,45 @@ package com.intershop.gradle.component.build.extension.container
 
 import com.intershop.gradle.component.build.extension.ComponentExtension
 import com.intershop.gradle.component.build.extension.items.AItem
-import com.intershop.gradle.component.build.extension.items.FileItem
+import com.intershop.gradle.component.build.extension.items.Directory
 import org.gradle.api.Action
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
 import org.gradle.api.tasks.Internal
 import org.gradle.api.tasks.Nested
-import java.io.File
 import javax.inject.Inject
 
 /**
  * This class provides a container for
- * deployable single files.
+ * deployable directory configurations.
  *
  * @property parent the parent of this container.
  * @constructor provides an empty preconfigured file item container
  */
-open class FileItemContainer @Inject constructor(@get: Internal val parent: ComponentExtension) : AItem() {
+open class DirectoryContainer @Inject constructor(@get: Internal val parent: ComponentExtension) : AItem() {
 
-    private val itemSet: MutableSet<FileItem> = mutableSetOf()
+    private val itemSet: MutableSet<Directory> = mutableSetOf()
 
     /**
-     * This set provides all configured files.
+     * This set provides all configured directories.
      *
-     * @property items set of all configured files
+     * @property items set of all configured directories
      */
     @get:Nested
-    val items: Set<FileItem>
+    val items: Set<Directory>
         get() = itemSet
 
     /**
-     * Add a single file to the component. This
-     * kind of files will be copied as they are.
+     * Add a single directory to the component.
      *
-     * @param file a real file on the file system
+     * @param targetPath a relative path for the component
      * @param types set of deployment or environment types
      */
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
-    fun add(file: File, vararg types: String): FileItem {
+    fun add(targetPath: String, vararg types: String): Directory {
 
-        val item = getPreconfigureItem(file)
+        val item = getPreconfigureItem(targetPath)
         item.setTypes(types.asList())
         addItemToList(item)
 
@@ -65,39 +63,39 @@ open class FileItemContainer @Inject constructor(@get: Internal val parent: Comp
     }
 
     /**
-     * Add a single file to the configuration.
+     * Add a single directory to the component.
      *
-     * @param file a real file on the file system
+     * @param targetPath a relative path for the component
      */
     @Throws(InvalidUserDataException::class)
-    fun add(file: File) : FileItem {
+    fun add(targetPath: String) : Directory {
         if(types.isEmpty() && parent.types.isNotEmpty()) {
-            return add(file, *parent.types.toTypedArray())
+            return add(targetPath, *parent.types.toTypedArray())
         }
-        return add(file, *this.types.toTypedArray())
+        return add(targetPath, *this.types.toTypedArray())
     }
 
     /**
-     * Add a single file to the configuration and configures this.
+     * Add a single directory to the component and configures this component.
      *
-     * @param file a real file on the file system.
-     * @param action action to configure all parameters of file item.
+     * @param targetPath a relative path for the component
+     * @param action action to configure all parameters of directory item.
      */
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
-    fun add(file: File, action: Action<in FileItem>) {
+    fun add(targetPath: String, action: Action<in Directory>) {
 
-        val item = getPreconfigureItem(file)
+        val item = getPreconfigureItem(targetPath)
         action.execute(item)
         addItemToList(item)
     }
 
     /*
-     * Creates a preconfigured file item. Configuration is
+     * Creates a preconfigured directory. Configuration is
      * taken from container configuration.
      */
-    private fun getPreconfigureItem(file: File) : FileItem {
-        val item = FileItem(file)
+    private fun getPreconfigureItem(targetPath: String) : Directory {
+        val item = Directory(targetPath)
         item.updatable = updatable
 
         return item
@@ -106,14 +104,12 @@ open class FileItemContainer @Inject constructor(@get: Internal val parent: Comp
     /*
      * Add item to list if the name or the special configuration does not exists in the list.
      */
-    private fun addItemToList(item: FileItem) {
+    private fun addItemToList(item: Directory) {
         addTypes(item)
 
-        if(itemSet.find { it.name == item.name &&
-                        it.extension == item.extension &&
+        if(itemSet.find { it.targetPath == item.targetPath &&
                         it.classifier == item.classifier} != null) {
-            throw InvalidUserDataException("File ${item.file.nameWithoutExtension}.${item.file.extension} " +
-                    "is already part of the current configuration!")
+            throw InvalidUserDataException("Directory ${item.targetPath} is already part of the current configuration!")
         } else {
             itemSet.add(item)
         }

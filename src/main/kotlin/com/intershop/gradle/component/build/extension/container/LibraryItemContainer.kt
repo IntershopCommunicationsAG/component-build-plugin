@@ -36,7 +36,7 @@ import javax.inject.Inject
 open class LibraryItemContainer
         @Inject constructor(private val dpendencyHandler: DependencyHandler,
                             @get:Internal override val parent: ComponentExtension) :
-        AContainer("Library Container", parent) {
+        AContainer("Library Container", "libs", parent) {
 
     // backing properties
     private val itemSet: MutableSet<LibraryItem> = mutableSetOf()

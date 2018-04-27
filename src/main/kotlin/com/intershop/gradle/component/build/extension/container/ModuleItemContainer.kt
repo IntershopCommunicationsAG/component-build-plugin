@@ -38,7 +38,7 @@ open class ModuleItemContainer
         @Inject constructor(private val dpendencyHandler: DependencyHandler,
                             @get:Internal val project: Project,
                             @get:Internal override val parent: ComponentExtension) :
-        AContainer( "Module Container", parent) {
+        AContainer( "Module Container", "", parent) {
 
     // backing properties
     private val itemSet: MutableSet<ModuleItem> = mutableSetOf()

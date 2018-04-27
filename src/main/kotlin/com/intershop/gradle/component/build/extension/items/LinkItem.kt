@@ -18,60 +18,63 @@ package com.intershop.gradle.component.build.extension.items
 import com.intershop.gradle.component.build.extension.Utils
 import org.gradle.api.InvalidUserDataException
 import org.gradle.api.tasks.Input
-import org.gradle.api.tasks.InputFile
 import org.slf4j.LoggerFactory
-import java.io.File
 import kotlin.properties.Delegates
 
 /**
- * This class provides a file object configuration
- * of the component.
+ * This class represents a link configuration of a component.
  *
- * @property file the real file item of the component. This is marked as task input.
- * @constructor provides a configured file item
+ * @property name the name of the link
+ * @property targetPath the target path of the link
+ *
+ * @constructor initializes a configuration from target name and target path.
  */
-class FileItem(@get:InputFile val file: File) : AItem(), IItem, IOSSpecific {
+class LinkItem constructor(
+        @get:Input val name: String,
+        @get:Input val targetPath: String) : AItem(), IItem, IOSSpecific {
 
     companion object {
-        private val logger = LoggerFactory.getLogger(FileItem::class.java.simpleName)
+        private val logger = LoggerFactory.getLogger(LinkItem::class.java.simpleName)
     }
 
-    /**
-     * The file name of the item. This is marked as task input.
-     *
-     * @property name default value is the real file name.
-     */
-    @get:Input
-    var name = file.nameWithoutExtension
-
-    /**
-     * The file extension of the item. This is marked as task input.
-     *
-     * @property name default value is the real file extension.
-     */
-    @get:Input
-    var extension = file.extension
-
-    /**
-     * The target path of this file. This is marked as task input.
-     *
-     * @property targetPath default value is an empty string.
-     */
-    @get:Input
-    var targetPath by Delegates.vetoable("") { _, _, newValue ->
+    private var internalTargetPath by Delegates.vetoable("") { _, _, newValue ->
         val invalidChars = Utils.getIllegalChars(newValue)
         if(!invalidChars.isEmpty()) {
-            throw InvalidUserDataException("Target path of file '$name' " +
+            throw InvalidUserDataException("Target path of link '$name' " +
                     "contains invalid characters '$invalidChars'.")
         }
         if(newValue.startsWith("/")) {
-            throw InvalidUserDataException("Target path of file '$name' " +
+            throw InvalidUserDataException("Target path of link '$name' " +
                     "starts with a leading '/' - only a relative path is allowed.")
         }
         if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {
-            logger.warn("The target path of file '$name' is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
+            LinkItem.logger.warn("The target path of file '$name' is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
         }
         invalidChars.isEmpty() && ! newValue.startsWith("/")
+    }
+
+    private var internalName by Delegates.vetoable("") { _, _, newValue ->
+        val invalidChars = Utils.getIllegalChars(newValue)
+        if(!invalidChars.isEmpty()) {
+            throw InvalidUserDataException("Link name '$name' contains invalid characters '$invalidChars'.")
+        }
+        if(newValue.startsWith("/")) {
+            throw InvalidUserDataException("Link name '$name' starts with a leading '/' " +
+                    " - only a relative path is allowed.")
+        }
+        if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {
+            LinkItem.logger.warn("Link name '$name' is longer then ${(Utils.MAX_PATH_LENGTH / 2)}!")
+        }
+        invalidChars.isEmpty() && ! newValue.startsWith("/")
+    }
+
+    init {
+        internalTargetPath = targetPath
+        internalName = name
+
+        if(internalName == internalTargetPath) {
+            throw InvalidUserDataException("Link name '$name' and taret '$targetPath' are identical.")
+        }
     }
 
     /**
