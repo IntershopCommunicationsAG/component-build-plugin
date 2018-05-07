@@ -29,12 +29,12 @@ import javax.inject.Inject
  * This class provides all properties for
  * the library container extension.
  *
- * @property dpendencyHandler necessary for dependency handling
+ * @property dependencyHandler necessary for dependency handling
  * @property parent the parent of this container.
  * @constructor provides an empty preconfigured library container
  */
 open class LibraryItemContainer
-        @Inject constructor(private val dpendencyHandler: DependencyHandler,
+        @Inject constructor(private val dependencyHandler: DependencyHandler,
                             @get:Internal override val parent: ComponentExtension) :
         AContainer("Library Container", "libs", parent) {
 
@@ -61,7 +61,7 @@ open class LibraryItemContainer
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(dependency: Any, vararg types: String) : LibraryItem {
-        val depConf = getDependencyConf(dpendencyHandler, dependency,
+        val depConf = getDependencyConf(dependencyHandler, dependency,
                 "It can not be added to the library container.")
 
         val item = getPreconfigureItem(depConf)
@@ -106,7 +106,7 @@ open class LibraryItemContainer
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(dependency: Any, action: Action<in LibraryItem>) {
-        val depConf = getDependencyConf(dpendencyHandler, dependency,
+        val depConf = getDependencyConf(dependencyHandler, dependency,
                 "It can not be added to the library container.")
 
         val item = getPreconfigureItem(depConf)

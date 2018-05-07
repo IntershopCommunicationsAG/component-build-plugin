@@ -144,7 +144,7 @@ open class CreateComponentTask : DefaultTask() {
     var componentDescription: String by componentDescriptionProperty
 
     /**
-     * Set provider for compoent description property.
+     * Set provider for component description property.
      *
      * @param description set provider for property.
      */
@@ -449,7 +449,7 @@ open class CreateComponentTask : DefaultTask() {
                     componentDescr.types.addAll(types)
                     componentDescr.classifiers.add(classifier)
                 } else {
-                    logger.error("Container sources of '{}' are empty! Publishing of this container is not possibble.",
+                    logger.error("Container sources of '{}' are empty! Publishing of this container is not possible.",
                             name)
                     throw InvalidUserDataException("Container sources of '$name' are empty!" +
                             "It will be not possible to publish this container.")

@@ -41,7 +41,7 @@ operator fun <T> SetProperty<T>.setValue(receiver: Any?, property: KProperty<*>,
 operator fun <T> SetProperty<T>.getValue(receiver: Any?, property: KProperty<*>): Set<T> = get()
 
 /**
- * Provides functional extension for primitve objects.
+ * Provides functional extension for primitive objects.
  */
 inline fun <reified T> ObjectFactory.property(): Property<T> = property(T::class.java)
 

@@ -60,7 +60,7 @@ open class VerifyClasspathTask @Inject constructor(private val workerExecutor: W
      */
     @Suppress("unused")
     @set:Option(option = "recreate",
-            description = "Runs 'Component Build' tasks without considering incrementall configuration.")
+            description = "Runs 'Component Build' tasks without considering incremental configuration.")
     @get:Internal
     var recreate: Boolean = false
 
@@ -127,7 +127,7 @@ open class VerifyClasspathTask @Inject constructor(private val workerExecutor: W
         }
 
     /**
-     * The task action starts a runner in the backround.
+     * The task action starts a runner in the background.
      */
     @Suppress("unused")
     @TaskAction

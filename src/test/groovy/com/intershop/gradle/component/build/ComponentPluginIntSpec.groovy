@@ -30,7 +30,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     public final static String ivyPattern = '[organisation]/[module]/[revision]/[type]s/ivy-[revision].xml'
     public final static String artifactPattern = '[organisation]/[module]/[revision]/[ext]s/[artifact]-[type](-[classifier])-[revision].[ext]'
 
-    final static String baseProjetBuild = """        
+    final static String baseProjectBuild = """        
         group 'com.intershop.test'
         version = '1.0.0'
         
@@ -54,7 +54,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }""".stripIndent()
 
     @Unroll
@@ -70,7 +70,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             id 'com.intershop.gradle.component.build'
         }
 
-        ${baseProjetBuild}
+        ${baseProjectBuild}
         
         ${createRepo(testProjectDir)}
         """.stripIndent()
@@ -126,7 +126,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             id 'ivy-publish'
         }
 
-        ${baseProjetBuild}
+        ${baseProjectBuild}
         
         ${createRepo(testProjectDir)}
 
@@ -219,7 +219,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 add("com.intershop:testmodule2:1.0.0")
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }
 
         ${createRepo(testProjectDir)}
@@ -292,7 +292,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             id 'maven-publish'
         }
 
-        ${baseProjetBuild}
+        ${baseProjectBuild}
         
         ${createRepo(testProjectDir)}
 
@@ -384,7 +384,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 add("com.intershop:testmodule2:1.0.0")
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }
 
         ${createRepo(testProjectDir)}
@@ -488,7 +488,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt {
+            dependencyMgmt {
                 exclude("com.intershop", "library3")
                 exclude("com.intershop", "library4")
 
@@ -634,7 +634,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt {
+            dependencyMgmt {
                 exclude("com.intershop", "library3")
                 exclude("com.intershop", "library4")
 
@@ -776,7 +776,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
 
             fileItems {
                 addType('intTest')
@@ -922,7 +922,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
 
             fileItems {
                 addType('intTest')
@@ -1063,7 +1063,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
 
             fileItems {
                 add(file("conf/server/test1.properties")) {
@@ -1157,7 +1157,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             componentDescription = "This is a description"
             targetPath = "defaultTarget"
 
-            decriptorOutputFile = file("build/testdir/testfile.component")
+            descriptorOutputFile = file("build/testdir/testfile.component")
 
             exclude("**/testexclude1/*.com")
             exclude([ "**/testexclude2/*.com", "**/testexclude3/*.com" ] as Set)
@@ -1167,7 +1167,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 add("com.intershop:testmodule2:1.0.0")
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }
 
         ${createRepo(testProjectDir)}
@@ -1253,7 +1253,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
 
         then:
         result1.task(':createComponent').outcome == TaskOutcome.FAILED
-        result1.output.contains("There is a version conflict! commons-logging:commons-logging exists in the list of resolved dependencies. [source: org.springframework:spring-web:4.1.6.RELEASE, availabble: commons-logging:commons-logging:1.2, new: commons-logging:commons-logging:1.1.3] Check your logs and configuration!")
+        result1.output.contains("There is a version conflict! commons-logging:commons-logging exists in the list of resolved dependencies. [source: org.springframework:spring-web:4.1.6.RELEASE, available: commons-logging:commons-logging:1.2, new: commons-logging:commons-logging:1.1.3] Check your logs and configuration!")
         result1.output.contains("There is a version conflict! Check your logs and configuration!")
 
         where:
@@ -1305,7 +1305,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
 
         then:
         result1.task(':verifyClasspath').outcome == TaskOutcome.FAILED
-        result1.output.contains("There are class collisions! Check ${testProjectDir.absolutePath}/build/componentBuild/reports/classcollision/collisionReport.txt")
+        result1.output.contains("There are class collisions! Check ${report.absolutePath}")
         report.exists()
 
         report.text.contains("== Duplicates for org.ow2.asm:asm:5.1")
@@ -1403,7 +1403,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }
         
         ${createRepo(testProjectDir)}
@@ -1484,7 +1484,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }
         
         ${createRepo(testProjectDir)}
@@ -1566,7 +1566,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }
         
         ${createRepo(testProjectDir)}
@@ -1648,7 +1648,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }
         
         ${createRepo(testProjectDir)}
@@ -1729,7 +1729,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }
         
         ${createRepo(testProjectDir)}
@@ -1797,7 +1797,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 targetPath = "lib/release/libs"
             }
 
-            dependencyMngt.classpathVerification.enabled = false
+            dependencyMgmt.classpathVerification.enabled = false
         }
         
         ${createRepo(testProjectDir)}
@@ -1867,7 +1867,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                         targetPath = "lib/release/libs"
                     }
        
-                    dependencyMngt.classpathVerification.enabled = false
+                    dependencyMgmt.classpathVerification.enabled = false
                 }
                 
                 publishing {                     
@@ -1941,7 +1941,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                         targetPath = "lib/release/libs"
                     }
        
-                    dependencyMngt.classpathVerification.enabled = false
+                    dependencyMgmt.classpathVerification.enabled = false
                 }
                 
                 publishing {
@@ -2013,7 +2013,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                         targetPath = "lib/release/libs"
                     }
        
-                    dependencyMngt.classpathVerification.enabled = false
+                    dependencyMgmt.classpathVerification.enabled = false
                 }
                 
                 publishing {                     
@@ -2086,7 +2086,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                         targetPath = "lib/release/libs"
                     }
        
-                    dependencyMngt.classpathVerification.enabled = false
+                    dependencyMgmt.classpathVerification.enabled = false
                 }
                 
                 publishing {                     
@@ -2177,7 +2177,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                         targetPath = "lib/release/libs"
                     }
        
-                    dependencyMngt.classpathVerification.enabled = false
+                    dependencyMgmt.classpathVerification.enabled = false
                 }
                 
                 publishing {                     
@@ -2517,7 +2517,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                     }
                 }
                 maven {
-                    url "file://${repoDir.absolutePath.replace('\\\\', '/')}"
+                    url "file://${repoDir.absolutePath.replace('\\', '/')}"
                 }
                 jcenter()
             }""".stripIndent()

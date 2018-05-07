@@ -25,9 +25,9 @@ import javax.inject.Inject
  * Container for all additional dependency configurations, like
  * dependencyExcludes and the configuration for the verification of the classpath.
  *
- * @constructor priovides the configuration
+ * @constructor provides the configuration
  */
-open class DependencyMngtContainer @Inject constructor(project: Project) {
+open class DependencyMgmtContainer @Inject constructor(project: Project) {
 
     private val excludeSet: MutableSet<DependencyConfig> = mutableSetOf()
 
@@ -48,7 +48,7 @@ open class DependencyMngtContainer @Inject constructor(project: Project) {
      * With exclude it is possible to exclude libraries and modules
      * from the list of dependent objects.
      *
-     * @param group Group or oganization of the dependency
+     * @param group Group or organization of the dependency
      * @param module Name or module of the dependency
      * @param version Version configuration of the dependency
      */
