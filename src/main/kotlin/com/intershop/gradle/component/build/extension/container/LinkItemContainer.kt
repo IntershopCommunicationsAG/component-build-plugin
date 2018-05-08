@@ -113,7 +113,7 @@ open class LinkItemContainer @Inject constructor(@get: Internal val parent: Comp
     private fun addItemToList(item: LinkItem) {
         addTypes(item)
 
-        if(itemSet.any { it.name == item.name && it.classifiers.intersect(item.classifiers).size > 0 }) {
+        if(itemSet.any { it.name == item.name && it.classifiers.intersect(item.classifiers).isNotEmpty() }) {
             throw InvalidUserDataException("Link with ${item.name} is already part of the current configuration!")
         } else {
             itemSet.add(item)

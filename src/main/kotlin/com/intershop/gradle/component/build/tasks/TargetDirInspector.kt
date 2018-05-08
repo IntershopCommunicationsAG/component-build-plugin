@@ -108,6 +108,6 @@ class TargetDirInspector(val component: Component) {
     }
 
     private fun getSelfcontainedMsg(result: Triple<Node,AddStatus,String>, type: String, name: String): String {
-        return "The path '${result.first.getPath()}' of $type '${name}' exists. ${result.third} \n"
+        return "The path '${result.first.getPath()}' of $type '$name' exists. ${result.third} \n"
     }
 }

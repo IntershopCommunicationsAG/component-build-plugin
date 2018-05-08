@@ -82,7 +82,7 @@ class LinkItem constructor(
      * The set is empty per default.
      * It is defined as an task input property.
      *
-     * @property classifier the set of OS specific strings
+     * @property classifiers the set of OS specific strings
      */
     @get:Input
     var classifiers: Set<String> = mutableSetOf()
