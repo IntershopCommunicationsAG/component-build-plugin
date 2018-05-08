@@ -2506,12 +2506,11 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
         }.writeTo(repoDir)
 
-
         String repostr = """
             repositories {
                 ivy {
                     name 'ivyLocal'
-                    url "file://${repoDir.absolutePath.replace('\\', '/')}"
+                    url "${repoDir.absoluteFile.toURI().toURL()}"
                     layout('pattern') {
                         ivy "${ivyPattern}"
                         artifact "${artifactPattern}"
@@ -2519,7 +2518,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                     }
                 }
                 maven {
-                    url "file://${repoDir.absolutePath.replace('\\', '/')}"
+                    url "${repoDir.absoluteFile.toURI().toURL()}"
                 }
                 jcenter()
             }""".stripIndent()
