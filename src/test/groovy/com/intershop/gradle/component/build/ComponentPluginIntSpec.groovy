@@ -651,6 +651,12 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 }
             }
 
+            links {
+                add("log", "system/log") {
+                       classifiers = [ "linux", "macos" ]
+                }
+            }
+
             propertyItems {
                 add("pkey1", "pvalue1", "**/**/appserver.properties", 'perfTest')
                 add("pkey2", "pvalue2", "**/**/appserver.properties", 'production')

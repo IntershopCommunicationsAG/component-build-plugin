@@ -83,7 +83,7 @@ class TargetDirInspector(val component: Component) {
         }
 
         component.linkItems.forEach {
-            rv = root.addTarget(it.types, it.classifier, it.name)
+            rv = root.addTarget(it.types, it.classifiers, it.name)
             when(rv.second) {
                 AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "link", it.name))
                 AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "link", it.name))

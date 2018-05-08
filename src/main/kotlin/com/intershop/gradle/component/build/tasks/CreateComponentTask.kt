@@ -506,17 +506,17 @@ open class CreateComponentTask : DefaultTask() {
             val link = Link(
                     name = it.name,
                     targetPath = it.targetPath,
-                    classifier = it.classifier,
                     contentType = ContentType.valueOf(it.contentType),
                     updatable = it.updatable)
 
+            link.classifiers.addAll(it.classifiers)
             link.types.addAll(it.types)
             componentDescr.addLinkItem(link)
 
             // component types and classifiers contains all available
             // types and classifiers
             componentDescr.types.addAll(it.types)
-            componentDescr.classifiers.add(it.classifier)
+            componentDescr.classifiers.addAll(it.classifiers)
         }
 
         directories?.items?.forEach {
