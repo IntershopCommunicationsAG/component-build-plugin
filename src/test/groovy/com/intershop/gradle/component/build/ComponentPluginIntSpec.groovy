@@ -1611,7 +1611,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    def 'Test incremtal build for LOCAL libraries - #gradleVersion'(gradleVersion) {
+    def 'Test incremental build for LOCAL libraries - #gradleVersion'(gradleVersion) {
         given:
         String projectName = "testcomponent"
         createSettingsGradle(projectName)
