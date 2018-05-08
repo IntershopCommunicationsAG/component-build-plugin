@@ -94,19 +94,20 @@ class ComponentExtensionSpec extends Specification {
 
     def 'add property to extension'() {
         when:
-        extension.propertyItems.add('test.key', 'test.value')
+        extension.propertyItems.add('test.key', 'test.value',"**/**/appserver.properties")
 
         then:
         extension.propertyItems.items.size() == 1
         extension.propertyItems.items.first().key == "test.key"
         extension.propertyItems.items.first().value == "test.value"
+        extension.propertyItems.items.first().pattern == "**/**/appserver.properties"
     }
 
     def 'check type handling for property'() {
         when:
         extension.addType('all')
         extension.addType('development')
-        extension.propertyItems.add('test.key', 'test.value')
+        extension.propertyItems.add('test.key', 'test.value', "**/**/appserver.properties")
 
         then:
         extension.propertyItems.items.first().types.contains('all')

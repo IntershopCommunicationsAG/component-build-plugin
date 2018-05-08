@@ -489,6 +489,7 @@ open class CreateComponentTask : DefaultTask() {
             val property = Property(
                     key = it.key,
                     value = it.value,
+                    pattern = it.pattern,
                     classifier = it.classifier,
                     contentType = ContentType.valueOf(it.contentType),
                     updatable = it.updatable)

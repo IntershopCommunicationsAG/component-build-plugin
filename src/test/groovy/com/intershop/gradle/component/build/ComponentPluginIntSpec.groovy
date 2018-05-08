@@ -505,8 +505,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
 
             propertyItems {
-                add("pkey1", "pvalue1")
-                add("pkey2", "pvalue2")
+                add("pkey1", "pvalue1", "**/**/appserver.properties")
+                add("pkey2", "pvalue2", "**/**/appserver.properties")
             }
         }
         
@@ -559,6 +559,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         outputFile.text.contains('"value" : "pvalue1",')
         outputFile.text.contains('"key" : "pkey2",')
         outputFile.text.contains('"value" : "pvalue2",')
+        outputFile.text.contains('"pattern" : "**/**/appserver.properties"')
         ivyFile.exists()
         ivyFile.text.contains('<artifact name="share" type="sites" ext="zip" conf="component"/>')
         ivyFile.text.contains('<artifact name="startscripts" type="bin" ext="zip" conf="component"/>')
@@ -651,8 +652,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
 
             propertyItems {
-                add("pkey1", "pvalue1")
-                add("pkey2", "pvalue2")
+                add("pkey1", "pvalue1", "**/**/appserver.properties", 'perfTest')
+                add("pkey2", "pvalue2", "**/**/appserver.properties", 'production')
             }
         }
         
@@ -789,8 +790,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
 
             propertyItems {
-                add("pkey1", "pvalue1", 'perfTest')
-                add("pkey2", "pvalue2", 'production')
+                add("pkey1", "pvalue1", "**/**/appserver.properties", 'perfTest')
+                add("pkey2", "pvalue2", "**/**/appserver.properties", 'production')
             }
         }
         
@@ -936,8 +937,8 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
 
             propertyItems {
                 addType('perfTest')
-                add("pkey1", "pvalue1")
-                add("pkey2", "pvalue2")
+                add("pkey1", "pvalue1", "**/**/appserver.properties")
+                add("pkey2", "pvalue2", "**/**/appserver.properties")
             }
         }
         
@@ -1081,8 +1082,9 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 add("pkey1") {
                     value = "pvalues1"
                     classifier = "win"
+                    pattern = "**/**/appserver.properties"
                 }
-                add("pkey2", "pvalue2")
+                add("pkey2", "pvalue2", "**/**/appserver.properties")
             }
         }
         
@@ -2504,12 +2506,11 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
             }
         }.writeTo(repoDir)
 
-
         String repostr = """
             repositories {
                 ivy {
                     name 'ivyLocal'
-                    url "file://${repoDir.absolutePath.replace('\\', '/')}"
+                    url "${repoDir.absoluteFile.toURI().toURL()}"
                     layout('pattern') {
                         ivy "${ivyPattern}"
                         artifact "${artifactPattern}"
@@ -2517,7 +2518,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                     }
                 }
                 maven {
-                    url "file://${repoDir.absolutePath.replace('\\', '/')}"
+                    url "${repoDir.absoluteFile.toURI().toURL()}"
                 }
                 jcenter()
             }""".stripIndent()

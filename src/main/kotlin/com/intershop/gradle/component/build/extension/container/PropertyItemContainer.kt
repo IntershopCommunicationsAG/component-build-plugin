@@ -51,13 +51,15 @@ open class PropertyItemContainer @Inject constructor(private val parent: Compone
      *
      * @param key Property key of this item
      * @param value Property value of this item
+     * @param pattern ANT based file pattern for files
      * @param types set of deployment or environment types
      */
     @Suppress("unused")
     @Throws(InvalidUserDataException::class)
-    fun add(key: String, value: String, vararg types: String): PropertyItem {
+    fun add(key: String, value: String, pattern: String, vararg types: String): PropertyItem {
 
         val item = getPreconfigureItem(key)
+        item.pattern = pattern
         item.setTypes(types.asList())
         item.value = value
         addItemToList(item)
@@ -71,13 +73,14 @@ open class PropertyItemContainer @Inject constructor(private val parent: Compone
      *
      * @param key Property key of this item
      * @param value Property value of this item
+     * @param pattern ANT based file pattern for files
      */
     @Throws(InvalidUserDataException::class)
-    fun add(key: String, value: String) : PropertyItem {
+    fun add(key: String, value: String, pattern: String) : PropertyItem {
         if(types.isEmpty() && parent.types.isNotEmpty()) {
-            return add(key,value, *parent.types.toTypedArray())
+            return add(key, value, pattern, *parent.types.toTypedArray())
         }
-        return add(key,value, *this.types.toTypedArray())
+        return add(key, value, pattern, *this.types.toTypedArray())
     }
 
     /**

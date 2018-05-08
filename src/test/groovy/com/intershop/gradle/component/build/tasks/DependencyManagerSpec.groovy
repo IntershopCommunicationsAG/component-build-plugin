@@ -53,7 +53,7 @@ class DependencyManagerSpec extends Specification {
         project.repositories {
             ivy {
                 name 'ivyLocal'
-                url "file://${repoDir.absolutePath.replace('\\', '/')}"
+                url "${repoDir.absoluteFile.toURI().toURL()}"
                 layout('pattern') {
                     ivy "${ivyPattern}"
                     artifact "${artifactPattern}"
@@ -61,7 +61,7 @@ class DependencyManagerSpec extends Specification {
                 }
             }
             maven {
-                url "file://${repoDir.absolutePath.replace('\\\\', '/')}"
+                url "${repoDir.absoluteFile.toURI().toURL()}"
             }
             jcenter()
         }
@@ -98,7 +98,7 @@ class DependencyManagerSpec extends Specification {
         project.repositories {
             ivy {
                 name 'ivyLocal'
-                url "file://${repoDir.absolutePath.replace('\\', '/')}"
+                url "${repoDir.absoluteFile.toURI().toURL()}"
                 layout('pattern') {
                     ivy "${ivyPattern}"
                     artifact "${artifactPattern}"
@@ -106,7 +106,7 @@ class DependencyManagerSpec extends Specification {
                 }
             }
             maven {
-                url "file://${repoDir.absolutePath.replace('\\\\', '/')}"
+                url "${repoDir.absoluteFile.toURI().toURL()}"
             }
             jcenter()
         }
