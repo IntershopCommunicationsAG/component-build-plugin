@@ -1367,7 +1367,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    def 'Test incremtal build for SNAPSHOT modules - #gradleVersion'(gradleVersion) {
+    def 'Test incremental build for SNAPSHOT modules - #gradleVersion'(gradleVersion) {
         given:
         String projectName = "testcomponent"
         createSettingsGradle(projectName)
@@ -1448,7 +1448,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    def 'Test incremtal build for LOCAL modules - #gradleVersion'(gradleVersion) {
+    def 'Test incremental build for LOCAL modules - #gradleVersion'(gradleVersion) {
         given:
         String projectName = "testcomponent"
         createSettingsGradle(projectName)
@@ -1529,7 +1529,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
     }
 
     @Unroll
-    def 'Test incremtal build for SNAPSHOT libraries - #gradleVersion'(gradleVersion) {
+    def 'Test incremental build for SNAPSHOT libraries - #gradleVersion'(gradleVersion) {
         given:
         String projectName = "testcomponent"
         createSettingsGradle(projectName)
