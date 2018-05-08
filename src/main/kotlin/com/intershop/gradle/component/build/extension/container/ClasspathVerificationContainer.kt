@@ -58,7 +58,7 @@ open class ClasspathVerificationContainer {
      * With exclude it is possible to exclude libraries and modules
      * from the class collision check.
      *
-     * @param group Group or oganization of the dependency
+     * @param group Group or organization of the dependency
      * @param module Name or module of the dependency
      * @param version Version configuration of the dependency
      */

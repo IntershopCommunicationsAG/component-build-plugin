@@ -86,7 +86,7 @@ class Node(val name: String, val environment: String, val classifier: String) {
     }
 
     /**
-     * Addd path for target with environment and classifier.
+     * Add path for target with environment and classifier.
      *
      * @param environment environment/type string
      * @param classifier classifier / OS type string
@@ -130,7 +130,7 @@ class Node(val name: String, val environment: String, val classifier: String) {
     }
 
     /**
-     * Addd path for target with an environment set and classifier.
+     * Add path for target with an environment set and classifier.
      *
      * @param environment environment/type set of strings
      * @param classifier classifier / OS type string
@@ -157,7 +157,7 @@ class Node(val name: String, val environment: String, val classifier: String) {
     }
 
     /**
-     * Addd path for target with an environment set and classifier set.
+     * Add path for target with an environment set and classifier set.
      *
      * @param environment environment/type set of strings
      * @param classifier classifier / OS type set of strings

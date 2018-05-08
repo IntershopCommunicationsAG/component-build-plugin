@@ -31,7 +31,7 @@ import org.gradle.api.artifacts.dsl.DependencyHandler
 
 /**
  * This class contains all methods for the calculation of all
- * information about the configurated jar files.
+ * information about the configured jar files.
  *
  * @property project the current project instance
  *

@@ -316,7 +316,7 @@ class DependencyManager(val project: Project) {
                         }
                     } else {
                         throwErrorMessage(errorOutVersionInfo, "${dep.group}:${dep.module} $errorOutVersionDescr " +
-                                "[source: $fromDep, availabble: ${dep.getModuleString()}, " +
+                                "[source: $fromDep, available: ${dep.getModuleString()}, " +
                                 "new: ${availableDep.getModuleString()}]")
                     }
                 }
@@ -347,7 +347,7 @@ class DependencyManager(val project: Project) {
                         }
                     } else {
                         throwErrorMessage(errorOutVersionInfo, "${dep.group}:${dep.module} $errorOutVersionDescr " +
-                                "[source: $fromDep, availabble: ${dep.getModuleString()}, " +
+                                "[source: $fromDep, available: ${dep.getModuleString()}, " +
                                 "new: ${availableDep.getModuleString()}]")
                     }
                 }

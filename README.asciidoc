@@ -14,8 +14,8 @@ NOTE: This library is under development and not final released.
 
 == Summary
 This plugin generates a component descriptor, that can be used for deployments on any platforms. It is possible to
-add modules (eg Intershop Cartridges), libraries, zip files (container), single files and properties for different
-installation and environemnt types and operating systems (classifier). The configuration contains also the installation
+add modules (e.g. Intershop Cartridges), libraries, zip files (container), single files and properties for different
+installation and environment types and operating systems (classifier). The configuration contains also the installation
 target.
 There is also an installation plugin, that used the descriptor for an installation.
 
@@ -64,13 +64,13 @@ The parameter `--recreate` enable the rebuild of `verifyClasspath` and `createCo
 | <<componentDescription,componentDescription>> | This is a more detailed description of this component.
 | <<targetPath,targetPath>>                     | The default target path of the configured component.
 | <<descriptorPath,descriptorPath>>             | The path for the directory with the component descriptor.
-| <<decriptorOutputFile,decriptorOutputFile>>   | The configuration of the output file of createComponent.
-| <<types,types>>                               | This is a list of deployment and environement types of the component. (*read only*)
+| <<descriptorOutputFile,descriptorOutputFile>>   | The configuration of the output file of createComponent.
+| <<types,types>>                               | This is a list of deployment and environment types of the component. (*read only*)
 | <<excludes,excludes>>                         | Files that matches to one of patterns will be excluded from the update installation.
 | <<preserve,preserve>>                         | Pattern set to preserve files during an update installation.
 | <<libs,libs>>                                 | This is the data container for all libraries. (*read only*)
 | <<modules,modules>>                           | This configuration contains all libraries. (*read only*)
-| <<dependencyMngt,dependencyMngt>>             | This container holds all dependency related configuration parameters. (*read only*)
+| <<dependencyMgmt,dependencyMgmt>>             | This container holds all dependency related configuration parameters. (*read only*)
 | <<fileItems,fileItems>>                       | This is the configuration of all single files. (*read only*)
 | <<containers,containers>>                     | File containers can be configured in this configuration. (*read only*)
 | <<links,links>>                               | Links can be configured in this configuration. (*read only*)
@@ -132,9 +132,9 @@ The default target path of the configured component.
 Default:: `""`
 
 ***
-[[decriptorOutputFile]]
+[[descriptorOutputFile]]
 [source,groovy]
-File decriptorOutputFile
+File descriptorOutputFile
 
 :::
 The configuration of the output file of createComponent.
@@ -146,7 +146,7 @@ Default:: `*project.buildDir*/componentBuild/descriptor/file.component`
 Set<String> types
 
 :::
-This is a list of deployment and environement types of the component. (*read only*)
+This is a list of deployment and environment types of the component. (*read only*)
 Default:: `[]`
 
 ***
@@ -192,12 +192,12 @@ ModuleItemContainer modules
 This configuration contains all libraries (*read only*). See <<ModuleItemContainer, `ModuleItemContainer`>>.
 
 ***
-[[dependencyMngt]]
+[[dependencyMgmt]]
 [source,groovy]
-DependencyMngtContainer dependencyMngt
+DependencyMgmtContainer dependencyMgmt
 
 :::
-This container holds all dependency related configuration parameters (*read only*). See <<DependencyMngtContainer, `DependencyMngtContainer`>>.
+This container holds all dependency related configuration parameters (*read only*). See <<DependencyMgmtContainer, `DependencyMgmtContainer`>>.
 
 ***
 [[fileItems]]
@@ -255,8 +255,8 @@ Properties can be configured in this container (*read only*). See <<PropertyItem
 |<<apreserve,preserve>>(action)             | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
 |<<cpreserve,preserve>>(closure)            | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
 |<<mlibs,libs>>(action)                     | Initializes container for library configuration.
-|<<mmodules,modules>>(action)               | Initializes container for modul configuration.
-|<<mdependencyMngt,dependencyMngt>>(action) | Initializes container for dependency management container. This includes also the configuration for the class collision verification.
+|<<mmodules,modules>>(action)               | Initializes container for module configuration.
+|<<mdependencyMgmt,dependencyMgmt>>(action) | Initializes container for dependency management container. This includes also the configuration for the class collision verification.
 |<<mfileItems,fileItems>>(action)           | Initializes container for single files.
 |<<mcontainers,containers>>(action)         | Initializes container for additional file item containers.
 |<<mlinks,links>>(action)                   | Initializes container for link configurations.
@@ -337,13 +337,13 @@ modules(Action<? super ModuleItemContainer> action)
 Initializes container for modul configuration. Instead of an action it is also possible to use a closure. See <<ModuleItemContainer, `ModuleItemContainer`>>.
 
 ***
-[[mdependencyMngt]]
+[[mdependencyMgmt]]
 [source,groovy]
-dependencyMngt(Action<? super DependencyMngtContainer> action)
+dependencyMgmt(Action<? super DependencyMgmtContainer> action)
 
 :::
 Initializes container for dependency management container. This includes also the configuration for the class collision verification.
-Instead of an action it is also possible to use a closure. See <<DependencyMngtContainer, `DependencyMngtContainer`>>.
+Instead of an action it is also possible to use a closure. See <<DependencyMgmtContainer, `DependencyMgmtContainer`>>.
 
 ***
 [[mfileItems]]
@@ -397,7 +397,7 @@ Initialize container for properties. Instead of an action it is also possible to
 |Property | Description
 
 |<<contentType,contentType>> | This setting specifies the handling of the folder / files.
-|<<types,types>>   | This is a list of deployment and environement types of the component (*read only*). It is used for all items.
+|<<types,types>>   | This is a list of deployment and environment types of the component (*read only*). It is used for all items.
 |===
 
 [[contentType]]
@@ -407,7 +407,7 @@ String contentType
 :::
 This setting specifies the handling of the folder / files. +
 The following values are allowed: +
-  *IMMUTABLE* - statischer content will be replaced during the update +
+  *IMMUTABLE* - static content will be replaced during the update +
   *DATA* - existing files can not be replaced by new files +
   *CONFIGURATION* - configuration files will be changed during the configuration +
   *UNSPECIFIED* - not specified content
@@ -419,7 +419,7 @@ Default:: `IMMUTABLE`
 Set<String> types
 
 :::
-This is a list of deployment and environement types of the component (*read only*). It is used for all items.
+This is a list of deployment and environment types of the component (*read only*). It is used for all items.
 Default:: `[]`
 ***
 
@@ -868,7 +868,7 @@ boolean addUpdateExcludePattern(String pattern)
 
 :::
 Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
-If the pattern is part of the list, the methodreturns false.
+If the pattern is part of the list, the method returns false.
 
 ***
 [[mmoduleaddUpdateExcludePattern]]
@@ -898,12 +898,12 @@ Example::
 
 ***
 
-[[DependencyMngtContainer]]
-=== Container 'dependencyMngt'
+[[DependencyMgmtContainer]]
+=== Container 'dependencyMgmt'
 
 This configuration contains all dependency related configuration.
 
-==== Properties of 'dependencyMngt'
+==== Properties of 'dependencyMgmt'
 
 [cols="1m,2d" width="100%", options="header"]
 |===
@@ -931,7 +931,7 @@ The configuration for classpath verification. See <<ClasspathVerificationContain
 
 ***
 
-==== Methods of 'dependencyMngt'
+==== Methods of 'dependencyMgmt'
 
 [cols="1m,1d" width="100%", options="header"]
 |===
@@ -1412,7 +1412,7 @@ boolean addUpdateExcludePattern(String pattern)
 
 :::
 Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
-If the pattern is part of the list, the methodreturns false.
+If the pattern is part of the list, the method returns false.
 
 ***
 [[mcontaineraddUpdateExcludePattern]]
@@ -1615,7 +1615,7 @@ See <<Directory,Directory>>.
 Directory add(String targetPath, Action<? super LinkItem> action)
 
 :::
-Creates an new instance of a directory item with a ltarget path and configures this instance. It adds this item to the list and returns the instance for further configuration.
+Creates an new instance of a directory item with a target path and configures this instance. It adds this item to the list and returns the instance for further configuration.
 See <<Directory,Directory>>.
 
 ***
@@ -1630,8 +1630,8 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |===
 |Property | Description
 |<<directorname,name>>                  | The path of the directory.
-|<<directoryclassifier, classifier>>     | This property can be used if this configuration is for a special operating system.
-|<<directoryupdatable,updatable>>        | If this item should not be part of an update installation, this property is set to false.
+|<<directoryclassifier, classifier>>    | This property can be used if this configuration is for a special operating system.
+|<<directoryupdatable,updatable>>       | If this item should not be part of an update installation, this property is set to false.
 |===
 
 [[directorytargetPath]]

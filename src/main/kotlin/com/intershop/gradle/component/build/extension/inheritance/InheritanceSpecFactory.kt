@@ -19,7 +19,7 @@ import org.gradle.api.NamedDomainObjectFactory
 import org.gradle.api.Project
 
 /**
- * This class provide a factory for InheritancSpec items
+ * This class provide a factory for InheritanceSpec items
  * of the inherit container.
  *
  * @param project the current project

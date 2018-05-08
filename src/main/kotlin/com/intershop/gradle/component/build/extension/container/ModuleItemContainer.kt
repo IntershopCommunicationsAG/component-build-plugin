@@ -30,12 +30,12 @@ import javax.inject.Inject
  * This class provides all properties for
  * the module container extension.
  *
- * @property dpendencyHandler necessary for dependency handling
+ * @property dependencyHandler necessary for dependency handling
  * @property parent the parent of this container.
  * @constructor provides an empty preconfigured module container
  */
 open class ModuleItemContainer
-        @Inject constructor(private val dpendencyHandler: DependencyHandler,
+        @Inject constructor(private val dependencyHandler: DependencyHandler,
                             @get:Internal val project: Project,
                             @get:Internal override val parent: ComponentExtension) :
         AContainer( "Module Container", "", parent) {
@@ -63,7 +63,7 @@ open class ModuleItemContainer
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(dependency: Any, vararg types: String) : ModuleItem {
-        val depConf = Utils.getDependencyConf(dpendencyHandler, dependency,
+        val depConf = Utils.getDependencyConf(dependencyHandler, dependency,
                 "It can not be added to the module container.")
 
         val item = getPreconfigureItem(depConf)
@@ -107,7 +107,7 @@ open class ModuleItemContainer
     @Throws(InvalidUserDataException::class)
     @Suppress("unused")
     fun add(dependency: Any, action: Action<in ModuleItem>) {
-        val depConf = Utils.getDependencyConf(dpendencyHandler, dependency,
+        val depConf = Utils.getDependencyConf(dependencyHandler, dependency,
                 "It can not be added to the module container.")
 
         val item = getPreconfigureItem(depConf)

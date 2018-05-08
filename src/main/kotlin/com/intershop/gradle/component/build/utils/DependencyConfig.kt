@@ -27,7 +27,7 @@ import org.gradle.api.tasks.Internal
  * @param group     group or organization of a dependency
  * @param module    name or module of a dependency
  * @param version   version of the dependency
- * @param dependency string represenation if dependency is not module dependency
+ * @param dependency string representation if dependency is not module dependency
  * @param transitive if dependency should or was transitive resolved
  *
  * @constructor provides an empty dependency configuration.

@@ -15,7 +15,7 @@
  */
 package com.intershop.gradle.component.build.extension
 
-import com.intershop.gradle.component.build.extension.container.DependencyMngtContainer
+import com.intershop.gradle.component.build.extension.container.DependencyMgmtContainer
 import com.intershop.gradle.component.build.extension.container.DirectoryContainer
 import com.intershop.gradle.component.build.extension.container.FileContainerItemContainer
 import com.intershop.gradle.component.build.extension.container.FileItemContainer
@@ -87,8 +87,8 @@ open class ComponentExtension @Inject constructor(project: Project) {
     private val moduleContainer =
             project.objects.newInstance(ModuleItemContainer::class.java, project.dependencies, project, this)
 
-    private val dependencyMngtContainer =
-            project.objects.newInstance(DependencyMngtContainer::class.java, project)
+    private val dependencyMgmtContainer =
+            project.objects.newInstance(DependencyMgmtContainer::class.java, project)
 
     private val fileContainer =
             project.objects.newInstance(FileItemContainer::class.java, this)
@@ -149,7 +149,7 @@ open class ComponentExtension @Inject constructor(project: Project) {
                     "contains invalid characters '$invalidChars'.")
         }
         if(newValue.startsWith("/")) {
-            throw InvalidUserDataException("Target path of compoent '$displayName'" +
+            throw InvalidUserDataException("Target path of component '$displayName'" +
                     "starts with a leading '/' - only a relative path is allowed.")
         }
         if(newValue.length > (Utils.MAX_PATH_LENGTH / 2)) {
@@ -171,10 +171,10 @@ open class ComponentExtension @Inject constructor(project: Project) {
      * This file configuration is used for the output
      * of the descriptor file.
      *
-     * @property decriptorOutputFile descriptor output file
+     * @property descriptorOutputFile descriptor output file
      */
     @Suppress("unused")
-    var decriptorOutputFile: File = File(project.buildDir, DESCRIPTOR_FILE)
+    var descriptorOutputFile: File = File(project.buildDir, DESCRIPTOR_FILE)
 
     /**
      * The container for all inherit configurations.
@@ -252,7 +252,7 @@ open class ComponentExtension @Inject constructor(project: Project) {
         get() = preserveProperty
 
     /**
-     * Configure patternset for perserve files from update.
+     * Configure patternset for preserve files from update.
      * Files that matches to one of patterns will be
      * excluded or included to the update installation.
      *
@@ -335,10 +335,10 @@ open class ComponentExtension @Inject constructor(project: Project) {
     /**
      * The container for dependencies configurations.
      *
-     * @property dependencyMngt container of dependencies configurations
+     * @property dependencyMgmt container of dependencies configurations
      */
-    val dependencyMngt: DependencyMngtContainer
-        get() = dependencyMngtContainer
+    val dependencyMgmt: DependencyMgmtContainer
+        get() = dependencyMgmtContainer
 
     /**
      * Configures dependencies container of a component.
@@ -346,8 +346,8 @@ open class ComponentExtension @Inject constructor(project: Project) {
      * @param action execute the dependencies container configuration
      */
     @Suppress("unused")
-    fun dependencyMngt(action: Action<in DependencyMngtContainer>) {
-        action.execute(dependencyMngtContainer)
+    fun dependencyMgmt(action: Action<in DependencyMgmtContainer>) {
+        action.execute(dependencyMgmtContainer)
     }
 
     /**

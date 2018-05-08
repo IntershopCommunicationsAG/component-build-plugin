@@ -120,7 +120,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             if(container.baseName.isNotBlank()) {
                                 artifactBaseName = container.baseName
                             } else {
-                                logger.error("The base name of container configuration '{}' is emtpy!", container.name)
+                                logger.error("The base name of container configuration '{}' is empty!", container.name)
                                 throw InvalidUserDataException("The base name of container configuration '" +
                                         container.name + "' is empty!")
                             }
@@ -166,7 +166,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
                             libs = extension.libs
                             modules = extension.modules
-                            dependencyExcludes = extension.dependencyMngt.excludes
+                            dependencyExcludes = extension.dependencyMgmt.excludes
                             properties = extension.propertyItems
                             containers = extension.containers
                             files = extension.fileItems
@@ -175,7 +175,7 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
 
                             defaultTarget = extension.targetPath
 
-                            descriptorFile = extension.decriptorOutputFile
+                            descriptorFile = extension.descriptorOutputFile
 
                             project.artifacts.add("component", it.descriptorFile) {
                                 it.type = "component"
@@ -196,13 +196,13 @@ class ComponentBuildPlugin @Inject constructor(private val modelRegistry: ModelR
                             group = COMPONENT_GROUP_NAME
                             description = "Check jars for class collisions of '${extension.displayName}'"
 
-                            enabled = extension.dependencyMngt.classpathVerification.enabled
+                            enabled = extension.dependencyMgmt.classpathVerification.enabled
 
                             libSet = extension.libs.items
                             moduleSet = extension.modules.items
-                            excludes = extension.dependencyMngt.excludes
-                            excludedClasses = extension.dependencyMngt.classpathVerification.excludedClasses
-                            collisionExcludes = extension.dependencyMngt.classpathVerification.excludes
+                            excludes = extension.dependencyMgmt.excludes
+                            excludedClasses = extension.dependencyMgmt.classpathVerification.excludedClasses
+                            collisionExcludes = extension.dependencyMgmt.classpathVerification.excludes
 
                             reportOutput = File(buildDir, ComponentExtension.CLASSCOLLISION_REPORT)
                         }
