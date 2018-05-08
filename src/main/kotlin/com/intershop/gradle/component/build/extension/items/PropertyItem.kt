@@ -34,6 +34,13 @@ class PropertyItem(@get:Input val key: String): AItem(), IItem, IOSSpecific {
     var value: String = ""
 
     /**
+     * The ANT based pattern for the property file. This is marked as task input.
+     * @property pattern the ANT based pattern for the property file.
+     */
+    @get:Input
+    var pattern: String = ""
+
+    /**
      * This set contains OS specific descriptions.
      * The set is empty per default.
      * It is defined as an task input property.
@@ -42,6 +49,7 @@ class PropertyItem(@get:Input val key: String): AItem(), IItem, IOSSpecific {
      */
     @get:Input
     override var classifier: String = ""
+
 
     /**
      * If an item should not be part of an update installation, this property is set to false.

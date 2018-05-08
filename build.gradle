@@ -17,7 +17,7 @@ plugins {
     // project plugins
     id 'java-gradle-plugin'
     id 'groovy'
-    id 'nebula.kotlin' version '1.2.40'
+    id 'nebula.kotlin' version '1.2.41'
 
     // documentation
     id "org.jetbrains.dokka" version "0.9.16"
@@ -270,7 +270,7 @@ task sendCoverageToCodacy(type: JavaExec, dependsOn: jacocoTestReport) {
 }
 
 dependencies {
-    compile 'com.intershop.gradle.component:component-descriptor:1.0.0-dev.15'
+    compile 'com.intershop.gradle.component:component-descriptor:1.0.0-dev.16'
 
     compileOnly 'org.jetbrains:annotations:15.0'
 
