@@ -31,7 +31,7 @@ import kotlin.properties.Delegates
  */
 class LinkItem constructor(
         @get:Input val name: String,
-        @get:Input val targetPath: String) : AItem(), IItem, IOSSpecific {
+        @get:Input val targetPath: String) : AItem(), IItem {
 
     companion object {
         private val logger = LoggerFactory.getLogger(LinkItem::class.java.simpleName)
@@ -82,10 +82,10 @@ class LinkItem constructor(
      * The set is empty per default.
      * It is defined as an task input property.
      *
-     * @property classifier the set of OS specific strings
+     * @property classifiers the set of OS specific strings
      */
     @get:Input
-    override var classifier: String = ""
+    var classifiers: Set<String> = mutableSetOf()
 
     /**
      * If an item should not be part of an update installation, this property is set to false.
