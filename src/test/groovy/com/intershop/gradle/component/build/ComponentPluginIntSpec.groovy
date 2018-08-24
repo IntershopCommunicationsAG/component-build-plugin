@@ -23,6 +23,7 @@ import com.intershop.gradle.test.builder.TestIvyRepoBuilder.ArchiveDirectoryEntr
 import com.intershop.gradle.test.builder.TestIvyRepoBuilder.ArchiveFileEntry
 import com.intershop.gradle.test.builder.TestMavenRepoBuilder
 import org.gradle.testkit.runner.TaskOutcome
+import spock.lang.Ignore
 import spock.lang.Unroll
 
 class ComponentPluginIntSpec extends AbstractIntegrationSpec {
@@ -1700,6 +1701,7 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
         gradleVersion << supportedGradleVersions
     }
 
+    @Ignore //because test takes to long.
     @Unroll
     def 'Test missing module handling - #gradleVersion'(gradleVersion) {
         given:
