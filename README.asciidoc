@@ -22,7 +22,7 @@ There is also an installation plugin, that used the descriptor for an installati
 == Usage
 To apply the component-build Gradle plugin to your projects, add the following in your build script:
 
-[source,groovy]
+[source,java]
 [subs=+attributes]
 .build.gradle
 ----
@@ -79,7 +79,7 @@ The parameter `--recreate` enable the rebuild of `verifyClasspath` and `createCo
 |===
 
 [[ivyPublicationName]]
-[source,groovy]
+[source,java]
 String ivyPublicationName
 
 :::
@@ -88,7 +88,7 @@ Default:: `ivyIntershop`
 
 ***
 [[mavenPublicationName]]
-[source,groovy]
+[source,java]
 String mavenPublicationName
 
 :::
@@ -97,7 +97,7 @@ Default:: `mvnIntershop`
 
 ***
 [[displayName]]
-[source,groovy]
+[source,java]
 String displayName
 
 :::
@@ -106,7 +106,7 @@ Default:: `*project.name*`
 
 ***
 [[componentDescription]]
-[source,groovy]
+[source,java]
 String componentDescription
 
 :::
@@ -115,7 +115,7 @@ Default:: `""`
 
 ***
 [[descriptorPath]]
-[source,groovy]
+[source,java]
 String descriptorPath
 
 :::
@@ -124,7 +124,7 @@ Default:: `component`
 
 ***
 [[targetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -133,7 +133,7 @@ Default:: `""`
 
 ***
 [[descriptorOutputFile]]
-[source,groovy]
+[source,java]
 File descriptorOutputFile
 
 :::
@@ -142,7 +142,7 @@ Default:: `*project.buildDir*/componentBuild/descriptor/file.component`
 
 ***
 [[types]]
-[source,groovy]
+[source,java]
 Set<String> types
 
 :::
@@ -151,7 +151,7 @@ Default:: `[]`
 
 ***
 [[excludes]]
-[source,groovy]
+[source,java]
 Set<String> excludes
 
 :::
@@ -160,7 +160,7 @@ Default:: `[]`
 
 ***
 [[preserve]]
-[source,groovy]
+[source,java]
 PatternFilterable preserve
 
 :::
@@ -168,7 +168,7 @@ Pattern set to preserve files during an update installation (*read only*)
 Default:: `PaternFilterable` without a configuration
 
 Example::
-[source,groovy]
+[source,java]
     preserve {
         include 'extraDir/**'
         include 'dir1/**'
@@ -177,7 +177,7 @@ Example::
 
 ***
 [[libs]]
-[source,groovy]
+[source,java]
 LibraryItemContainer libs
 
 :::
@@ -185,7 +185,7 @@ This is the data container for all libraries (*read only*). See <<LibraryItemCon
 
 ***
 [[modules]]
-[source,groovy]
+[source,java]
 ModuleItemContainer modules
 
 :::
@@ -193,7 +193,7 @@ This configuration contains all libraries (*read only*). See <<ModuleItemContain
 
 ***
 [[dependencyMgmt]]
-[source,groovy]
+[source,java]
 DependencyMgmtContainer dependencyMgmt
 
 :::
@@ -201,7 +201,7 @@ This container holds all dependency related configuration parameters (*read only
 
 ***
 [[fileItems]]
-[source,groovy]
+[source,java]
 FileItemContainer fileItems
 
 :::
@@ -209,7 +209,7 @@ This is the configuration of all single files (*read only*). See <<FileItemConta
 
 ***
 [[containers]]
-[source,groovy]
+[source,java]
 FileContainerItemContainer containers
 
 :::
@@ -218,7 +218,7 @@ File containers can be configured in this configuration (*read only*). See <<Fil
 ***
 
 [[links]]
-[source,groovy]
+[source,java]
 LinkItemContainer links
 
 :::
@@ -226,7 +226,7 @@ This is a container for link configurations (*read only*). See <<LinkItemContain
 
 ***
 [[directories]]
-[source,groovy]
+[source,java]
 DirectoryContainer directories
 
 :::
@@ -234,7 +234,7 @@ Directories are configuration of empty folders (*read only*). See <<DirectoryCon
 
 ***
 [[propertyItems]]
-[source,groovy]
+[source,java]
 PropertyItemContainer propertyItems
 
 :::
@@ -253,7 +253,7 @@ Properties can be configured in this container (*read only*). See <<PropertyItem
 |<<scexclude,exclude>>(pattern)             | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |<<maexclude,exclude>>(patterns)            | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |<<apreserve,preserve>>(action)             | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
-|<<cpreserve,preserve>>(closure)            | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
+|<<apreserve,preserve>>(closure)            | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
 |<<mlibs,libs>>(action)                     | Initializes container for library configuration.
 |<<mmodules,modules>>(action)               | Initializes container for module configuration.
 |<<mdependencyMgmt,dependencyMgmt>>(action) | Initializes container for dependency management container. This includes also the configuration for the class collision verification.
@@ -265,7 +265,7 @@ Properties can be configured in this container (*read only*). See <<PropertyItem
 |===
 
 [[addType]]
-[source,groovy]
+[source,java]
 boolean addType(String type)
 
 :::
@@ -273,7 +273,7 @@ Add a deployment or environment type to the list of types. The method returns fa
 
 ***
 [[addTypes]]
-[source,groovy]
+[source,java]
 boolean addTypes(Collection<String> types)
 
 :::
@@ -281,7 +281,7 @@ Add a collection of deployment or environment types to the list of types. The me
 
 ***
 [[scexclude]]
-[source,groovy]
+[source,java]
 exclude(String pattern)
 
 :::
@@ -289,15 +289,15 @@ Adds a pattern to the set of exclude patterns. Files that matches to one of the 
 
 ***
 [[maexclude]]
-[source,groovy]
+[source,java]
 exclude(Set<String> patterns)
 
 :::
 Adds a set of patterns to the set of exclude patterns. Files that matches to one of the patterns will be excluded from the update installation.
 
 ***
-[[apreserve]][[cpreserve]]
-[source,groovy]
+[[apreserve]]
+[source,java]
 preserve(Action<? super PatternFilterable> action)
 preserve(Closure closure)
 
@@ -305,7 +305,7 @@ preserve(Closure closure)
 Configures the patternset with an action or closure - depends on the script language. Files that matches to one of patterns will be preserved during the update installation.
 
 Example::
-[source,groovy]
+[source,java]
     preserve {
         include 'extraDir/**'
         include 'dir1/**'
@@ -314,7 +314,7 @@ Example::
 
 ***
 [[mapreserve]]
-[source,groovy]
+[source,java]
 preserve(Set<String> patterns)
 
 :::
@@ -322,7 +322,7 @@ Adds a set of patterns to the set of preserve patterns. Files that matches to on
 
 ***
 [[mlibs]]
-[source,groovy]
+[source,java]
 libs(Action<? super LibraryItemContainer> action)
 
 :::
@@ -330,7 +330,7 @@ Initializes container for library configuration. Instead of an action it is also
 
 ***
 [[mmodules]]
-[source,groovy]
+[source,java]
 modules(Action<? super ModuleItemContainer> action)
 
 :::
@@ -338,7 +338,7 @@ Initializes container for modul configuration. Instead of an action it is also p
 
 ***
 [[mdependencyMgmt]]
-[source,groovy]
+[source,java]
 dependencyMgmt(Action<? super DependencyMgmtContainer> action)
 
 :::
@@ -347,7 +347,7 @@ Instead of an action it is also possible to use a closure. See <<DependencyMgmtC
 
 ***
 [[mfileItems]]
-[source,groovy]
+[source,java]
 fileItems(Action<? super FileItemContainer> action)
 
 :::
@@ -355,7 +355,7 @@ Initializes container for single files. Instead of an action it is also possible
 
 ***
 [[mcontainers]]
-[source,groovy]
+[source,java]
 containers(Action<? super FileContainerItemContainer> action)
 
 :::
@@ -363,7 +363,7 @@ Initializes container for additional file item containers. Instead of an action 
 
 ***
 [[mlinks]]
-[source,groovy]
+[source,java]
 links(Action<? super LinkItemContainer> action)
 
 :::
@@ -371,7 +371,7 @@ Initializes container for link configurations. See <<LinkItemContainer, `LinkIte
 
 ***
 [[mdirectories]]
-[source,groovy]
+[source,java]
 directories(Action<? super DirectoryContainer> action)
 
 :::
@@ -379,7 +379,7 @@ Initializes directory configuration container. See <<DirectoryContainer, `Direct
 
 ***
 [[mpropertyItems]]
-[source,groovy]
+[source,java]
 properties(Action<? super PropertyItemContainer> action)
 
 :::
@@ -397,11 +397,11 @@ Initialize container for properties. Instead of an action it is also possible to
 |Property | Description
 
 |<<contentType,contentType>> | This setting specifies the handling of the folder / files.
-|<<types,types>>   | This is a list of deployment and environment types of the component (*read only*). It is used for all items.
+|<<citypes,types>>   | This is a list of deployment and environment types of the component (*read only*). It is used for all items.
 |===
 
 [[contentType]]
-[source,groovy]
+[source,java]
 String contentType
 
 :::
@@ -414,8 +414,8 @@ The following values are allowed: +
 Default:: `IMMUTABLE`
 
 ***
-[[types]]
-[source,groovy]
+[[citypes]]
+[source,java]
 Set<String> types
 
 :::
@@ -430,29 +430,29 @@ Default:: `[]`
 |===
 |Method | Description
 
-|<<setTypes,setTypes>>(types) | Set a collection of deployment or environment types to the list of types.
-|<<addType,addType>>(type) | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
-|<<addTypes,addTypes>>(types) | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
+|<<cisetTypes,setTypes>>(types) | Set a collection of deployment or environment types to the list of types.
+|<<ciaddType,addType>>(type) | Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
+|<<ciaddTypes,addTypes>>(types) | Add a collection of deployment or environment types to the list of types. The method returns false, if the one of the list is already a member of the list.
 |===
 
-[[setTypes]]
-[source,groovy]
+[[cisetTypes]]
+[source,java]
 void setTypes(Collection<String> types)
 
 :::
 Set a collection of deployment or environment types to the list of types.
 
 ***
-[[addType]]
-[source,groovy]
+[[ciaddType]]
+[source,java]
 boolean addType(String type)
 
 :::
 Add a deployment or environment type to the list of types. The method returns false, if the new type is already a member of the list.
 
 ***
-[[addTypes]]
-[source,groovy]
+[[ciaddTypes]]
+[source,java]
 boolean addTypes(Collection<String> types)
 
 :::
@@ -477,7 +477,7 @@ This configuration contains the library configuration of a components. A library
 |===
 
 [[libsitems]]
-[source,groovy]
+[source,java]
 Set<LibraryItem> items
 
 :::
@@ -486,7 +486,7 @@ Default:: `[]`
 
 ***
 [[libsresolveTransitive]]
-[source,groovy]
+[source,java]
 boolean resolveTransitive
 
 :::
@@ -495,7 +495,7 @@ Default:: `true`
 
 ***
 [[libstargetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -517,7 +517,7 @@ Default:: `""`
 |===
 
 [[libs1add]]
-[source,groovy]
+[source,java]
 LibraryItem add(Object dependency, String... types)
 
 :::
@@ -526,7 +526,7 @@ See <<LibraryItem,LibraryItem>>.
 
 ***
 [[libs2add]]
-[source,groovy]
+[source,java]
 LibraryItem add(Object dependency)
 
 :::
@@ -535,7 +535,7 @@ Types of the container are used as a default configuration. See <<LibraryItem,Li
 
 ***
 [[libs3add]]
-[source,groovy]
+[source,java]
 void add(Collection<Object> dependencies)
 
 :::
@@ -543,7 +543,7 @@ Creates new instances of library items from the object list with a types list fr
 
 ***
 [[libs4add]]
-[source,groovy]
+[source,java]
 void add(Object dependency, Action<? super LibraryItem> action)
 
 :::
@@ -568,7 +568,7 @@ See also <<itemproperties,'Properties of containers and items'>> and <<itemmetho
 |===
 
 [[libdependency]]
-[source,groovy]
+[source,java]
 DependencyConfig dependency
 
 :::
@@ -576,7 +576,7 @@ The dependency configuration of this library. See <<DependencyConfig,DependencyC
 
 ***
 [[libresolveTransitive]]
-[source,groovy]
+[source,java]
 boolean resolveTransitive
 
 :::
@@ -585,7 +585,7 @@ Default:: `true`
 
 ***
 [[libtargetName]]
-[source,groovy]
+[source,java]
 String targetName
 
 :::
@@ -616,7 +616,7 @@ This property is used for all items and can be overridden by a configuration of 
 |===
 
 [[modulesitems]]
-[source,groovy]
+[source,java]
 Set<ModuleItem> items
 
 :::
@@ -625,7 +625,7 @@ Default:: `[]`
 
 ***
 [[modulesresolveTransitive]]
-[source,groovy]
+[source,java]
 boolean resolveTransitive
 
 :::
@@ -634,7 +634,7 @@ Default:: `true`
 
 ***
 [[modulestargetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -643,7 +643,7 @@ Default:: `""`
 
 ***
 [[modulesupdatable]]
-[source,groovy]
+[source,java]
 boolean updatable
 
 :::
@@ -654,7 +654,7 @@ Default:: `true`
 ***
 
 [[modulesjarPath]]
-[source,groovy]
+[source,java]
 String jarPath
 
 :::
@@ -666,7 +666,7 @@ Default:: `libs`
 ***
 
 [[modulesdescriptorPath]]
-[source,groovy]
+[source,java]
 String descriptorPath
 
 :::
@@ -689,7 +689,7 @@ Default:: `""`
 |===
 
 [[modules1add]]
-[source,groovy]
+[source,java]
 ModuleItem add(Object dependency, String... types)
 
 :::
@@ -698,7 +698,7 @@ See <<ModuleItem,ModuleItem>>.
 
 ***
 [[modules2add]]
-[source,groovy]
+[source,java]
 ModuleItem add(Object dependency)
 
 :::
@@ -707,7 +707,7 @@ Types of the container are used as a default configuration. See <<ModuleItem,Mod
 
 ***
 [[modules3add]]
-[source,groovy]
+[source,java]
 void add(Collection<Object> dependencies)
 
 :::
@@ -715,7 +715,7 @@ Creates new instances of library items from the object list with a types list fr
 
 ***
 [[modules4add]]
-[source,groovy]
+[source,java]
 void add(Object dependency, Action<? super ModuleItem> action)
 
 :::
@@ -747,7 +747,7 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |===
 
 [[moduledependency]]
-[source,groovy]
+[source,java]
 DependencyConfig dependency
 
 :::
@@ -755,7 +755,7 @@ The dependency configuration of this module. See <<DependencyConfig,DependencyCo
 
 ***
 [[moduleresolveTransitive]]
-[source,groovy]
+[source,java]
 boolean resolveTransitive
 
 :::
@@ -764,7 +764,7 @@ Default:: `true`
 
 ***
 [[moduleitemType]]
-[source,groovy]
+[source,java]
 String itemType
 
 :::
@@ -773,7 +773,7 @@ Default:: `""`
 
 ***
 [[moduletargetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -782,7 +782,7 @@ Default:: `dependency.module`
 
 ***
 [[moduletargetIncluded]]
-[source,groovy]
+[source,java]
 boolean targetIncluded
 
 :::
@@ -791,7 +791,7 @@ Default:: `false`
 
 ***
 [[moduleupdatable]]
-[source,groovy]
+[source,java]
 boolean updatable
 
 :::
@@ -800,7 +800,7 @@ Default:: `true`
 
 ***
 [[moduleexcludes]]
-[source,groovy]
+[source,java]
 Set<String> excludes
 
 :::
@@ -809,7 +809,7 @@ Default:: `[]`
 
 ***
 [[modulepreserve]]
-[source,groovy]
+[source,java]
 PatternFilterable preserve
 
 :::
@@ -817,7 +817,7 @@ Pattern set to preserve files during an update installation (*read only*)
 Default:: `PaternFilterable` without a configuration
 
 Example::
-[source,groovy]
+[source,java]
     preserve {
         include 'extraDir/**'
         include 'dir1/**'
@@ -826,7 +826,7 @@ Example::
 
 ***
 [[modulejarPath]]
-[source,groovy]
+[source,java]
 String jarPath
 
 :::
@@ -838,7 +838,7 @@ Default:: `libs`
 ***
 
 [[moduledescriptorPath]]
-[source,groovy]
+[source,java]
 String descriptorPath
 
 :::
@@ -857,13 +857,13 @@ See also <<itemmethods, 'Methods of containers and items'>>.
 
 |<<smoduleaddUpdateExcludePattern,addUpdateExcludePattern>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |<<mmoduleaddUpdateExcludePattern,addUpdateExcludePattern>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
-|<<mapreserve,preserve>>(action) | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
-|<<mcpreserve,preserve>>(closure) | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
+|<<miapreserve,preserve>>(action) | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
+|<<miapreserve,preserve>>(closure) | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
 
 |===
 
 [[smoduleaddUpdateExcludePattern]]
-[source,groovy]
+[source,java]
 boolean addUpdateExcludePattern(String pattern)
 
 :::
@@ -872,7 +872,7 @@ If the pattern is part of the list, the method returns false.
 
 ***
 [[mmoduleaddUpdateExcludePattern]]
-[source,groovy]
+[source,java]
 boolean addUpdateExcludePattern(Set<String> patterns)
 
 :::
@@ -880,8 +880,8 @@ Adds a set of patterns to the set of exclude patterns. Files that matches to one
 If one of the patterns is part of the list, the method returns false.
 
 ***
-[[mapreserve]][[mcpreserve]]
-[source,groovy]
+[[miapreserve]]
+[source,java]
 preserve(Action<? super PatternFilterable> action)
 preserve(Closure closure)
 
@@ -889,7 +889,7 @@ preserve(Closure closure)
 Configures the patternset with an action or closure - depends on the script language. Files that matches to one of patterns will be preserved during the update installation.
 
 Example::
-[source,groovy]
+[source,java]
     preserve {
         include 'extraDir/**'
         include 'dir1/**'
@@ -914,7 +914,7 @@ This configuration contains all dependency related configuration.
 |===
 
 [[dmexcludes]]
-[source,groovy]
+[source,java]
 Set<DependencyConfig> excludes
 
 :::
@@ -923,7 +923,7 @@ Default:: `[]`
 
 ***
 [[classpathVerification]]
-[source,groovy]
+[source,java]
 ClasspathVerificationContainer classpathVerification
 
 :::
@@ -939,11 +939,11 @@ The configuration for classpath verification. See <<ClasspathVerificationContain
 
 |<<dmexclude,exclude>>(group,module,version) | With this method it is possible to add an pattern with a group or organization, a name and a version.
 It is possible to configure only a group and a name pattern or only a group pattern.
-|<<classpathVerification,classpathVerification>>(action) | Initialize container for classpath verification (check for class collisions).
+|<<dmclasspathVerification,classpathVerification>>(action) | Initialize container for classpath verification (check for class collisions).
 |===
 
 [[dmexclude]]
-[source,groovy]
+[source,java]
 void exclude(String group, String module, String version)
 
 :::
@@ -951,8 +951,8 @@ With this method it is possible to add an pattern with a group or organization, 
 It is possible to configure only a group and a name pattern or only a group pattern. See See <<DependencyConfig,DependencyConfig>>.
 
 ***
-[[classpathVerification]]
-[source,groovy]
+[[dmclasspathVerification]]
+[source,java]
 void classpathVerification(Action<? super ClasspathVerificationContainer> action)
 
 :::
@@ -976,7 +976,7 @@ See <<ClasspathVerificationContainer,ClasspathVerificationContainer>>
 |===
 
 [[enabled]]
-[source,groovy]
+[source,java]
 boolean enabled
 
 :::
@@ -985,7 +985,7 @@ Default:: `true`
 
 ***
 [[cvexcludes]]
-[source,groovy]
+[source,java]
 Set<DependencyConfig> excludes
 
 :::
@@ -994,7 +994,7 @@ Default:: `[]`
 
 ***
 [[excludedClasses]]
-[source,groovy]
+[source,java]
 Set<String> excludedClasses
 
 :::
@@ -1015,7 +1015,7 @@ It is possible to configure only a group and a name pattern or only a group patt
 |===
 
 [[cvmexclude]]
-[source,groovy]
+[source,java]
 void exclude(String group, String module, String version)
 
 :::
@@ -1024,7 +1024,7 @@ It is possible to configure only a group and a name pattern or only a group patt
 
 ***
 [[excludeClass]]
-[source,groovy]
+[source,java]
 void excludeClass(String classPattern)
 
 :::
@@ -1050,7 +1050,7 @@ This property is used for all items and can be overridden by a configuration of 
 |===
 
 [[filesitems]]
-[source,groovy]
+[source,java]
 Set<FileItem> items
 
 :::
@@ -1059,7 +1059,7 @@ Default:: `[]`
 
 ***
 [[filestargetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -1068,7 +1068,7 @@ Default:: `""`
 
 ***
 [[filesupdatable]]
-[source,groovy]
+[source,java]
 boolean updatable
 
 :::
@@ -1090,7 +1090,7 @@ Default:: `true`
 |===
 
 [[files1add]]
-[source,groovy]
+[source,java]
 FileItem add(File file, String... types)
 
 :::
@@ -1099,7 +1099,7 @@ See <<FileItem,FileItem>>.
 
 ***
 [[files2add]]
-[source,groovy]
+[source,java]
 FileItem add(File file)
 
 :::
@@ -1108,7 +1108,7 @@ Types of the container are used as a default configuration. See <<FileItem,FileI
 
 ***
 [[files3add]]
-[source,groovy]
+[source,java]
 void add(Collection<File> files)
 
 :::
@@ -1116,7 +1116,7 @@ Creates new instances of file items from the file list with a types list from th
 
 ***
 [[files4add]]
-[source,groovy]
+[source,java]
 void add(File file, Action<? super FileItem> action)
 
 :::
@@ -1142,7 +1142,7 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |===
 
 [[filename]]
-[source,groovy]
+[source,java]
 String name
 
 :::
@@ -1151,7 +1151,7 @@ Default:: `*file.nameWithoutExtension*`
 
 ***
 [[fileextension]]
-[source,groovy]
+[source,java]
 String extension
 
 :::
@@ -1160,7 +1160,7 @@ Default:: `*file.extension*`
 
 ***
 [[filetargetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -1169,7 +1169,7 @@ Default:: `""`
 
 ***
 [[fileclassifier]]
-[source,groovy]
+[source,java]
 String classifier
 
 :::
@@ -1178,7 +1178,7 @@ Default:: `""`
 
 ***
 [[fileupdatable]]
-[source,groovy]
+[source,java]
 boolean updatable
 
 :::
@@ -1206,7 +1206,7 @@ This property is used for all items and can be overridden by a configuration of 
 |===
 
 [[containersitems]]
-[source,groovy]
+[source,java]
 Set<FileContainerItem> items
 
 :::
@@ -1215,7 +1215,7 @@ Default:: `[]`
 
 ***
 [[containerstargetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -1224,7 +1224,7 @@ Default:: `""`
 
 ***
 [[containersupdatable]]
-[source,groovy]
+[source,java]
 boolean updatable
 
 :::
@@ -1246,7 +1246,7 @@ Default:: `true`
 |===
 
 [[containers1add]]
-[source,groovy]
+[source,java]
 FileContainerItem add(String name, String... types)
 
 :::
@@ -1255,7 +1255,7 @@ See <<FileContainerItem,FileContainerItem>>.
 
 ***
 [[containers2add]]
-[source,groovy]
+[source,java]
 FileContainerItem add(String name)
 
 :::
@@ -1264,7 +1264,7 @@ Types of the container are used as a default configuration. See <<FileContainerI
 
 ***
 [[containers3add]]
-[source,groovy]
+[source,java]
 void add(name, Action<? super FileContainerItem> action)
 
 :::
@@ -1295,7 +1295,7 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |===
 
 [[containerbaseName]]
-[source,groovy]
+[source,java]
 String baseName
 
 :::
@@ -1304,7 +1304,7 @@ Default:: `*project.name*`
 
 ***
 [[containeritemType]]
-[source,groovy]
+[source,java]
 String itemType
 
 :::
@@ -1313,7 +1313,7 @@ Default:: `""`
 
 ***
 [[containertargetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -1322,7 +1322,7 @@ Default:: `""`
 
 ***
 [[containertargetIncluded]]
-[source,groovy]
+[source,java]
 boolean targetIncluded
 
 :::
@@ -1331,7 +1331,7 @@ Default:: `false`
 
 ***
 [[containersource]]
-[source,groovy]
+[source,java]
 FileCollection source
 
 :::
@@ -1339,7 +1339,7 @@ The files to be packed. (read only)
 
 ***
 [[containerclassifier]]
-[source,groovy]
+[source,java]
 String classifier
 
 :::
@@ -1347,7 +1347,7 @@ This property can be used if this configuration is for a special operating syste
 
 ***
 [[containerupdatable]]
-[source,groovy]
+[source,java]
 boolean updatable
 
 :::
@@ -1356,7 +1356,7 @@ Default:: `true`
 
 ***
 [[containerexcludes]]
-[source,groovy]
+[source,java]
 Set<String> excludes
 
 :::
@@ -1365,7 +1365,7 @@ Default:: `[]`
 
 ***
 [[containerpreserve]]
-[source,groovy]
+[source,java]
 PatternFilterable preserve
 
 :::
@@ -1373,7 +1373,7 @@ Pattern set to preserve files during an update installation (*read only*)
 Default:: `PaternFilterable` without a configuration
 
 Example::
-[source,groovy]
+[source,java]
     preserve {
         include 'extraDir/**'
         include 'dir1/**'
@@ -1394,12 +1394,12 @@ See also <<itemmethods, 'Methods of containers and items'>>.
 |<<scontaineraddUpdateExcludePattern,addUpdateExcludePattern>>(pattern) | Adds a pattern to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |<<mcontaineraddUpdateExcludePattern,addUpdateExcludePattern>>(patterns) | Adds a set of patterns to the set of exclude patterns. Files that matches to one of patterns will be excluded from the update installation.
 |<<macontainerpreserve,preserve>>(action) | Configures the patternset with an action. Files that matches to one of patterns will be preserved during the update installation.
-|<<mccontainerpreserve,preserve>>(closure) | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
+|<<macontainerpreserve,preserve>>(closure) | Configures the patternset with a closure. Files that matches to one of patterns will be preserved during the update installation.
 
 |===
 
 [[source]]
-[source,groovy]
+[source,java]
 source(Object... paths)
 
 :::
@@ -1407,7 +1407,7 @@ Specifies the source  files for packaging. The given paths are evaluated as per 
 
 ***
 [[scontaineraddUpdateExcludePattern]]
-[source,groovy]
+[source,java]
 boolean addUpdateExcludePattern(String pattern)
 
 :::
@@ -1416,7 +1416,7 @@ If the pattern is part of the list, the method returns false.
 
 ***
 [[mcontaineraddUpdateExcludePattern]]
-[source,groovy]
+[source,java]
 boolean addUpdateExcludePattern(Set<String> patterns)
 
 :::
@@ -1424,8 +1424,8 @@ Adds a set of patterns to the set of exclude patterns. Files that matches to one
 If one of the patterns is part of the list, the method returns false.
 
 ***
-[[macontainerpreserve]][[mccontainerpreserve]]
-[source,groovy]
+[[macontainerpreserve]]
+[source,java]
 preserve(Action<? super PatternFilterable> action)
 preserve(Closure closure)
 
@@ -1433,7 +1433,7 @@ preserve(Closure closure)
 Configures the patternset with an action or closure - depends on the script language. Files that matches to one of patterns will be preserved during the update installation.
 
 Example::
-[source,groovy]
+[source,java]
     preserve {
         include 'extraDir/**'
         include 'dir1/**'
@@ -1457,7 +1457,7 @@ This configuration contains link configuration for Linux and MacOS.
 |===
 
 [[linksitems]]
-[source,groovy]
+[source,java]
 Set<LinkItem> items
 
 :::
@@ -1478,7 +1478,7 @@ Default:: `[]`
 |===
 
 [[links1add]]
-[source,groovy]
+[source,java]
 LinkItem add(String name, String targetPath, String... types)
 
 :::
@@ -1487,7 +1487,7 @@ See <<LinkItem,LinkItem>>.
 
 ***
 [[links2add]]
-[source,groovy]
+[source,java]
 LinkItem add(String name, String targetPath)
 
 :::
@@ -1496,7 +1496,7 @@ See <<LinkItem,LinkItem>>.
 
 ***
 [[links3add]]
-[source,groovy]
+[source,java]
 LinkItem add(String name, String targetPath, Action<? super LinkItem> action)
 
 :::
@@ -1522,7 +1522,7 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |===
 
 [[linkname]]
-[source,groovy]
+[source,java]
 String name
 
 :::
@@ -1531,7 +1531,7 @@ Default:: `""`
 
 ***
 [[linktargetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -1540,7 +1540,7 @@ Default:: `""`
 
 ***
 [[linkclassifier]]
-[source,groovy]
+[source,java]
 String classifier
 
 :::
@@ -1548,7 +1548,7 @@ This property can be used if this configuration is for a special operating syste
 ***
 
 [[linkupdatable]]
-[source,groovy]
+[source,java]
 boolean updatable
 
 :::
@@ -1568,11 +1568,11 @@ This configuration container is used for empty directories.
 |===
 |Property | Description
 
-|<<directoriesitems,items>> | Set of all configured directory items.
+|<<directoryitems,items>> | Set of all configured directory items.
 |===
 
-[[directory]]
-[source,groovy]
+[[directoryitems]]
+[source,java]
 Set<Directory> items
 
 :::
@@ -1593,7 +1593,7 @@ Default:: `[]`
 |===
 
 [[directories1add]]
-[source,groovy]
+[source,java]
 Directory add(String targetPath, String... types)
 
 :::
@@ -1602,7 +1602,7 @@ See <<Directory,Directory>>.
 
 ***
 [[directories2add]]
-[source,groovy]
+[source,java]
 Directory add(String targetPath)
 
 :::
@@ -1611,7 +1611,7 @@ See <<Directory,Directory>>.
 
 ***
 [[directories3add]]
-[source,groovy]
+[source,java]
 Directory add(String targetPath, Action<? super LinkItem> action)
 
 :::
@@ -1629,13 +1629,13 @@ See also <<itemproperties,'Properties of containers and items'>>.
 [cols="1m,2d" width="100%", options="header"]
 |===
 |Property | Description
-|<<directorname,name>>                  | The path of the directory.
+|<<directorytargetPath,targetPath>>                  | The path of the directory.
 |<<directoryclassifier, classifier>>    | This property can be used if this configuration is for a special operating system.
 |<<directoryupdatable,updatable>>       | If this item should not be part of an update installation, this property is set to false.
 |===
 
 [[directorytargetPath]]
-[source,groovy]
+[source,java]
 String targetPath
 
 :::
@@ -1644,7 +1644,7 @@ Default:: `""`
 
 ***
 [[directoryclassifier]]
-[source,groovy]
+[source,java]
 String classifier
 
 :::
@@ -1652,7 +1652,7 @@ This property can be used if this configuration is for a special operating syste
 ***
 
 [[directoryupdatable]]
-[source,groovy]
+[source,java]
 boolean updatable
 
 :::
@@ -1660,14 +1660,6 @@ If this item should not be part of an update installation, this property is set 
 Default:: `true`
 
 ***
-
-===== Methods
-
-[cols="1m,1d" width="100%", options="header"]
-|===
-|Method | Description
-
-|===
 
 [[PropertyItemContainer]]
 === Container 'propertyItems'
@@ -1684,7 +1676,7 @@ This configuration is used to store properties for installations of a component.
 |===
 
 [[propsitems]]
-[source,groovy]
+[source,java]
 Set<PropertyItem> items
 
 :::
@@ -1705,7 +1697,7 @@ Default:: `[]`
 |===
 
 [[props1add]]
-[source,groovy]
+[source,java]
 PropertyItem add(String key, String value, String... types)
 
 :::
@@ -1715,7 +1707,7 @@ See <<PropertyItem,PropertyItem>>.
 ***
 
 [[props2add]]
-[source,groovy]
+[source,java]
 PropertyItem add(String key, String value)
 
 :::
@@ -1724,7 +1716,7 @@ Creates an new instance of a property configuration item with a property key and
 ***
 
 [[props3add]]
-[source,groovy]
+[source,java]
 void add(String name, Action<? super FileContainerItem> action)
 
 :::
@@ -1749,7 +1741,7 @@ See also <<itemproperties,'Properties of containers and items'>>.
 |===
 
 [[value]]
-[source,groovy]
+[source,java]
 String value
 
 :::
@@ -1757,7 +1749,7 @@ The property value of this item.
 ***
 
 [[propclassifier]]
-[source,groovy]
+[source,java]
 String classifier
 
 :::
@@ -1765,12 +1757,69 @@ This property can be used if this configuration is for a special operating syste
 ***
 
 [[propupdatable]]
-[source,groovy]
+[source,java]
 boolean updatable
 
 :::
 If this item should not be part of an update installation, this property is set to false.
 Default:: `true`
+
+***
+
+[[DependencyConfig]]
+==== Configuration of DependencyConfig
+
+===== Properties
+
+[cols="1m,2d" width="100%", options="header"]
+|===
+|Property | Description
+
+|<<group, group>> | The group of a module.
+|<<module, module>> | The module name of a module.
+|<<version,version>> | The version of the module
+|<<dependency,dependency>> | Group, module name and version in one string.
+|<<transitive,transitive>> | This property is true, if the module should be resolved transitive.
+|===
+
+[[group]]
+[source,java]
+String group
+
+:::
+The group of a module.
+
+***
+[[module]]
+[source,java]
+String module
+
+:::
+The module name of a module.
+
+***
+[[version]]
+[source,java]
+String version
+
+:::
+The version of the module
+
+***
+[[dependency]]
+[source,java]
+String dependency
+
+:::
+Group, module name and version in one string, eg. `'group:module:version'`
+
+***
+[[transitive]]
+[source,java]
+boolean transitive
+
+:::
+This property is true, if the module should be resolved transitive.
 
 ***
 
