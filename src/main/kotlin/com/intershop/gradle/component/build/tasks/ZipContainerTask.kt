@@ -119,12 +119,8 @@ open class ZipContainerTask : Zip() {
     @Suppress("unused", "MagicNumber")
     fun action() {
         // default configuration for component zip
-        includeEmptyDirs = true
+        includeEmptyDirs = false
         duplicatesStrategy = DuplicatesStrategy.FAIL
-
-        // only three digits are configured (mask is 0000)
-        fileMode = 640
-        dirMode = 750
 
         // call super action ...
         copy()
