@@ -652,6 +652,12 @@ class ComponentPluginIntSpec extends AbstractIntegrationSpec {
                 }
             }
 
+            directories {
+                add("logs") {
+                    updatable = false
+                }   
+            }
+
             links {
                 add("log", "system/log") {
                        classifiers = [ "linux", "macos" ]

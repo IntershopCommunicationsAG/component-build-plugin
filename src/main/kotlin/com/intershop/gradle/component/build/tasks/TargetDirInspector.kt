@@ -86,7 +86,7 @@ class TargetDirInspector(val component: Component) {
             rv = root.addTarget(it.types, it.classifiers, it.name)
             when(rv.second) {
                 AddStatus.IDENTICAL -> errorMsg.append(getIdenticalMsg(rv, "link", it.name))
-                AddStatus.NOTSELFCONTAINED -> errorMsg.append(getSelfcontainedMsg(rv, "link", it.name))
+                AddStatus.NOTSELFCONTAINED -> logger.info(getSelfcontainedMsg(rv, "link", it.name))
                 else -> logger.debug("Link {} path {} was ok.", it.name, rv.first.getPath())
             }
         }
